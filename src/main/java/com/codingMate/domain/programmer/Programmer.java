@@ -6,6 +6,7 @@ import com.codingMate.domain.programmer.converter.PasswordEncodeConverter;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.domain.tip.Tip;
+import com.codingMate.dto.programmer.ProgrammerDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -82,6 +83,23 @@ public class Programmer {
         this.name = name;
         this.email = email;
         this.tip = tip;
+    }
+
+    public ProgrammerDto toDto(){
+        return new ProgrammerDto(
+                id,
+                loginId,
+                githubLink,
+                password,
+                name,
+                email,
+                tip,
+                answers,
+                comments,
+                recommendationTips,
+                recommendationAnswers,
+                recommendationComments
+        );
     }
 
 
