@@ -3,6 +3,7 @@ package com.codingMate.domain.answer;
 import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.comment.Comment;
 import com.codingMate.domain.programmer.Programmer;
+import com.codingMate.dto.answer.AnswerDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -39,4 +40,24 @@ public class Answer {
     @Enumerated(EnumType.STRING)
     @Column(name = "language_type")
     private LanguageType languageType;
+
+    public AnswerDto toDto(){
+        return new AnswerDto(
+                id,
+                answer,
+                explanation,
+                recommendation,
+                programmer,
+                comment,
+                languageType
+        );
+    }
+
+    public void addRecommend(){
+        this.recommendation++;
+    }
+
+    public void nonRecommend(){
+        this.recommendation--;
+    }
 }

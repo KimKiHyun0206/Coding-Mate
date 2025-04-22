@@ -1,5 +1,6 @@
 package com.codingMate.domain.tip;
 
+import com.codingMate.dto.tip.TipDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -23,6 +24,10 @@ public class Tip {
 
     public Tip(String content) {
         this.content = content;
+    }
+
+    public TipDto toDto(){
+        return new TipDto(id, content, recommendation);
     }
 
     public void addRecommendation() {

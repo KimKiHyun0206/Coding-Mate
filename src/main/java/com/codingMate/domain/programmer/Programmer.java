@@ -101,30 +101,4 @@ public class Programmer {
                 recommendationComments
         );
     }
-
-
-    //TODO 추가되거나 삭제되는 비즈니스 로직 실행 시 크기가 변하지 않으면 예외를 발생시키도록 해야한다
-    public void addRecommendationTip(Tip tip) {
-        recommendationTips.add(tip);
-    }
-
-    public void addRecommendationAnswer(Answer answer) {
-        recommendationAnswers.add(answer);
-    }
-
-    public void addRecommendationComment(Comment comment) {
-        recommendationComments.add(comment);
-    }
-
-    public void removeRecommendationTip(Tip tip) {
-        recommendationTips.remove(tip);
-    }
-
-    public void removeRecommendationAnswer(Answer answer) {
-        recommendationAnswers.remove(answer);
-    }
-
-    public void removeRecommendationComment(Comment comment) {
-        recommendationComments.remove(comment);
-    }
 }

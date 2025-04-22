@@ -2,6 +2,7 @@ package com.codingMate.domain.comment;
 
 import com.codingMate.domain.answer.Answer;
 import com.codingMate.domain.programmer.Programmer;
+import com.codingMate.dto.comment.CommentDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,8 +32,15 @@ public class Comment {
     @JoinColumn(name = "programmer_id", insertable = false, updatable = false)
     private Programmer programmer;
 
-    //@PostConstruct
-    private void setDefaultRecommendation(){
-        this.recommendation = 0;
+    public CommentDto toDto() {
+        return new CommentDto(id, comment, recommendation, answer, programmer);
+    }
+
+    public void addRecommend() {
+        this.recommendation++;
+    }
+
+    public void minusRecommend() {
+        this.recommendation--;
     }
 }
