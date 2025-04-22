@@ -12,10 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 //TODO follow 기능 추가 염두해둘 것
 @Entity
@@ -61,21 +58,21 @@ public class Programmer {
             joinColumns = @JoinColumn(name = "programmer_id"),
             inverseJoinColumns = @JoinColumn(name = "tip_id")
     )
-    private Set<Tip> recommendationTips = new HashSet<>();
+    private List<Tip> recommendationTips = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "PROGRAMMER_ANSWER",
             joinColumns = @JoinColumn(name = "programmer_id"),
             inverseJoinColumns = @JoinColumn(name = "answer_id")
     )
-    private Set<Answer> recommendationAnswers = new HashSet<>();
+    private List<Answer> recommendationAnswers = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "PROGRAMMER_COMMENT",
             joinColumns = @JoinColumn(name = "programmer_id"),
             inverseJoinColumns = @JoinColumn(name = "comment_id")
     )
-    private Set<Comment> recommendationComments = new HashSet<>();
+    private List<Comment> recommendationComments = new ArrayList<>();
 
     @Builder
     public Programmer(String loginId, String githubLink, String password, Name name, Email email, Tip tip) {
