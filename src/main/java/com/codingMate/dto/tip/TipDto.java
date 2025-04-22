@@ -1,6 +1,5 @@
 package com.codingMate.dto.tip;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -9,5 +8,5 @@ import lombok.Data;
 public class TipDto {
     private Long id;
     private String content;
-    private Long recommendation = 0L;
+    private Long recommendation;
 }

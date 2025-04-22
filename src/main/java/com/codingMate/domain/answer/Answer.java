@@ -47,8 +47,8 @@ public class Answer {
                 answer,
                 explanation,
                 recommendation,
-                programmer,
-                comment,
+                programmer.toDto(),
+                comment.stream().map(Comment::toDto).toList(),
                 languageType
         );
     }

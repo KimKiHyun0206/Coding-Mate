@@ -91,14 +91,14 @@ public class Programmer {
                 loginId,
                 githubLink,
                 password,
-                name,
-                email,
-                tip,
-                answers,
-                comments,
-                recommendationTips,
-                recommendationAnswers,
-                recommendationComments
+                name.getName(),
+                email.getEmail(),
+                tip.toDto(),
+                answers.stream().map(Answer::toDto).toList(),
+                comments.stream().map(Comment::toDto).toList(),
+                recommendationTips.stream().map(Tip::toDto).toList(),
+                recommendationAnswers.stream().map(Answer::toDto).toList(),
+                recommendationComments.stream().map(Comment::toDto).toList()
         );
     }
 }

@@ -33,7 +33,7 @@ public class Comment {
     private Programmer programmer;
 
     public CommentDto toDto() {
-        return new CommentDto(id, comment, recommendation, answer, programmer);
+        return new CommentDto(id, comment, recommendation, answer.toDto(), programmer.toDto());
     }
 
     public void recommend() {

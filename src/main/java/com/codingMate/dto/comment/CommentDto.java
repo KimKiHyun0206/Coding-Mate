@@ -1,7 +1,7 @@
 package com.codingMate.dto.comment;
 
-import com.codingMate.domain.answer.Answer;
-import com.codingMate.domain.programmer.Programmer;
+import com.codingMate.dto.answer.AnswerDto;
+import com.codingMate.dto.programmer.ProgrammerDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -11,6 +11,6 @@ public class CommentDto {
     private Long id;
     private String comment;
     private Integer recommendation;
-    private Answer answer;
-    private Programmer programmer;
+    private AnswerDto answer;
+    private ProgrammerDto programmer;
 }

@@ -5,6 +5,9 @@ import com.codingMate.domain.comment.Comment;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.domain.tip.Tip;
+import com.codingMate.dto.answer.AnswerDto;
+import com.codingMate.dto.comment.CommentDto;
+import com.codingMate.dto.tip.TipDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import java.util.List;
@@ -17,20 +20,20 @@ public class ProgrammerDto {
     private String password;
     private String name;
     private String email;
-    private Tip tip;
-    private List<Answer> answers;
-    private List<Comment> comments;
-    private List<Tip> recommendationTips;
-    private List<Answer> recommendationAnswers;
-    private List<Comment> recommendationComments;
+    private TipDto tip;
+    private List<AnswerDto> answers;
+    private List<CommentDto> comments;
+    private List<TipDto> recommendationTips;
+    private List<AnswerDto> recommendationAnswers;
+    private List<CommentDto> recommendationComments;
 
-    public ProgrammerDto(Long id, String loginId, String githubLink, String password, Name name, Email email, Tip tip, List<Answer> answers, List<Comment> comments, List<Tip> recommendationTips, List<Answer> recommendationAnswers, List<Comment> recommendationComments) {
+    public ProgrammerDto(Long id, String loginId, String githubLink, String password, String name, String email, TipDto tip, List<AnswerDto> answers, List<CommentDto> comments, List<TipDto> recommendationTips, List<AnswerDto> recommendationAnswers, List<CommentDto> recommendationComments) {
         this.id = id;
         this.loginId = loginId;
         this.githubLink = githubLink;
         this.password = password;
-        this.name = name.getName();
-        this.email = email.getEmail();
+        this.name = name;
+        this.email = email;
         this.tip = tip;
         this.answers = answers;
         this.comments = comments;
