@@ -68,7 +68,7 @@ public class ProgrammerService {
                 .set(programmer.loginId, dto.getLoginId() == null ? null : dto.getLoginId())
                 .set(programmer.email, dto.getEmail() == null ? null : new Email(dto.getEmail()))
                 .set(programmer.name, dto.getName() == null ? null : new Name(dto.getName()))
-                .set(programmer.password, dto.getPassword() == null ? null : new Password(dto.getPassword()))
+                .set(programmer.password, dto.getPassword() == null ? null : dto.getPassword())
                 .execute();
 
         log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.update({}) executed {}", dto.getId(), execute);
