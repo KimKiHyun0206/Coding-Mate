@@ -30,11 +30,11 @@ public class Tip {
         return new TipDto(id, content, recommendation);
     }
 
-    public void addRecommendation() {
+    public void recommend() {
         this.recommendation++;
     }
 
-    public void removeRecommendation() {
+    public void nonRecommend() {
         this.recommendation--;
     }
 

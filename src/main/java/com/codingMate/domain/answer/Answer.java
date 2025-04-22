@@ -53,7 +53,7 @@ public class Answer {
         );
     }
 
-    public void addRecommend(){
+    public void recommend(){
         this.recommendation++;
     }
 

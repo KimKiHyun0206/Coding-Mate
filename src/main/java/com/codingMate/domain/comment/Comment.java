@@ -36,11 +36,11 @@ public class Comment {
         return new CommentDto(id, comment, recommendation, answer, programmer);
     }
 
-    public void addRecommend() {
+    public void recommend() {
         this.recommendation++;
     }
 
-    public void minusRecommend() {
+    public void nonRecommend() {
         this.recommendation--;
     }
 }
