@@ -1,0 +1,27 @@
+package com.codingMate.dto.request.programmer;
+
+import com.codingMate.domain.programmer.Programmer;
+import com.codingMate.domain.programmer.vo.Email;
+import com.codingMate.domain.programmer.vo.Name;
+import com.codingMate.domain.tip.Tip;
+import lombok.Data;
+
+@Data
+public class ProgrammerCreateDto {
+    private String loginId;
+    private String githubLink;
+    private String password;
+    private String name;
+    private String email;
+
+    public Programmer toEntity(){
+        return Programmer.builder()
+                .loginId(loginId)
+                .githubLink(githubLink)
+                .password(password)
+                .name(new Name(name))
+                .email(new Email(email))
+                .tip(new Tip("팁이 있다면 공유해주세요"))
+                .build();
+    }
+}

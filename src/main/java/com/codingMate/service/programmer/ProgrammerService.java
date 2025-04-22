@@ -1,0 +1,93 @@
+package com.codingMate.service.programmer;
+
+import com.codingMate.domain.programmer.Programmer;
+import com.codingMate.domain.programmer.vo.Email;
+import com.codingMate.domain.programmer.vo.Name;
+import com.codingMate.domain.programmer.vo.Password;
+import com.codingMate.dto.request.programmer.ProgrammerCreateDto;
+import com.codingMate.dto.request.programmer.ProgrammerUpdateDto;
+import com.codingMate.dto.response.programmer.ProgrammerDto;
+import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
+import com.codingMate.repository.programmer.DefaultProgrammerRepository;
+import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import jakarta.persistence.EntityManager;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+
+import static com.codingMate.domain.programmer.QProgrammer.programmer;
+
+@Slf4j
+@Service
+public class ProgrammerService {
+    private final DefaultProgrammerRepository programmerRepository;
+    private final JPAQueryFactory queryFactory;
+    private final EntityManager em;
+
+    public ProgrammerService(EntityManager em, DefaultProgrammerRepository programmerRepository) {
+        this.em = em;
+        this.queryFactory = new JPAQueryFactory(em);
+        this.programmerRepository = programmerRepository;
+    }
+
+
+    @Transactional
+    public ProgrammerDto create(ProgrammerCreateDto dto) {
+        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.create({})", dto.getName());
+        return programmerRepository
+                .save(dto.toEntity())
+                .toDto();
+    }
+
+    @Transactional(readOnly = true)
+    public ProgrammerDto read(Long id) {
+        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.read({})", id);
+        return programmerRepository
+                .findById(id)
+                .orElseThrow(() -> new NotFoundProgrammerException(id))
+                .toDto();
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProgrammerDto> readAll() {
+        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.readAll()");
+        return programmerRepository
+                .findAll()
+                .stream()
+                .map(Programmer::toDto)
+                .toList();
+    }
+
+    @Transactional
+    public ProgrammerDto update(ProgrammerUpdateDto dto) {
+        long execute = queryFactory.update(programmer)
+                .where(dto.getId() == null ? null : programmer.id.eq(dto.getId()))
+                .set(programmer.loginId, dto.getLoginId() == null ? null : dto.getLoginId())
+                .set(programmer.email, dto.getEmail() == null ? null : new Email(dto.getEmail()))
+                .set(programmer.name, dto.getName() == null ? null : new Name(dto.getName()))
+                .set(programmer.password, dto.getPassword() == null ? null : new Password(dto.getPassword()))
+                .execute();
+
+        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.update({}) executed {}", dto.getId(), execute);
+
+        if(execute == 0) {
+            throw new NotFoundProgrammerException(dto.getId());
+        }
+        return queryFactory.selectFrom(programmer)
+                .where(dto.getId() == null ? null : programmer.id.eq(dto.getId()))
+                .fetchOne()
+                .toDto();
+    }
+
+    @Transactional
+    public boolean remove(Long id) {
+        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.remove({})",id);
+        if(programmerRepository.existsById(id)){
+            programmerRepository.deleteById(id);
+            return true;
+        }else throw new NotFoundProgrammerException(id);
+    }
+}

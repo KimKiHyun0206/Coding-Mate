@@ -6,12 +6,9 @@ import com.codingMate.domain.programmer.converter.PasswordEncodeConverter;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.domain.tip.Tip;
-import com.codingMate.dto.programmer.ProgrammerDto;
+import com.codingMate.dto.response.programmer.ProgrammerDto;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.*;
 
@@ -19,6 +16,7 @@ import java.util.*;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
+@Setter
 public class Programmer {
     @Id
     @GeneratedValue

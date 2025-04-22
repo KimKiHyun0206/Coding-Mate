@@ -1,14 +1,8 @@
-package com.codingMate.dto.programmer;
+package com.codingMate.dto.response.programmer;
 
-import com.codingMate.domain.answer.Answer;
-import com.codingMate.domain.comment.Comment;
-import com.codingMate.domain.programmer.vo.Email;
-import com.codingMate.domain.programmer.vo.Name;
-import com.codingMate.domain.tip.Tip;
-import com.codingMate.dto.answer.AnswerDto;
-import com.codingMate.dto.comment.CommentDto;
-import com.codingMate.dto.tip.TipDto;
-import lombok.AllArgsConstructor;
+import com.codingMate.dto.response.answer.AnswerDto;
+import com.codingMate.dto.response.comment.CommentDto;
+import com.codingMate.dto.response.tip.TipDto;
 import lombok.Data;
 import java.util.List;
 
