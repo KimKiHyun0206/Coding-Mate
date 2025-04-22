@@ -1,6 +1,6 @@
 package com.codingMate.domain.tip;
 
-import com.codingMate.dto.tip.TipDto;
+import com.codingMate.dto.response.tip.TipDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

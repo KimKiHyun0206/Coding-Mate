@@ -3,7 +3,7 @@ package com.codingMate.domain.answer;
 import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.comment.Comment;
 import com.codingMate.domain.programmer.Programmer;
-import com.codingMate.dto.answer.AnswerDto;
+import com.codingMate.dto.response.answer.AnswerDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

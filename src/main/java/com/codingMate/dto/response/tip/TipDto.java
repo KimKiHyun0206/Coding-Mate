@@ -1,4 +1,4 @@
-package com.codingMate.dto.tip;
+package com.codingMate.dto.response.tip;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

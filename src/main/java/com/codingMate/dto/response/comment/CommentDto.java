@@ -1,7 +1,7 @@
-package com.codingMate.dto.comment;
+package com.codingMate.dto.response.comment;
 
-import com.codingMate.dto.answer.AnswerDto;
-import com.codingMate.dto.programmer.ProgrammerDto;
+import com.codingMate.dto.response.answer.AnswerDto;
+import com.codingMate.dto.response.programmer.ProgrammerDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
