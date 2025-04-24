@@ -4,7 +4,6 @@ import lombok.Data;
 
 @Data
 public class ProgrammerUpdateDto {
-    private Long id;
     private String loginId;
     private String githubLink;
     private String password;

@@ -58,9 +58,9 @@ public class ProgrammerService {
     }
 
     @Transactional
-    public ProgrammerDto update(ProgrammerUpdateDto dto) {
+    public ProgrammerDto update(Long programmerId, ProgrammerUpdateDto dto) {
         long execute = queryFactory.update(programmer)
-                .where(dto.getId() == null ? null : programmer.id.eq(dto.getId()))
+                .where(programmer.id.eq(programmerId))
                 .set(programmer.loginId, dto.getLoginId() == null ? null : dto.getLoginId())
                 .set(programmer.email, dto.getEmail() == null ? null : new Email(dto.getEmail()))
                 .set(programmer.name, dto.getName() == null ? null : new Name(dto.getName()))

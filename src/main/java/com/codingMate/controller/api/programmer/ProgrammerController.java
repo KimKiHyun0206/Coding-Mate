@@ -46,10 +46,10 @@ public class ProgrammerController {
     @PatchMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") Long id, ProgrammerUpdateDto dto) {
         try {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(dto));
-        }catch (NotFoundProgrammerException notFoundProgrammerException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(id, dto));
+        } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
@@ -58,9 +58,9 @@ public class ProgrammerController {
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
         try {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(id));
-        }catch (NotFoundProgrammerException notFoundProgrammerException) {
+        } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
-        }catch (Exception e) {
+        } catch (Exception e) {
             return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
