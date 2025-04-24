@@ -67,12 +67,12 @@ public class ProgrammerService {
                 .set(programmer.password, dto.getPassword() == null ? null : dto.getPassword())
                 .execute();
 
-        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.update({}) executed {}", dto.getId(), execute);
+        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.update({}) executed {}", programmerId, execute);
 
         if(execute == 0) {
-            throw new NotFoundProgrammerException(dto.getId());
+            throw new NotFoundProgrammerException(programmerId);
         }
-        return read(dto.getId());
+        return read(programmerId);
     }
 
     @Transactional
