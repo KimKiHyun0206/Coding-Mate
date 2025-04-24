@@ -11,6 +11,7 @@ import com.codingMate.repository.answer.DefaultAnswerRepository;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,20 +22,13 @@ import static com.codingMate.domain.answer.QAnswer.answer;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class AnswerService {
     private final DefaultAnswerRepository answerRepository;
     private final DefaultProgrammerRepository programmerRepository;
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
     private final DefaultAnswerRepository defaultAnswerRepository;
-
-    public AnswerService(EntityManager em, DefaultAnswerRepository answerRepository, DefaultProgrammerRepository programmerRepository, DefaultAnswerRepository defaultAnswerRepository) {
-        this.em = em;
-        this.queryFactory = new JPAQueryFactory(em);
-        this.answerRepository = answerRepository;
-        this.programmerRepository = programmerRepository;
-        this.defaultAnswerRepository = defaultAnswerRepository;
-    }
 
     @Transactional
     public AnswerDto create(Long programmerId, AnswerCreateDto answerCreateDto) {

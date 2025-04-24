@@ -7,22 +7,17 @@ import com.codingMate.repository.programmer.DefaultProgrammerRepository;
 import com.codingMate.repository.tip.DefaultTipRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class TipService {
     private final DefaultProgrammerRepository programmerRepository;
     private final DefaultTipRepository tipRepository;
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
-
-    public TipService(EntityManager em, DefaultProgrammerRepository programmerRepository, DefaultTipRepository tipRepository) {
-        this.em = em;
-        this.queryFactory = new JPAQueryFactory(em);
-        this.programmerRepository = programmerRepository;
-        this.tipRepository = tipRepository;
-    }
 
     @Transactional(readOnly = true)
     public TipDto read(Long id) {

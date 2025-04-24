@@ -11,6 +11,7 @@ import com.codingMate.exception.exception.programmer.NotFoundProgrammerException
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,16 +22,11 @@ import static com.codingMate.domain.programmer.QProgrammer.programmer;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ProgrammerService {
     private final DefaultProgrammerRepository programmerRepository;
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
-
-    public ProgrammerService(EntityManager em, DefaultProgrammerRepository programmerRepository) {
-        this.em = em;
-        this.queryFactory = new JPAQueryFactory(em);
-        this.programmerRepository = programmerRepository;
-    }
 
 
     @Transactional

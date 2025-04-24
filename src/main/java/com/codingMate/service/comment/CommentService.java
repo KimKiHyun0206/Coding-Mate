@@ -14,6 +14,7 @@ import com.codingMate.repository.comment.DefaultCommentRepository;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,20 +25,13 @@ import static com.codingMate.domain.comment.QComment.comment;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CommentService {
     private final DefaultCommentRepository commentRepository;
     private final DefaultProgrammerRepository programmerRepository;
     private final DefaultAnswerRepository answerRepository;
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
-
-    public CommentService(EntityManager em, DefaultCommentRepository commentRepository, DefaultProgrammerRepository programmerRepository, DefaultAnswerRepository answerRepository) {
-        this.em = em;
-        this.queryFactory = new JPAQueryFactory(em);
-        this.commentRepository = commentRepository;
-        this.programmerRepository = programmerRepository;
-        this.answerRepository = answerRepository;
-    }
 
     @Transactional
     public CommentDto create(Long programmerId, CommentCreateDto dto) {
