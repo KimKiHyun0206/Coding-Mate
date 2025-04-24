@@ -49,21 +49,21 @@ public class Programmer {
     @OneToMany(mappedBy = "programmer")
     private List<Comment> comments = new LinkedList<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "PROGRAMMER_TIP",
             joinColumns = @JoinColumn(name = "programmer_id"),
             inverseJoinColumns = @JoinColumn(name = "tip_id")
     )
     private List<Tip> recommendationTips = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "PROGRAMMER_ANSWER",
             joinColumns = @JoinColumn(name = "programmer_id"),
             inverseJoinColumns = @JoinColumn(name = "answer_id")
     )
     private List<Answer> recommendationAnswers = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "PROGRAMMER_COMMENT",
             joinColumns = @JoinColumn(name = "programmer_id"),
             inverseJoinColumns = @JoinColumn(name = "comment_id")
