@@ -5,6 +5,6 @@ import com.codingMate.exception.dto.ErrorMessage;
 
 public class NotFoundAnswerException extends BusinessException {
     public NotFoundAnswerException(Long answerId) {
-        super(ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION, "asnwerId : " + answerId);
+        super(ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION, "answerId : " + answerId);
     }
 }

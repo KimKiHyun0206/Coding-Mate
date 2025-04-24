@@ -5,6 +5,6 @@ import com.codingMate.exception.dto.ErrorMessage;
 
 public class NotFoundProgrammerException extends BusinessException {
     public NotFoundProgrammerException(Long programmerId) {
-        super(ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION);
+        super(ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION, "programmerId : " + programmerId);
     }
 }

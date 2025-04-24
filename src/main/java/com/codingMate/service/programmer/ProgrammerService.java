@@ -3,13 +3,12 @@ package com.codingMate.service.programmer;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
-import com.codingMate.domain.programmer.vo.Password;
+import com.codingMate.domain.tip.Tip;
 import com.codingMate.dto.request.programmer.ProgrammerCreateDto;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateDto;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.extern.slf4j.Slf4j;
@@ -37,9 +36,10 @@ public class ProgrammerService {
     @Transactional
     public ProgrammerDto create(ProgrammerCreateDto dto) {
         log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.create({})", dto.getName());
-        return programmerRepository
-                .save(dto.toEntity())
-                .toDto();
+        Programmer entity = dto.toEntity();
+        Tip tip = new Tip("아무 내용이 없습니다. 나만의 팁이 있다면 공유해주세요");
+        entity.setTip(tip);
+        return programmerRepository.save(entity).toDto();
     }
 
     @Transactional(readOnly = true)
@@ -76,18 +76,18 @@ public class ProgrammerService {
         if(execute == 0) {
             throw new NotFoundProgrammerException(dto.getId());
         }
-        return queryFactory.selectFrom(programmer)
-                .where(dto.getId() == null ? null : programmer.id.eq(dto.getId()))
-                .fetchOne()
-                .toDto();
+        return read(dto.getId());
     }
 
     @Transactional
-    public boolean remove(Long id) {
+    public boolean delete(Long id) {
         log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.remove({})",id);
-        if(programmerRepository.existsById(id)){
-            programmerRepository.deleteById(id);
-            return true;
-        }else throw new NotFoundProgrammerException(id);
+        long executed = queryFactory.delete(programmer)
+                .where(programmer.id.eq(id))
+                .execute();
+        if(executed == 0) {
+            throw new NotFoundProgrammerException(id);
+        }
+        return true;
     }
 }

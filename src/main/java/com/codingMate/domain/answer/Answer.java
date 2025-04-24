@@ -5,10 +5,9 @@ import com.codingMate.domain.comment.Comment;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.response.answer.AnswerDto;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,33 +21,43 @@ public class Answer {
     private Long id;
 
     @Column(name = "answer")
-    private String answer;
+    private String code;
 
     @Column(name = "explanation")
     private String explanation;
 
     @Column(name = "recommendation")
-    private Integer recommendation;
-
-    @ManyToOne
-    @JoinColumn(name = "programmer_id", insertable = false, updatable = false)
-    private Programmer programmer;
-
-    @OneToMany(mappedBy = "answer")
-    private List<Comment> comment;
+    private Integer recommendation = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "language_type")
     private LanguageType languageType;
 
+    @Setter
+    @ManyToOne
+    @JoinColumn(name = "programmer_id", insertable = false, updatable = false)
+    private Programmer programmer;
+
+    @OneToMany(mappedBy = "answer")
+    private List<Comment> comments = new ArrayList<>();
+
+    @Builder
+    public Answer(String code, String explanation, Integer recommendation, LanguageType languageType, Programmer programmer) {
+        this.code = code;
+        this.explanation = explanation;
+        this.recommendation = recommendation;
+        this.languageType = languageType;
+        this.programmer = programmer;
+    }
+
     public AnswerDto toDto(){
         return new AnswerDto(
                 id,
-                answer,
+                code,
                 explanation,
                 recommendation,
                 programmer.toDto(),
-                comment.stream().map(Comment::toDto).toList(),
+                comments.stream().map(Comment::toDto).toList(),
                 languageType
         );
     }

@@ -21,6 +21,7 @@ public enum ErrorMessage {
 
     //ANSWER
     NOT_FOUND_ANSWER_EXCEPTION(HttpStatus.NOT_FOUND, "요청한 ANSWER 를 찾을 수 없습니다"),
+    ANSWER_AND_PROGRAMMER_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, "요청한 ANSWER는 요청한 PROGRAMMER의 ANSWER가 아닙니다"),
 
     //COMMENT
     NOT_FOUND_COMMENT_EXCEPTION(HttpStatus.NOT_FOUND, "요청한 COMMENT 를 찾을 수 없습니다"),
