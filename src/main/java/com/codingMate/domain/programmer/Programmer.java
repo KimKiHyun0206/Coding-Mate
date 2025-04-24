@@ -29,16 +29,13 @@ public class Programmer {
     @Column(name = "github_link")
     private String githubLink;
 
-    @Embedded
     @Column(name = "login_password")
     @Convert(converter = PasswordEncodeConverter.class)
     private String password;
 
-    @Embedded
     @Column(name = "name")
     private Name name;
 
-    @Embedded
     @Column(name = "email")
     private Email email;
 
