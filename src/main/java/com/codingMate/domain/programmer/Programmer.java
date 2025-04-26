@@ -43,12 +43,6 @@ public class Programmer {
     @JoinColumn(name = "tip_id")
     private Tip tip;
 
-    @OneToMany(mappedBy = "programmer")
-    private List<Answer> answers = new LinkedList<>();
-
-    @OneToMany(mappedBy = "programmer")
-    private List<Comment> comments = new LinkedList<>();
-
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "PROGRAMMER_TIP",
             joinColumns = @JoinColumn(name = "programmer_id"),
@@ -89,8 +83,6 @@ public class Programmer {
                 name.getName(),
                 email.getEmail(),
                 tip.toDto(),
-                answers.stream().map(Answer::toDto).toList(),
-                comments.stream().map(Comment::toDto).toList(),
                 recommendationTips.stream().map(Tip::toDto).toList(),
                 recommendationAnswers.stream().map(Answer::toDto).toList(),
                 recommendationComments.stream().map(Comment::toDto).toList()

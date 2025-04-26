@@ -34,6 +34,7 @@ public class ProgrammerService {
         log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.create({})", dto.getName());
         Programmer entity = dto.toEntity();
         Tip tip = new Tip("아무 내용이 없습니다. 나만의 팁이 있다면 공유해주세요");
+        em.persist(tip);
         entity.setTip(tip);
         return programmerRepository.save(entity).toDto();
     }

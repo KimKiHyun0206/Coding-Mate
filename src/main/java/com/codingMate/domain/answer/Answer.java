@@ -35,11 +35,9 @@ public class Answer {
 
     @Setter
     @ManyToOne
-    @JoinColumn(name = "programmer_id", insertable = false, updatable = false)
+    @JoinColumn(name = "programmer_id", updatable = false)
     private Programmer programmer;
 
-    @OneToMany(mappedBy = "answer")
-    private List<Comment> comments = new ArrayList<>();
 
     @Builder
     public Answer(String code, String explanation, Integer recommendation, LanguageType languageType, Programmer programmer) {
@@ -57,7 +55,6 @@ public class Answer {
                 explanation,
                 recommendation,
                 programmer.toDto(),
-                comments.stream().map(Comment::toDto).toList(),
                 languageType
         );
     }

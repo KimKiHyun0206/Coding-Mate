@@ -6,11 +6,12 @@ import com.codingMate.dto.request.programmer.ProgrammerCreateDto;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateDto;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.service.programmer.ProgrammerService;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/programmer")
 @RequiredArgsConstructor
@@ -18,13 +19,14 @@ public class ProgrammerController {
     private final ProgrammerService programmerService;
 
     @PostMapping
-    public ResponseEntity<?> create(@NotNull ProgrammerCreateDto dto) {
+    public ResponseEntity<?> create(@RequestBody ProgrammerCreateDto dto) {
+        log.info("create {}", dto.getLoginId());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.create(dto));
-
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> read(@PathVariable(name = "id") Long id) {
+        log.info("read {}", id);
         try {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.read(id));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
@@ -36,6 +38,7 @@ public class ProgrammerController {
 
     @GetMapping
     public ResponseEntity<?> readAll() {
+        log.info("readAll");
         try {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.readAll());
         } catch (Exception e) {
@@ -45,6 +48,7 @@ public class ProgrammerController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable(name = "id") Long id, ProgrammerUpdateDto dto) {
+        log.info("update {}", dto.getLoginId());
         try {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(id, dto));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
@@ -56,6 +60,7 @@ public class ProgrammerController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
+        log.info("delete {}", id);
         try {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(id));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {

@@ -15,13 +15,11 @@ public class ProgrammerDto {
     private String name;
     private String email;
     private TipDto tip;
-    private List<AnswerDto> answers;
-    private List<CommentDto> comments;
     private List<TipDto> recommendationTips;
     private List<AnswerDto> recommendationAnswers;
     private List<CommentDto> recommendationComments;
 
-    public ProgrammerDto(Long id, String loginId, String githubLink, String password, String name, String email, TipDto tip, List<AnswerDto> answers, List<CommentDto> comments, List<TipDto> recommendationTips, List<AnswerDto> recommendationAnswers, List<CommentDto> recommendationComments) {
+    public ProgrammerDto(Long id, String loginId, String githubLink, String password, String name, String email, TipDto tip, List<TipDto> recommendationTips, List<AnswerDto> recommendationAnswers, List<CommentDto> recommendationComments) {
         this.id = id;
         this.loginId = loginId;
         this.githubLink = githubLink;
@@ -29,8 +27,6 @@ public class ProgrammerDto {
         this.name = name;
         this.email = email;
         this.tip = tip;
-        this.answers = answers;
-        this.comments = comments;
         this.recommendationTips = recommendationTips;
         this.recommendationAnswers = recommendationAnswers;
         this.recommendationComments = recommendationComments;

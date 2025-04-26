@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+//전부 실행됨
 @RestController
 @RequestMapping("/api/v1/answer")
 @RequiredArgsConstructor

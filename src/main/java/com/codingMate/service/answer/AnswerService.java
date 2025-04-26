@@ -28,22 +28,15 @@ public class AnswerService {
     private final DefaultProgrammerRepository programmerRepository;
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
-    private final DefaultAnswerRepository defaultAnswerRepository;
 
     @Transactional
     public AnswerDto create(Long programmerId, AnswerCreateDto answerCreateDto) {
-        log.info("[SYSTEM] com.codingMate.service.answer.AnswerService.create({}, {})",programmerId, answerCreateDto.hashCode());
-        Programmer programmer = programmerRepository
-                .findById(programmerId)
-                .orElseThrow(() -> new NotFoundProgrammerException(programmerId));
+        log.info("create {} {}", programmerId, answerCreateDto.getCode());
+        Programmer programmer = em.getReference(Programmer.class, programmerId);
 
         Answer entity = answerCreateDto.toEntity();
         entity.setProgrammer(programmer);
-
-        Answer saved = answerRepository.save(entity);
-        programmer.getAnswers().add(entity);
-
-        return saved.toDto();
+        return answerRepository.save(entity).toDto();
     }
 
     @Transactional(readOnly = true)

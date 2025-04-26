@@ -35,23 +35,16 @@ public class CommentService {
 
     @Transactional
     public CommentDto create(Long programmerId, CommentCreateDto dto) {
-        Programmer programmer = programmerRepository
-                .findById(programmerId)
-                .orElseThrow(() -> new NotFoundProgrammerException(programmerId));
+        Programmer programmer = programmerRepository.getReferenceById(programmerId);
+        Answer answer = answerRepository.getReferenceById(dto.getAnswerId());
 
-        Answer answer = answerRepository
-                .findById(dto.getAnswerId())
-                .orElseThrow(() -> new NotFoundAnswerException(dto.getAnswerId()));
+        if(programmer == null) throw new NotFoundProgrammerException(programmerId);
+        else if (answer == null) throw new NotFoundAnswerException(dto.getAnswerId());
 
         Comment entity = dto.toEntity();
-        entity.setAnswer(answer);
         entity.setProgrammer(programmer);
-
-        Comment saved = commentRepository.save(entity);
-
-        programmer.getComments().add(entity);
-        answer.getComments().add(entity);
-        return saved.toDto();
+        entity.setAnswer(answer);
+        return commentRepository.save(entity).toDto();
     }
 
     @Transactional(readOnly = true)

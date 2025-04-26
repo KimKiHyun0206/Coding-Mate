@@ -16,6 +16,5 @@ public class AnswerDto {
     private String explanation;
     private Integer recommendation;
     private ProgrammerDto programmer;
-    private List<CommentDto> comment;
     private LanguageType languageType;
 }

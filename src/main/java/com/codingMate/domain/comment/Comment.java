@@ -24,12 +24,12 @@ public class Comment {
 
     @ManyToOne
     @Setter
-    @JoinColumn(name = "answer_id", insertable = false, updatable = false)
+    @JoinColumn(name = "answer_id", updatable = false)
     private Answer answer;
 
     @ManyToOne
     @Setter
-    @JoinColumn(name = "programmer_id", insertable = false, updatable = false)
+    @JoinColumn(name = "programmer_id", updatable = false)
     private Programmer programmer;
 
     @Builder
