@@ -42,6 +42,7 @@ public class TipService {
         return tip.toDto();
     }
 
+    //TODO 유저 인증이 필요하도록 설정해야함
     @Transactional
     public TipDto resetTip(Long id) {
         Tip tip = tipRepository.findById(id).orElseThrow(() -> new NotFoundTipException(id));

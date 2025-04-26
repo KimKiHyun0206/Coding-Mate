@@ -1,0 +1,82 @@
+package com.codingMate.controller.api.answer;
+
+import com.codingMate.common.response.ResponseDto;
+import com.codingMate.common.response.ResponseMessage;
+import com.codingMate.dto.request.answer.AnswerCreateDto;
+import com.codingMate.dto.request.answer.AnswerUpdateDto;
+import com.codingMate.dto.response.answer.AnswerDto;
+import com.codingMate.exception.exception.answer.NotFoundAnswerException;
+import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
+import com.codingMate.service.answer.AnswerService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/answer")
+@RequiredArgsConstructor
+public class AnswerController {
+    private final AnswerService answerService;
+
+    @PostMapping("/{programmerId}")
+    public ResponseEntity<?> create(@PathVariable(name = "programmerId") Long programmerId, AnswerCreateDto dto) {
+        try {
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(programmerId, dto));
+        } catch (NotFoundProgrammerException notFoundProgrammerException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
+        } catch (Exception e) {
+            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> read(@PathVariable(name = "id") Long id) {
+        try {
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.read(id));
+        } catch (NotFoundAnswerException notFoundAnswerException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
+        } catch (Exception e) {
+            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> readAll() {
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAll());
+    }
+
+    @GetMapping("/programmer/{id}")
+    public ResponseEntity<?> readByProgrammer(@PathVariable(name = "id") Long id) {
+        List<AnswerDto> answerDtos = answerService.readAllByProgrammerId(id);
+        if (answerDtos.size() == 0) {
+            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, answerService.read(id));
+        } else {
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerDtos);
+        }
+    }
+
+    @PatchMapping("/{programmerId}")
+    public ResponseEntity<?> update(@PathVariable(name = "programmerId") Long programmerId, AnswerUpdateDto dto) {
+        try {
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(programmerId, dto));
+        } catch (NotFoundAnswerException notFoundAnswerException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
+        } catch (Exception e) {
+            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> delete(@RequestParam Long programmerId, @RequestParam Long answerId) {
+        try {
+            answerService.delete(programmerId, answerId);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, null);
+        } catch (NotFoundProgrammerException notFoundProgrammerException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
+        } catch (Exception e) {
+            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
+        }
+    }
+}
