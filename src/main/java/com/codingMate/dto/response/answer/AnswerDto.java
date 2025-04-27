@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class AnswerDto {
     private Long id;
+    private Long backjoonId;
     private String answer;
     private String explanation;
     private Integer recommendation;

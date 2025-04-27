@@ -20,6 +20,9 @@ public class Answer {
     @Column(name = "answer_id")
     private Long id;
 
+    @Column(name = "backjoon_id")
+    private Long backJoonId;
+
     @Column(name = "answer")
     private String code;
 
@@ -35,12 +38,12 @@ public class Answer {
 
     @Setter
     @ManyToOne
-    @JoinColumn(name = "programmer_id", updatable = false)
+    @JoinColumn(name = "programmer_id")
     private Programmer programmer;
 
-
     @Builder
-    public Answer(String code, String explanation, Integer recommendation, LanguageType languageType, Programmer programmer) {
+    public Answer(Long backJoonId, String code, String explanation, Integer recommendation, LanguageType languageType, Programmer programmer) {
+        this.backJoonId = backJoonId;
         this.code = code;
         this.explanation = explanation;
         this.recommendation = recommendation;
@@ -51,6 +54,7 @@ public class Answer {
     public AnswerDto toDto(){
         return new AnswerDto(
                 id,
+                backJoonId,
                 code,
                 explanation,
                 recommendation,
