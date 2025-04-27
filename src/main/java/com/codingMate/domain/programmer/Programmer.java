@@ -39,6 +39,9 @@ public class Programmer {
     @Column(name = "email")
     private Email email;
 
+    @Column(name = "number_of_answer")
+    private Long numberOfAnswer = 0L;
+
     @OneToOne
     @JoinColumn(name = "tip_id")
     private Tip tip;
@@ -87,5 +90,13 @@ public class Programmer {
                 recommendationAnswers.stream().map(Answer::toDto).toList(),
                 recommendationComments.stream().map(Comment::toDto).toList()
         );
+    }
+
+
+    public void addAnswer(){
+        this.numberOfAnswer++;
+    }
+    public void removeAnswer(){
+        this.numberOfAnswer--;
     }
 }
