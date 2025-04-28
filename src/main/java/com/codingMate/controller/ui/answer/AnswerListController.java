@@ -1,6 +1,7 @@
 package com.codingMate.controller.ui.answer;
 
 import com.codingMate.dto.response.answer.AnswerDto;
+import com.codingMate.dto.response.answer.AnswerListDto;
 import com.codingMate.service.answer.AnswerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,8 +20,8 @@ public class AnswerListController {
 
     @RequestMapping("/list")
     public String list(Model model) {
-        List<AnswerDto> answerDtos = answerService.readAll();
-        model.addAttribute("answers", answerDtos);
-        return "auth/answer_list";
+        List<AnswerListDto> answerListDtos = answerService.readAnswerlist();
+        model.addAttribute("answers", answerListDtos);
+        return "answer/answer_list";
     }
 }

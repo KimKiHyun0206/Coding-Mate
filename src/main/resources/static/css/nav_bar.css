@@ -2,6 +2,7 @@ nav{
     font-size: 12pt;
     font-family: 'PT Sans', Arial, Sans-serif;
     position: relative;
+    padding-bottom: 50px;
 }
 nav ul{
     padding: 0;
@@ -63,5 +64,6 @@ li a:hover{
     background-position: center;
     background-size: cover;
     background-color: #333333;color: white;
-    position: absolute;z-index: 1;
+    z-index: 1;
+    margin-bottom: 50px;
 }

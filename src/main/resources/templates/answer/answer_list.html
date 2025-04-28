@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>코드 메이트 - 백준의 모든 답</title>
     <link th:rel="stylesheet" href="/css/nav_bar.css">
+    <link th:rel="stylesheet" href="/css/table.css">
 </head>
 <body>
 <div class="menu">
@@ -21,16 +22,16 @@
     <thead>
     <tr>
         <th scope="col">문제 번호</th>
-        <th scope="col">추천 수</th>
+        <th scope="col">작성자</th>
         <th scope="col">답안 보기</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="answer : ${answers}">
         <td><span th:text="${answer.getBackjoonId()}">백준 문제 번호</span></td>
-        <td><span th:text="${answer.getRecommendation()}">문제 추천 수</span></td>
+        <td><span th:text="${answer.getProgrammerName()}">작성자</span></td>
         <td>
-            <a th:href="@{'localhots:8080/answer/' + ${answer.getId()}}">
+            <a th:href="@{http://localhost:8080/answer/list/answer/{id}(id = ${answer.getAnswerId()})}">
                 <span>조회하기</span>
             </a>
         </td>

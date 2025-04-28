@@ -43,6 +43,11 @@ public class AnswerController {
         }
     }
 
+    @GetMapping("/page/{id}")
+    public ResponseEntity<?> readPage(@PathVariable(name = "id") Long id) {
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.answerPageLoadService(id));
+    }
+
     @GetMapping
     public ResponseEntity<?> readAll() {
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAll());

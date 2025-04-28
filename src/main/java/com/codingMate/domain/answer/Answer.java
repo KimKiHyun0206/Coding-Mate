@@ -1,14 +1,11 @@
 package com.codingMate.domain.answer;
 
 import com.codingMate.domain.answer.vo.LanguageType;
-import com.codingMate.domain.comment.Comment;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.response.answer.AnswerDto;
+import com.codingMate.dto.response.answer.AnswerWithCommentDto;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
@@ -29,9 +26,6 @@ public class Answer {
     @Column(name = "explanation")
     private String explanation;
 
-    @Column(name = "recommendation")
-    private Integer recommendation = 0;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "language_type")
     private LanguageType languageType;
@@ -42,11 +36,10 @@ public class Answer {
     private Programmer programmer;
 
     @Builder
-    public Answer(Long backJoonId, String code, String explanation, Integer recommendation, LanguageType languageType, Programmer programmer) {
+    public Answer(Long backJoonId, String code, String explanation, LanguageType languageType, Programmer programmer) {
         this.backJoonId = backJoonId;
         this.code = code;
         this.explanation = explanation;
-        this.recommendation = recommendation;
         this.languageType = languageType;
         this.programmer = programmer;
     }
@@ -57,17 +50,18 @@ public class Answer {
                 backJoonId,
                 code,
                 explanation,
-                recommendation,
                 programmer.toDto(),
                 languageType
         );
     }
 
-    public void recommend(){
-        this.recommendation++;
-    }
-
-    public void nonRecommend(){
-        this.recommendation--;
+    public AnswerWithCommentDto toWithCommentDto(){
+        return new AnswerWithCommentDto(
+                backJoonId,
+                code,
+                explanation,
+                programmer.toSimpleDto(),
+                languageType
+        );
     }
 }
