@@ -24,10 +24,11 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                        .requestMatchers("/**", "/swagger-ui.html", "/api/v1/**", "/api/v1/**/**").permitAll()
+                        //.requestMatchers("/**", "/swagger-ui.html", "/api/v1/**", "/api/v1/**/**").permitAll()
                         //.requestMatchers("/**", "/swagger-ui.html", "/api/v1/**", "/api/v1/**/**").authenticated()
-                        .requestMatchers(PathRequest.toH2Console()).permitAll()
-                        .anyRequest().authenticated()
+                        //.requestMatchers(PathRequest.toH2Console()).permitAll()
+                        .anyRequest().permitAll()
+                        //.anyRequest().authenticated()
                 )
 
                 // 세션을 사용하지 않기 때문에 STATELESS로 설정
