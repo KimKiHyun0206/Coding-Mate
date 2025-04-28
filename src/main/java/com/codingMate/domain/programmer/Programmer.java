@@ -1,16 +1,13 @@
 package com.codingMate.domain.programmer;
 
-import com.codingMate.domain.answer.Answer;
-import com.codingMate.domain.comment.Comment;
 import com.codingMate.domain.programmer.converter.PasswordEncodeConverter;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
-import com.codingMate.domain.tip.Tip;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
+import com.codingMate.dto.response.programmer.SimpleProgrammerDto;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.*;
 
 //TODO follow 기능 추가 염두해둘 것
 @Entity
@@ -42,40 +39,21 @@ public class Programmer {
     @Column(name = "number_of_answer")
     private Long numberOfAnswer = 0L;
 
-    @OneToOne
-    @JoinColumn(name = "tip_id")
-    private Tip tip;
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "PROGRAMMER_TIP",
-            joinColumns = @JoinColumn(name = "programmer_id"),
-            inverseJoinColumns = @JoinColumn(name = "tip_id")
-    )
-    private List<Tip> recommendationTips = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "PROGRAMMER_ANSWER",
-            joinColumns = @JoinColumn(name = "programmer_id"),
-            inverseJoinColumns = @JoinColumn(name = "answer_id")
-    )
-    private List<Answer> recommendationAnswers = new ArrayList<>();
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "PROGRAMMER_COMMENT",
-            joinColumns = @JoinColumn(name = "programmer_id"),
-            inverseJoinColumns = @JoinColumn(name = "comment_id")
-    )
-    private List<Comment> recommendationComments = new ArrayList<>();
+    @Column(name = "tip", length = 2000)
+    private String tip;
 
     @Builder
-    public Programmer(String loginId, String githubLink, String password, Name name, Email email, Tip tip) {
+    public Programmer(String loginId, String githubLink, String password, Name name, Email email, Long numberOfAnswer, String tip) {
         this.loginId = loginId;
         this.githubLink = githubLink;
         this.password = password;
         this.name = name;
         this.email = email;
+        this.numberOfAnswer = numberOfAnswer;
         this.tip = tip;
     }
+
+    @Builder
 
     public ProgrammerDto toDto(){
         return new ProgrammerDto(
@@ -85,11 +63,12 @@ public class Programmer {
                 password,
                 name.getName(),
                 email.getEmail(),
-                tip.toDto(),
-                recommendationTips.stream().map(Tip::toDto).toList(),
-                recommendationAnswers.stream().map(Answer::toDto).toList(),
-                recommendationComments.stream().map(Comment::toDto).toList()
+                tip
         );
+    }
+
+    public SimpleProgrammerDto toSimpleDto(){
+        return new SimpleProgrammerDto(id, name.getName());
     }
 
 

@@ -3,7 +3,6 @@ package com.codingMate.service.programmer;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
-import com.codingMate.domain.tip.Tip;
 import com.codingMate.dto.request.programmer.ProgrammerCreateDto;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateDto;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
@@ -31,17 +30,15 @@ public class ProgrammerService {
 
     @Transactional
     public ProgrammerDto create(ProgrammerCreateDto dto) {
-        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.create({})", dto.getName());
+        log.info("create({})", dto.getName());
         Programmer entity = dto.toEntity();
-        Tip tip = new Tip("아무 내용이 없습니다. 나만의 팁이 있다면 공유해주세요");
-        em.persist(tip);
-        entity.setTip(tip);
+
         return programmerRepository.save(entity).toDto();
     }
 
     @Transactional(readOnly = true)
     public ProgrammerDto read(Long id) {
-        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.read({})", id);
+        log.info("read({})", id);
         return programmerRepository
                 .findById(id)
                 .orElseThrow(() -> new NotFoundProgrammerException(id))
@@ -50,7 +47,7 @@ public class ProgrammerService {
 
     @Transactional(readOnly = true)
     public List<ProgrammerDto> readAll() {
-        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.readAll()");
+        log.info("readAll()");
         return programmerRepository
                 .findAll()
                 .stream()
@@ -68,7 +65,7 @@ public class ProgrammerService {
                 .set(programmer.password, dto.getPassword() == null ? null : dto.getPassword())
                 .execute();
 
-        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.update({}) executed {}", programmerId, execute);
+        log.info("update({}, {})", programmerId, execute);
 
         if(execute == 0) {
             throw new NotFoundProgrammerException(programmerId);
@@ -78,7 +75,7 @@ public class ProgrammerService {
 
     @Transactional
     public boolean delete(Long id) {
-        log.info("[SYSTEM] com.codingMate.service.programmer.ProgrammerService.remove({})",id);
+        log.info("remove({})",id);
         long executed = queryFactory.delete(programmer)
                 .where(programmer.id.eq(id))
                 .execute();
