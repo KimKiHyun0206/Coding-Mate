@@ -10,13 +10,14 @@ public class AnswerCreateDto {
     private String explanation;
     private Integer recommendation;
     private LanguageType languageType;
+    private Long backjoonId;
 
     public Answer toEntity(){
         return Answer.builder()
                 .code(code)
                 .explanation(explanation)
-                .recommendation(recommendation)
                 .languageType(languageType)
+                .backJoonId(backjoonId)
                 .build();
     }
 }
