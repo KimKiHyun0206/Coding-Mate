@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DefaultProgrammerRepository extends JpaRepository<Programmer, Long> {
+    Programmer findOneWithAuthoritiesByLoginId(String loginId);
+    boolean existsByLoginId(String loginId);
 }

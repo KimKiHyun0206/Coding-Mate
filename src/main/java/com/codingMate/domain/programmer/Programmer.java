@@ -1,12 +1,15 @@
 package com.codingMate.domain.programmer;
 
 import com.codingMate.domain.programmer.converter.PasswordEncodeConverter;
+import com.codingMate.domain.programmer.vo.Authority;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.dto.response.programmer.SimpleProgrammerDto;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Set;
 
 
 //TODO follow 기능 추가 염두해둘 것
@@ -20,7 +23,7 @@ public class Programmer {
     @Column(name = "programmer_id")
     private Long id;
 
-    @Column(name = "login_id")
+    @Column(name = "login_id", unique = true)
     private String loginId;
 
     @Column(name = "github_link")
@@ -42,8 +45,16 @@ public class Programmer {
     @Column(name = "tip", length = 2000)
     private String tip;
 
+    @ManyToMany
+    @JoinTable(
+            name = "programmer_authority",
+            joinColumns = {@JoinColumn(name = "programmer_id", referencedColumnName = "programmer_id")},
+            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")}
+    )
+    private Set<Authority> authorities;
+
     @Builder
-    public Programmer(String loginId, String githubLink, String password, Name name, Email email, Long numberOfAnswer, String tip) {
+    public Programmer(String loginId, String githubLink, String password, Name name, Email email, Long numberOfAnswer, String tip, Set<Authority> authorities) {
         this.loginId = loginId;
         this.githubLink = githubLink;
         this.password = password;
@@ -51,7 +62,9 @@ public class Programmer {
         this.email = email;
         this.numberOfAnswer = numberOfAnswer;
         this.tip = tip;
+        this.authorities = authorities;
     }
+
 
     public ProgrammerDto toDto(){
         return new ProgrammerDto(

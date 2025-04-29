@@ -1,13 +1,16 @@
 package com.codingMate.service.programmer;
 
 import com.codingMate.domain.programmer.Programmer;
+import com.codingMate.domain.programmer.vo.Authority;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.dto.request.programmer.ProgrammerCreateDto;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateDto;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
+import com.codingMate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.codingMate.domain.programmer.QProgrammer.programmer;
@@ -28,11 +32,21 @@ public class ProgrammerService {
     private final EntityManager em;
 
 
+    /**
+     * @implSpec loginId가 중복되는지 여부 확인 + Programmer 등록으로 쿼리가 두 번 나감
+     * */
     @Transactional
     public ProgrammerDto create(ProgrammerCreateDto dto) {
-        log.info("create({})", dto.getName());
-        Programmer entity = dto.toEntity();
+        if (programmerRepository.existsByLoginId(dto.getLoginId())) {
+            throw new DuplicateProgrammerLoginIdException();
+        }
 
+        Authority authority = Authority.builder()
+                .authorityName("ROLE_USER")
+                .build();
+
+        Programmer entity = dto.toEntity();
+        entity.setAuthorities(Collections.singleton(authority));
         return programmerRepository.save(entity).toDto();
     }
 
