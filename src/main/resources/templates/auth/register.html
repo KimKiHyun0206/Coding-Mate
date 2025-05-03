@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원가입</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f8f8f8; /* 밝은 회색 배경 */
+            display: flex;
+            flex-direction: column; /* navbar를 상단에 배치하기 위해 column으로 변경 */
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        nav {
+            background-color: #333; /* 어두운 회색 navbar 배경 */
+            color: #fff; /* 흰색 navbar 텍스트 */
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #bbb;
+        }
+
+        h1 {
+            color: #333; /* 어두운 회색 제목 */
+            text-align: center;
+            margin-top: 30px; /* navbar와의 간격 조절 */
+            margin-bottom: 20px;
+        }
+
+        form {
+            background-color: #fff; /* 흰색 폼 배경 */
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* 은은한 그림자 */
+            width: 400px;
+        }
+
+        div {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555; /* 중간 회색 라벨 */
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: calc(100% - 12px);
+            padding: 10px;
+            border: 1px solid #ddd; /* 옅은 회색 테두리 */
+            border-radius: 3px;
+            box-sizing: border-box;
+            font-size: 1em;
+            color: #333; /* 어두운 회색 텍스트 */
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #aaa; /* 포커스 시 약간 더 진한 회색 테두리 */
+            outline: none;
+        }
+
+        button[type="submit"] {
+            background-color: #666; /* 중간 회색 버튼 배경 */
+            color: #fff; /* 흰색 버튼 텍스트 */
+            padding: 12px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        button[type="submit"]:hover {
+            background-color: #444; /* 호버 시 약간 더 어두운 회색 */
+        }
+
+        div[id$="Error"] {
+            color: #888; /* 연한 회색 에러 메시지 */
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/">홈</a>
+    <a href="/login">로그인</a>
+    <a href="/register">회원가입</a>
+    <a href="/profile">프로필</a>
+</nav>
+
+<h1>회원가입</h1>
+<form action="/api/v1/auth/register" method="post">
+    <div>
+        <label for="name">이름:</label>
+        <input type="text" id="name" name="name" required>
+        <div id="nameError"></div>
+    </div>
+    <div>
+        <label for="loginId">아이디:</label>
+        <input type="text" id="loginId" name="loginId" required>
+        <div id="usernameError"></div>
+    </div>
+    <div>
+        <label for="githubLink">깃허브 아이디:</label>
+        <input type="text" id="githubLink" name="githubLink">
+        <div id="githubError"></div>
+    </div>
+    <div>
+        <label for="email">이메일:</label>
+        <input type="email" id="email" name="email" required>
+        <div id="emailError"></div>
+    </div>
+    <div>
+        <label for="password">비밀번호:</label>
+        <input type="password" id="password" name="password" required>
+        <div id="passwordError"></div>
+    </div>
+    <div>
+        <label for="confirm_password">비밀번호 확인:</label>
+        <input type="password" id="confirm_password" name="confirmPassword" required>
+        <div id="confirmPasswordError"></div>
+    </div>
+    <button type="submit">가입하기</button>
+</form>
+
+<script>
+    const form = document.getElementById('registrationForm');
+    const nameInput = document.getElementById('name');
+    const loginIdInput = document.getElementById('loginId');
+    const githubLinkInput = document.getElementById('githubLink');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+    const nameError = document.getElementById('nameError');
+    const usernameError = document.getElementById('usernameError');
+    const githubError = document.getElementById('githubError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+    const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // 기본 폼 제출 동작을 막습니다.
+        let isValid = true;
+
+        if (nameInput.value.trim() === '') {
+            nameError.textContent = '이름을 입력해주세요.';
+            isValid = false;
+        } else {
+            nameError.textContent = '';
+        }
+
+        if (loginIdInput.value.trim() === '') {
+            usernameError.textContent = '아이디를 입력해주세요.';
+            isValid = false;
+        } else {
+            usernameError.textContent = '';
+        }
+
+        if (emailInput.value.trim() === '') {
+            emailError.textContent = '이메일을 입력해주세요.';
+            isValid = false;
+        } else if (!isValidEmail(emailInput.value.trim())) {
+            emailError.textContent = '올바른 이메일 형식이 아닙니다.';
+            isValid = false;
+        } else {
+            emailError.textContent = '';
+        }
+
+        if (passwordInput.value.trim() === '') {
+            passwordError.textContent = '비밀번호를 입력해주세요.';
+            isValid = false;
+        } else if (passwordInput.value.length < 6) {
+            passwordError.textContent = '비밀번호는 최소 6자 이상이어야 합니다.';
+            isValid = false;
+        } else {
+            passwordError.textContent = '';
+        }
+
+        if (confirmPasswordInput.value.trim() === '') {
+            confirmPasswordError.textContent = '비밀번호 확인을 입력해주세요.';
+            isValid = false;
+        } else if (passwordInput.value !== confirmPasswordInput.value) {
+            confirmPasswordError.textContent = '비밀번호가 일치하지 않습니다.';
+            isValid = false;
+        } else {
+            confirmPasswordError.textContent = '';
+        }
+
+        if (isValid) {
+            const formData = new FormData(form);
+            fetch('/api/v1/auth/register', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '알 수 없는 오류'}`);
+                        });
+                    }
+                    // 응답 헤더에서 JWT 토큰을 추출합니다.
+                    const token = response.headers.get('coding-mate-auth');
+                    if (token && token.startsWith('Bearer ')) {
+                        localStorage.setItem('coding-mate-auth', token.substring(7)); // "Bearer " 접두사 제거 후 저장
+                        alert('회원가입 성공! 토큰이 localStorage에 저장되었습니다.');
+                        // 회원가입 성공 후 리다이렉트 또는 다른 동작 수행
+                        window.location.href = '/'; // 예: 홈페이지로 리다이렉트
+                    } else {
+                        alert('회원가입 성공했지만, 토큰을 받지 못했습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('회원가입 실패:', error);
+                    alert(`회원가입에 실패했습니다: ${error.message}`);
+                });
+        }
+    });
+
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+</script>
+</body>
+</html>
