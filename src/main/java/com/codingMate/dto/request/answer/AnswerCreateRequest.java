@@ -5,7 +5,7 @@ import com.codingMate.domain.answer.vo.LanguageType;
 import lombok.Data;
 
 @Data
-public class AnswerCreateDto {
+public class AnswerCreateRequest {
     private String code;
     private String title;
     private String explanation;

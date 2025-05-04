@@ -4,7 +4,7 @@ import com.codingMate.domain.answer.vo.LanguageType;
 import lombok.Data;
 
 @Data
-public class AnswerUpdateDto {
+public class AnswerUpdateRequest {
     private Long backjoonId;
     private String code;
     private String title;

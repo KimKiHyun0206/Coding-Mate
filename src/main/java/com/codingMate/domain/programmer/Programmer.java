@@ -4,7 +4,7 @@ import com.codingMate.domain.programmer.converter.PasswordEncodeConverter;
 import com.codingMate.domain.programmer.vo.Authority;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
-import com.codingMate.dto.request.programmer.MyPateDto;
+import com.codingMate.dto.response.programmer.MyPageResponse;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.dto.response.programmer.SimpleProgrammerDto;
 import jakarta.persistence.*;
@@ -83,8 +83,8 @@ public class Programmer {
         return new SimpleProgrammerDto(id, name.getName());
     }
 
-    public MyPateDto toMyPateDto(){
-        return MyPateDto.builder()
+    public MyPageResponse toMyPateDto(){
+        return MyPageResponse.builder()
                 .email(email.getEmail())
                 .githubId(githubId)
                 .name(name.getName())

@@ -3,12 +3,12 @@ package com.codingMate.service.answer;
 import com.codingMate.domain.answer.Answer;
 import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
-import com.codingMate.dto.request.answer.AnswerCreateDto;
-import com.codingMate.dto.request.answer.AnswerUpdateDto;
+import com.codingMate.dto.request.answer.AnswerCreateRequest;
+import com.codingMate.dto.request.answer.AnswerUpdateRequest;
 import com.codingMate.dto.response.answer.AnswerCreateResponse;
-import com.codingMate.dto.response.answer.AnswerDto;
-import com.codingMate.dto.response.answer.AnswerListDto;
-import com.codingMate.dto.response.answer.QAnswerListDto;
+import com.codingMate.dto.response.answer.AnswerListResponse;
+import com.codingMate.dto.response.answer.AnswerResponse;
+import com.codingMate.dto.response.answer.QAnswerListResponse;
 import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
 import com.codingMate.exception.exception.answer.NotFoundAnswerException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
@@ -36,19 +36,19 @@ public class AnswerService {
     private final EntityManager em;
 
     @Transactional
-    public AnswerCreateResponse create(Long programmerId, AnswerCreateDto answerCreateDto) {
-        log.info("create({}, {})", programmerId, answerCreateDto.getCode());
+    public AnswerCreateResponse create(Long programmerId, AnswerCreateRequest answerCreateRequest) {
+        log.info("create({}, {})", programmerId, answerCreateRequest.getCode());
         Programmer programmer = programmerRepository.findById(programmerId).orElseThrow(() -> new NotFoundProgrammerException(programmerId));
         programmer.addAnswer();
 
-        Answer entity = answerCreateDto.toEntity();
+        Answer entity = answerCreateRequest.toEntity();
         entity.setProgrammer(programmer);
         Answer saved = answerRepository.save(entity);
         return new AnswerCreateResponse(saved.getId());
     }
 
     @Transactional(readOnly = true)
-    public AnswerDto read(Long answerId) {
+    public AnswerResponse read(Long answerId) {
         log.info("read({})", answerId);
         return answerRepository
                 .findById(answerId)
@@ -57,9 +57,9 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerListDto> readAll(LanguageType languageType, Long backjoonId) {
+    public List<AnswerListResponse> readAll(LanguageType languageType, Long backjoonId) {
         log.info("readAll()");
-        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
+        return queryFactory.select(new QAnswerListResponse(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
                 .from(answer)
                 .where(languageType != null ? answer.languageType.eq(languageType) : null)
                 .where(backjoonId != null ? answer.backJoonId.eq(backjoonId) : null)
@@ -68,7 +68,7 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerDto> readAllByProgrammerId(Long programmerId) {
+    public List<AnswerResponse> readAllByProgrammerId(Long programmerId) {
         return answerRepository.readAnswersByProgrammerId(programmerId)
                 .stream()
                 .map(Answer::toDto)
@@ -82,7 +82,7 @@ public class AnswerService {
     }
 
     @Transactional
-    public AnswerDto update(Long programmerId, Long answerId, AnswerUpdateDto dto) {
+    public AnswerResponse update(Long programmerId, Long answerId, AnswerUpdateRequest dto) {
         long executed = queryFactory.update(answer)
                 .where(answer.id.eq(answerId))
                 .where(answer.programmer.id.eq(programmerId))

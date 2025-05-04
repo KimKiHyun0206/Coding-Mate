@@ -1,7 +1,7 @@
 package com.codingMate;
 
 import com.codingMate.domain.answer.Answer;
-import com.codingMate.dto.response.answer.AnswerListDto;
+import com.codingMate.dto.response.answer.AnswerListResponse;
 import com.codingMate.dto.response.answer.QAnswerListDto;
 import com.codingMate.repository.answer.DefaultAnswerRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -56,7 +56,7 @@ class AnswerReadTest {
 
     @Test
     void read() {
-        List<AnswerListDto> list = queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.programmer.name.name))
+        List<AnswerListResponse> list = queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.programmer.name.name))
                 .from(answer)
                 .join(answer.programmer)
                 .fetch()

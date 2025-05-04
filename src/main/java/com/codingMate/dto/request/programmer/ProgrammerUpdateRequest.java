@@ -3,7 +3,7 @@ package com.codingMate.dto.request.programmer;
 import lombok.Data;
 
 @Data
-public class ProgrammerUpdateDto {
+public class ProgrammerUpdateRequest {
     private String loginId;
     private String githubLink;
     private String password;

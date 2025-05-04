@@ -1,4 +1,4 @@
-package com.codingMate.dto.request.programmer;
+package com.codingMate.dto.response.programmer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder
-public class MyPateDto {
+public class MyPageResponse {
     public String githubId;
     public String name;
     public String email;

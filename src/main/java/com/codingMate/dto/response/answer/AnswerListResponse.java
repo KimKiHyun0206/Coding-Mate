@@ -1,12 +1,11 @@
 package com.codingMate.dto.response.answer;
 
 import com.codingMate.domain.answer.vo.LanguageType;
-import com.codingMate.dto.response.programmer.SimpleProgrammerDto;
 import com.querydsl.core.annotations.QueryProjection;
 import lombok.Data;
 
 @Data
-public class AnswerListDto {
+public class AnswerListResponse {
     private Long answerId;
     private Long backjoonId;
     private String title;
@@ -14,7 +13,7 @@ public class AnswerListDto {
     private LanguageType language;
 
     @QueryProjection
-    public AnswerListDto(Long answerId, Long backjoonId, String title, String programmerName, LanguageType language) {
+    public AnswerListResponse(Long answerId, Long backjoonId, String title, String programmerName, LanguageType language) {
         this.answerId = answerId;
         this.backjoonId = backjoonId;
         this.title = title;

@@ -4,13 +4,12 @@ import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.domain.programmer.vo.Authority;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
-import com.codingMate.dto.request.programmer.ProgrammerCreateDto;
-import com.codingMate.dto.request.programmer.ProgrammerUpdateDto;
+import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
+import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +35,7 @@ public class ProgrammerService {
      * @implSpec loginId가 중복되는지 여부 확인 + Programmer 등록으로 쿼리가 두 번 나감
      * */
     @Transactional
-    public ProgrammerDto create(ProgrammerCreateDto dto) {
+    public ProgrammerDto create(ProgrammerCreateRequest dto) {
         if (programmerRepository.existsByLoginId(dto.getLoginId())) {
             throw new DuplicateProgrammerLoginIdException();
         }
@@ -79,7 +78,7 @@ public class ProgrammerService {
     }
 
     @Transactional
-    public ProgrammerDto update(Long programmerId, ProgrammerUpdateDto dto) {
+    public ProgrammerDto update(Long programmerId, ProgrammerUpdateRequest dto) {
         long execute = queryFactory.update(programmer)
                 .where(programmer.id.eq(programmerId))
                 .set(programmer.loginId, dto.getLoginId() == null ? null : dto.getLoginId())

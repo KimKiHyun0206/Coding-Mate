@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 @Builder
-public class AnswerDto {
+public class AnswerResponse {
     private Long id;
     private Long backjoonId;
     private String title;

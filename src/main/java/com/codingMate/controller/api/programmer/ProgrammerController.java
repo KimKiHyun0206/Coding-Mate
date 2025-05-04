@@ -2,9 +2,9 @@ package com.codingMate.controller.api.programmer;
 
 import com.codingMate.common.response.ResponseDto;
 import com.codingMate.common.response.ResponseMessage;
-import com.codingMate.dto.request.programmer.MyPateDto;
-import com.codingMate.dto.request.programmer.ProgrammerCreateDto;
-import com.codingMate.dto.request.programmer.ProgrammerUpdateDto;
+import com.codingMate.dto.response.programmer.MyPageResponse;
+import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
+import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.service.programmer.MyPageService;
 import com.codingMate.service.programmer.ProgrammerService;
@@ -24,7 +24,7 @@ public class ProgrammerController {
     private final MyPageService myPageService;
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody ProgrammerCreateDto dto) {
+    public ResponseEntity<?> create(@RequestBody ProgrammerCreateRequest dto) {
         log.info("create {}", dto.getLoginId());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.create(dto));
     }
@@ -32,9 +32,9 @@ public class ProgrammerController {
     @GetMapping("/my-page")
     public ResponseEntity<?> myPage(HttpServletRequest request) {
         Long usernameFromToken = JwtUtil.getIdFromToken(request);
-        MyPateDto myPateDto = myPageService.myPage(usernameFromToken);
-        log.info("myPage {}", myPateDto.toString());
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPateDto);
+        MyPageResponse myPageResponse = myPageService.myPage(usernameFromToken);
+        log.info("myPage {}", myPageResponse.toString());
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPageResponse);
     }
 
     @GetMapping("/{id}")
@@ -60,7 +60,7 @@ public class ProgrammerController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable(name = "id") Long id, ProgrammerUpdateDto dto) {
+    public ResponseEntity<?> update(@PathVariable(name = "id") Long id, ProgrammerUpdateRequest dto) {
         log.info("update {}", dto.getLoginId());
         try {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(id, dto));

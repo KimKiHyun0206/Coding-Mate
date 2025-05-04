@@ -1,7 +1,7 @@
 package com.codingMate.service.programmer;
 
 import com.codingMate.domain.programmer.Programmer;
-import com.codingMate.dto.request.programmer.MyPateDto;
+import com.codingMate.dto.response.programmer.MyPageResponse;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ public class MyPageService {
     private final JPAQueryFactory queryFactory;
 
     @Transactional(readOnly = true)
-    public MyPateDto myPage(Long id) {
+    public MyPageResponse myPage(Long id) {
         Programmer result = queryFactory.selectFrom(programmer)
                 .where(programmer.id.eq(id))
                 .fetchOne();

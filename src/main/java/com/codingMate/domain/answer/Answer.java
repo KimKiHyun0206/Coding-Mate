@@ -2,7 +2,7 @@ package com.codingMate.domain.answer;
 
 import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
-import com.codingMate.dto.response.answer.AnswerDto;
+import com.codingMate.dto.response.answer.AnswerResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -47,8 +47,8 @@ public class Answer {
         this.programmer = programmer;
     }
 
-    public AnswerDto toDto(){
-        return AnswerDto.builder()
+    public AnswerResponse toDto(){
+        return AnswerResponse.builder()
                 .id(this.id)
                 .title(this.title)
                 .code(this.code)

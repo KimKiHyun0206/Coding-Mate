@@ -6,7 +6,7 @@ import com.codingMate.domain.programmer.vo.Name;
 import lombok.Data;
 
 @Data
-public class ProgrammerCreateDto {
+public class ProgrammerCreateRequest {
     private String loginId;
     private String githubId;
     private String password;

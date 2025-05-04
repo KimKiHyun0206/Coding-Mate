@@ -7,7 +7,7 @@ import lombok.Getter;
 @Data
 @Getter
 @AllArgsConstructor
-public class LoginDto {
+public class LoginRequest {
     private String loginId;
     private String password;
 }
