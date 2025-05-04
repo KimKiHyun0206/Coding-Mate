@@ -48,13 +48,14 @@ public class Answer {
     }
 
     public AnswerDto toDto(){
-        return new AnswerDto(
-                id,
-                backJoonId,
-                code,
-                explanation,
-                programmer.toDto(),
-                languageType
-        );
+        return AnswerDto.builder()
+                .id(this.id)
+                .title(this.title)
+                .code(this.code)
+                .explanation(this.explanation)
+                .languageType(this.languageType)
+                .backjoonId(this.backJoonId)
+                .programmer(this.programmer.toDto())
+                .build();
     }
 }

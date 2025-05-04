@@ -26,4 +26,9 @@ public class AnswerUIController {
     public String write(){
         return "answer/write";
     }
+
+    @RequestMapping("/edit/{answerId}")
+    public String edit(){
+        return "answer/edit";
+    }
 }

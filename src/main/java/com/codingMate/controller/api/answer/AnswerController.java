@@ -43,7 +43,6 @@ public class AnswerController {
     public ResponseEntity<?> read(@PathVariable(name = "id") Long id) {
         try {
             AnswerDto readResult = answerService.read(id);
-            readResult.setId(null);
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, readResult);
         } catch (NotFoundAnswerException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
@@ -53,12 +52,12 @@ public class AnswerController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> readAll(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId",required = false) Long backjoonId) {
+    public ResponseEntity<?> readAll(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId) {
         log.info("readAll()");
-        if(language != null){
+        if (language != null) {
             log.info("language {}", language);
         }
-        if(backjoonId != null){
+        if (backjoonId != null) {
             log.info("backjoonId {}", backjoonId);
         }
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAll(language, backjoonId));
@@ -74,11 +73,12 @@ public class AnswerController {
         }
     }
 
-    @PatchMapping("/{programmerId}")
-    public ResponseEntity<?> update(HttpServletRequest request, AnswerUpdateDto dto) {
+    @PatchMapping("/{answerId}")
+    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody AnswerUpdateDto dto, @PathVariable(name = "answerId") Long answerId) {
+        log.info(dto.toString());
         Long idFromToken = JwtUtil.getIdFromToken(request);
         try {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, dto));
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, dto));
         } catch (NotFoundAnswerException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
         } catch (Exception e) {

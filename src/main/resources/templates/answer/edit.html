@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>풀이 수정</title>
+    <style>
+        /* 이전 스타일 유지 */
+        body {
+            font-family: sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        nav {
+            background-color: #333;
+            color: #fff;
+            width: 100%;
+            padding: 15px 0;
+            text-align: center;
+        }
+
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-weight: bold;
+        }
+
+        nav a:hover {
+            color: #bbb;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 700px;
+            margin-top: 30px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .form-group input[type="number"],
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+        }
+
+        .form-group select {
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url('data:image/svg+xml;charset=UTF-8,<svg fill="%23333" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 1em;
+            padding-right: 30px;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .buttons button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .buttons .cancel-button {
+            background-color: #6c757d;
+        }
+
+        .buttons .cancel-button:hover {
+            background-color: #545b62;
+        }
+
+        .error-message {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <a href="/">홈</a>
+    <a href="/answer/list">풀이 목록</a>
+    <a href="/login">로그인</a>
+    <a href="/my-page">프로필</a>
+</nav>
+
+<div class="container">
+    <h1>풀이 수정</h1>
+
+    <form id="updateAnswerForm">
+        <div class="form-group">
+            <label for="backjoonId">백준 ID</label>
+            <input type="number" id="backjoonId" name="backjoonId" required>
+        </div>
+
+        <div class="form-group">
+            <label for="title">제목</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+
+        <div class="form-group">
+            <label for="languageType">언어</label>
+            <select id="languageType" name="languageType" required>
+                <option value="">선택하세요</option>
+                <option value="JAVA">Java</option>
+                <option value="C">C</option>
+                <option value="CPP">C++</option>
+                <option value="PYTHON">Python</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="code">코드</label>
+            <textarea id="code" name="code" rows="10" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="explanation">설명</label>
+            <textarea id="explanation" name="explanation" rows="5"></textarea>
+        </div>
+
+        <div class="buttons">
+            <button type="submit">수정</button>
+            <button type="button" class="cancel-button" onclick="window.history.back()">취소</button>
+        </div>
+
+        <p id="errorMessage" class="error-message" style="display: none;"></p>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const answerId = getAnswerIdFromUrl();
+        console.log('answerId:', answerId); // ID 확인 로그 추가
+        if (answerId) {
+            fetchAnswerDetails(answerId);
+        } else {
+            document.getElementById('errorMessage').textContent = '수정할 풀이 ID가 없습니다.';
+            document.getElementById('errorMessage').style.display = 'block';
+        }
+
+        document.getElementById('updateAnswerForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            updateAnswer(answerId);
+        });
+    });
+
+    function getAnswerIdFromUrl() {
+        const pathSegments = window.location.pathname.split('/');
+        if (pathSegments.length >= 4 && pathSegments[1] === 'answer' && pathSegments[2] === 'edit') {
+            const answerId = pathSegments[pathSegments.length - 1];
+            console.log('extracted answerId from path:', answerId);
+            return answerId;
+        }
+        console.log('answerId not found in path');
+        return null;
+    }
+
+    function fetchAnswerDetails(answerId) {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        console.log('authToken:', authToken); // 토큰 확인 로그 추가
+
+        fetch(`/api/v1/answer/${answerId}`, {
+            method: 'GET',
+            headers: {
+                'Coding-Mate-Auth': authToken
+            }
+        })
+            .then(response => {
+                console.log('fetch response:', response); // 응답 확인 로그 추가
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        console.error('fetch error data:', errorData); // 에러 데이터 확인 로그 추가
+                        throw new Error(`풀이 정보를 불러오는 데 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                console.log('fetch responseData:', responseData); // 응답 데이터 확인 로그 추가
+                const answer = responseData.data;
+                populateForm(answer);
+            })
+            .catch(error => {
+                console.error('fetch error:', error); // 전체 에러 확인 로그 추가
+                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+            });
+    }
+
+    function populateForm(answer) {
+        document.getElementById('backjoonId').value = answer.backjoonId;
+        document.getElementById('title').value = answer.title;
+        document.getElementById('code').value = answer.code;
+        document.getElementById('explanation').value = answer.explanation || '';
+        document.getElementById('languageType').value = answer.languageType;
+        console.log('Form populated:', answer); // 폼 채워짐 확인 로그 추가
+    }
+
+    function updateAnswer(answerId) {
+        console.log('updateAnswer 함수 호출됨', answerId); // 호출 확인 로그
+
+        const formData = {
+            backjoonId: document.getElementById('backjoonId').value ? parseInt(document.getElementById('backjoonId').value, 10) : null,
+            code: document.getElementById('code').value || null,
+            title: document.getElementById('title').value || null,
+            explanation: document.getElementById('explanation').value || null,
+            languageType: document.getElementById('languageType').value || null
+        };
+
+        console.log('formData before stringify:', formData); // 폼 데이터 확인 로그
+
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        console.log('authToken for update:', authToken); // 토큰 확인 로그
+
+        fetch(`/api/v1/answer/${answerId}`, {
+            method: 'PATCH', // 요청 메서드를 PATCH로 변경
+            headers: {
+                'Content-Type': 'application/json',
+                'Coding-Mate-Auth': authToken
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => {
+                console.log('update response:', response); // 응답 확인 로그
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        console.error('update error data:', errorData); // 에러 데이터 확인 로그
+                        throw new Error(`풀이 수정에 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                console.log('update responseData:', responseData); // 응답 데이터 확인 로그
+                alert('풀이가 성공적으로 수정되었습니다.');
+                window.location.href = `/answer/${answerId}`;
+            })
+            .catch(error => {
+                console.error('풀이 수정 에러:', error);
+                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+            });
+    }
+</script>
+</body>
+</html>

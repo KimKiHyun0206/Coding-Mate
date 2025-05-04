@@ -66,31 +66,6 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerListDto> readByBackjoonId(Long backJoonId) {
-        log.info("readByBackjoonId({})", backJoonId);
-        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
-                .from(answer)
-                .where(answer.backJoonId.eq(backJoonId))
-                .join(answer.programmer)
-                .fetch();
-    }
-
-    /**
-     * @apiNote 문제 리스트 페이지에서 간단하게 백준 번호와 작성자만 확인할 수 있도록 해주는 서비스
-     * @implSpec join문을 사용하여 쿼리가 한 번만 나가게 함
-     * @implNote QDto 객체에 fetchJoin을 사용하면 조회가 안 되니 향후 구현에 주의할 것
-     * */
-    @Transactional(readOnly = true)
-    public List<AnswerListDto> readAnswerlist() {
-        log.info("readAnswerlist()");
-        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
-                .from(answer)
-                .join(answer.programmer)
-                .fetch()
-                .stream().toList();
-    }
-
-    @Transactional(readOnly = true)
     public List<AnswerDto> readAllByProgrammerId(Long programmerId) {
         return answerRepository.readAnswersByProgrammerId(programmerId)
                 .stream()
@@ -105,18 +80,18 @@ public class AnswerService {
     }
 
     @Transactional
-    public AnswerDto update(Long programmerId, AnswerUpdateDto dto) {
+    public AnswerDto update(Long programmerId, Long answerId, AnswerUpdateDto dto) {
         long executed = queryFactory.update(answer)
-                .where(answer.id.eq(dto.getId()))
+                .where(answer.id.eq(answerId))
                 .where(answer.programmer.id.eq(programmerId))
                 .set(answer.code, dto.getCode() == null ? null : dto.getCode())
                 .set(answer.languageType, dto.getLanguageType() == null ? null : dto.getLanguageType())
                 .set(answer.explanation, dto.getExplanation() == null ? null : dto.getExplanation())
                 .set(answer.title, dto.getTitle() == null ? null : dto.getTitle())
                 .execute();
-        if (executed == 0) throw new NotFoundAnswerException(dto.getId());
+        if (executed == 0) throw new NotFoundAnswerException(answerId);
 
-        return read(dto.getId());
+        return read(answerId);
     }
 
     @Transactional

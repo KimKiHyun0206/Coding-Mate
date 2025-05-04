@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class AnswerUpdateDto {
-    private Long id;
+    private Long backjoonId;
     private String code;
     private String title;
     private String explanation;
