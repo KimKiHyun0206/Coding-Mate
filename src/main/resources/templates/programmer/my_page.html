@@ -94,6 +94,25 @@
       font-weight: bold;
       color: #007bff;
     }
+
+    .edit-button-container {
+      margin-top: 20px;
+      text-align: right;
+    }
+
+    .edit-button {
+      padding: 10px 15px;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .edit-button:hover {
+      background-color: gray;
+    }
   </style>
 </head>
 <body>
@@ -123,6 +142,10 @@
 
   <div class="tip-section" id="tipSection" style="display: none;">
     <strong>나만의 팁:</strong> <span id="tip"></span>
+  </div>
+
+  <div class="edit-button-container">
+    <button class="edit-button" onclick="goToEditPage()">수정</button>
   </div>
 </div>
 
@@ -171,6 +194,10 @@
               alert(`마이페이지 정보를 불러오는 데 실패했습니다: ${error.message}`);
             });
   });
+
+  function goToEditPage() {
+    window.location.href = '/my-page/edit'; // 수정 페이지 URL로 이동
+  }
 </script>
 </body>
 </html>

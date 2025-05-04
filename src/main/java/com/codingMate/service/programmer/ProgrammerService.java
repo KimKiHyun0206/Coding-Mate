@@ -7,6 +7,7 @@ import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
+import com.codingMate.exception.exception.jwt.UnMatchedAuthException;
 import com.codingMate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 import static com.codingMate.domain.programmer.QProgrammer.programmer;
 
@@ -79,29 +81,24 @@ public class ProgrammerService {
 
     @Transactional
     public ProgrammerDto update(Long programmerId, ProgrammerUpdateRequest dto) {
-        long execute = queryFactory.update(programmer)
-                .where(programmer.id.eq(programmerId))
-                .set(programmer.loginId, dto.getLoginId() == null ? null : dto.getLoginId())
-                .set(programmer.email, dto.getEmail() == null ? null : new Email(dto.getEmail()))
-                .set(programmer.name, dto.getName() == null ? null : new Name(dto.getName()))
-                .set(programmer.password, dto.getPassword() == null ? null : dto.getPassword())
-                .execute();
-
-        log.info("update({}, {})", programmerId, execute);
-
-        if(execute == 0) {
-            throw new NotFoundProgrammerException(programmerId);
+        Programmer findById = programmerRepository.findById(programmerId).orElseThrow(() -> new NotFoundProgrammerException(programmerId));
+        if (!Objects.equals(findById.getId(), programmerId)) {
+            throw new UnMatchedAuthException("수정될 사용자 정보와 요청한 사용자의 정보가 일치하지 않습니다");
         }
-        return read(programmerId);
+        findById.setName(dto.getName() == null ? findById.getName() : new Name(dto.getName()));
+        findById.setEmail(dto.getEmail() == null ? findById.getEmail() : new Email(dto.getEmail()));
+        findById.setTip(dto.getTip() == null ? findById.getTip() : dto.getTip());
+        findById.setGithubId(dto.getGithubId() == null ? findById.getGithubId() : dto.getGithubId());
+        return findById.toDto();
     }
 
     @Transactional
     public boolean delete(Long id) {
-        log.info("remove({})",id);
+        log.info("remove({})", id);
         long executed = queryFactory.delete(programmer)
                 .where(programmer.id.eq(id))
                 .execute();
-        if(executed == 0) {
+        if (executed == 0) {
             throw new NotFoundProgrammerException(id);
         }
         return true;

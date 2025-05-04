@@ -5,6 +5,7 @@ import com.codingMate.common.response.ResponseMessage;
 import com.codingMate.dto.response.programmer.MyPageResponse;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
+import com.codingMate.exception.exception.jwt.UnMatchedAuthException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.service.programmer.MyPageService;
 import com.codingMate.service.programmer.ProgrammerService;
@@ -37,9 +38,9 @@ public class ProgrammerController {
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPageResponse);
     }
 
-    @GetMapping("/{id}")
+    /*@GetMapping("/{id}")
     public ResponseEntity<?> read(@PathVariable(name = "id") Long id) {
-        log.info("read {}", id);
+        log.info("read ({})", id);
         try {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.read(id));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
@@ -47,11 +48,11 @@ public class ProgrammerController {
         } catch (Exception e) {
             return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
         }
-    }
+    }*/
 
     @GetMapping
     public ResponseEntity<?> readAll() {
-        log.info("readAll");
+        log.info("readAll()");
         try {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.readAll());
         } catch (Exception e) {
@@ -59,11 +60,14 @@ public class ProgrammerController {
         }
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable(name = "id") Long id, ProgrammerUpdateRequest dto) {
-        log.info("update {}", dto.getLoginId());
+    @PatchMapping
+    public ResponseEntity<?> update(HttpServletRequest request,@RequestBody  ProgrammerUpdateRequest dto) {
         try {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(id, dto));
+            Long idFromToken = JwtUtil.getIdFromToken(request);
+            log.info("update({}, {})", idFromToken, dto.toString());
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(idFromToken, dto));
+        } catch (UnMatchedAuthException unMatchedAuthException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, unMatchedAuthException.getMessage());
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {
@@ -71,11 +75,12 @@ public class ProgrammerController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(name = "id") Long id) {
-        log.info("delete {}", id);
+    @DeleteMapping
+    public ResponseEntity<?> delete(HttpServletRequest request) {
         try {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(id));
+            Long idFromToken = JwtUtil.getIdFromToken(request);
+            log.info("delete({})", idFromToken);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(idFromToken));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {

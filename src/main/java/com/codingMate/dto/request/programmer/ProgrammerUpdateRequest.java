@@ -4,9 +4,8 @@ import lombok.Data;
 
 @Data
 public class ProgrammerUpdateRequest {
-    private String loginId;
-    private String githubLink;
-    private String password;
+    private String githubId;
     private String name;
     private String email;
+    private String tip;
 }

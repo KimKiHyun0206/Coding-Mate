@@ -16,4 +16,9 @@ public class MyPageController {
     public String myPage() {
         return "programmer/my_page";
     }
+
+    @RequestMapping("/my-page/edit")
+    public String myPageEdit() {
+        return "programmer/my_page_edit";
+    }
 }
