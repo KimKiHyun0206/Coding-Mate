@@ -43,12 +43,46 @@
             width: 80%;
             max-width: 800px;
             margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 검색창 중앙 정렬 */
         }
 
         h1 {
             color: #333;
             text-align: center;
             margin-bottom: 20px;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 400px;
+            justify-content: center; /* 검색창 내부 요소 중앙 정렬 */
+        }
+
+        .search-container input[type="number"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 1em;
+        }
+
+        .search-container button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .search-container button:hover {
+            background-color: gray;
+            color: #fff;
         }
 
         table {
@@ -92,6 +126,12 @@
             background-color: #333;
             color: #fff;
         }
+
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
     </style>
 </head>
 <body>
@@ -104,6 +144,10 @@
 
 <div class="container">
     <h1>풀이 목록</h1>
+    <div class="search-container">
+        <input type="number" id="searchBackjoonId" placeholder="백준 ID로 검색">
+        <button onclick="searchAnswers()">검색</button>
+    </div>
     <table>
         <thead>
         <tr>
@@ -115,59 +159,75 @@
         <tbody id="answerListBody">
         </tbody>
     </table>
+    <p id="noAnswers" class="no-results" style="display: none;">등록된 풀이가 없습니다.</p>
 </div>
 
 <button class="write-answer-button" onclick="location.href='/answer/write'">답변 작성</button>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // 서버에서 답변 목록 데이터를 가져오는 함수
-        function fetchAnswerList() {
-            fetch('/api/v1/answer/all') // 실제 API 엔드포인트로 변경해야 합니다.
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(responseData => { // 응답 데이터를 responseData로 받음
-                    const answerList = responseData.data; // 실제 데이터 배열에 접근
-                    displayAnswerList(answerList);
-                })
-                .catch(error => {
-                    console.error('풀이 목록을 불러오는 데 실패했습니다:', error);
-                    alert('풀이 목록을 불러오는 데 실패했습니다.');
-                });
-        }
-
-        // 받아온 답변 목록 데이터를 테이블에 표시하는 함수
-        function displayAnswerList(answerList) {
-            const answerListBody = document.getElementById('answerListBody');
-            answerListBody.innerHTML = ''; // 기존 테이블 내용 초기화
-
-            if (answerList && Array.isArray(answerList)) {
-                answerList.forEach(answer => {
-                    const row = answerListBody.insertRow();
-                    const backjoonIdCell = row.insertCell();
-                    const titleCell = row.insertCell();
-                    const programmerNameCell = row.insertCell();
-
-                    backjoonIdCell.textContent = answer.backjoonId;
-                    titleCell.textContent = answer.title;
-                    programmerNameCell.textContent = answer.programmerName;
-                });
-            } else {
-                const row = answerListBody.insertRow();
-                const noDataCell = row.insertCell();
-                noDataCell.colSpan = 3;
-                noDataCell.textContent = '등록된 풀이가 없습니다.';
-                noDataCell.style.textAlign = 'center';
-            }
-        }
-
-        // 페이지 로드 시 답변 목록을 불러옵니다.
         fetchAnswerList();
     });
+
+    function fetchAnswerList(searchId) {
+        let url = '/api/v1/answer/all';
+        if (searchId) {
+            url += `/${searchId}`;
+        }
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                const answerList = responseData.data;
+                displayAnswerList(answerList);
+            })
+            .catch(error => {
+                console.error('풀이 목록을 불러오는 데 실패했습니다:', error);
+                alert('풀이 목록을 불러오는 데 실패했습니다.');
+            });
+    }
+
+    // 받아온 답변 목록 데이터를 테이블에 표시하는 함수
+    function displayAnswerList(answerList) {
+        const answerListBody = document.getElementById('answerListBody');
+        const noAnswersElement = document.getElementById('noAnswers');
+        answerListBody.innerHTML = ''; // 기존 테이블 내용 초기화
+        noAnswersElement.style.display = 'none';
+
+        if (answerList && Array.isArray(answerList) && answerList.length > 0) {
+            answerList.forEach(answer => {
+                const row = answerListBody.insertRow();
+                const backjoonIdCell = row.insertCell();
+                const titleCell = row.insertCell();
+                const programmerNameCell = row.insertCell();
+
+                backjoonIdCell.textContent = answer.backjoonId;
+                titleCell.textContent = answer.title;
+                programmerNameCell.textContent = answer.programmerName;
+            });
+        } else {
+            const row = answerListBody.insertRow();
+            const noDataCell = row.insertCell();
+            noDataCell.colSpan = 3;
+            noDataCell.textContent = '등록된 풀이가 없습니다.';
+            noDataCell.style.textAlign = 'center';
+            noAnswersElement.style.display = 'block';
+        }
+    }
+
+    function searchAnswers() {
+        const searchBackjoonIdInput = document.getElementById('searchBackjoonId');
+        const searchId = searchBackjoonIdInput.value.trim();
+        fetchAnswerList(searchId);
+    }
+
+    // 페이지 로드 시 답변 목록을 불러옵니다.
+    fetchAnswerList();
 </script>
 </body>
 </html>
