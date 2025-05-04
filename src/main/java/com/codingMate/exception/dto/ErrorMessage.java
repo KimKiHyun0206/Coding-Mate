@@ -23,26 +23,12 @@ public enum ErrorMessage {
     NOT_FOUND_ANSWER_EXCEPTION(HttpStatus.NOT_FOUND, "요청한 ANSWER 를 찾을 수 없습니다"),
     ANSWER_AND_PROGRAMMER_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, "요청한 ANSWER는 요청한 PROGRAMMER의 ANSWER가 아닙니다"),
 
-    //COMMENT
-    NOT_FOUND_COMMENT_EXCEPTION(HttpStatus.NOT_FOUND, "요청한 COMMENT 를 찾을 수 없습니다"),
-
-    //TIP
-    NOT_FOUND_TIP_EXCEPTION(HttpStatus.NOT_FOUND, "요청한 TIP 을 찾을 수 없습니다"),
-
-    //RECOMMEND
-    PROGRAMMER_NOT_RECOMMEND_ANSWER(HttpStatus.NOT_FOUND, "해당 PROGRAMMER 는 요청한 ANSWER 를 추천하지 않았습니다"),
-    PROGRAMMER_NOT_RECOMMEND_COMMENT(HttpStatus.NOT_FOUND, "해당 PROGRAMMER 는 요청한 COMMENT 를 추천하지 않았습니다"),
-    PROGRAMMER_NOT_RECOMMEND_TIP(HttpStatus.NOT_FOUND, "해당 PROGRAMMER 는 요청한 TIP 를 추천하지 않았습니다"),
-
     //JWT
-    INVALID_JWT(HttpStatus.UNAUTHORIZED,"유효하지 않은 JWT 토큰입니다"),
-
+    INVALID_JWT(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다"),
+    NO_TOKEN_IN_HEADER(HttpStatus.UNAUTHORIZED, "헤더에 토큰이 없습니다"),
 
     //Redis
-    REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"Redis Server에서 오류가 발생했습니다"),
-
-
-    ;
+    REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Server에서 오류가 발생했습니다");
 
 
     private final HttpStatus status;
@@ -61,4 +47,4 @@ public enum ErrorMessage {
         return message;
     }
 
-    }
+}

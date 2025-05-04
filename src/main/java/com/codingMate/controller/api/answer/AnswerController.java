@@ -7,7 +7,9 @@ import com.codingMate.dto.request.answer.AnswerCreateDto;
 import com.codingMate.dto.request.answer.AnswerUpdateDto;
 import com.codingMate.dto.response.answer.AnswerDto;
 import com.codingMate.dto.response.answer.AnswerListDto;
+import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
 import com.codingMate.exception.exception.answer.NotFoundAnswerException;
+import com.codingMate.exception.exception.jwt.NoTokenInHeaderException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.service.answer.AnswerService;
 import com.codingMate.util.JwtUtil;
@@ -75,12 +77,15 @@ public class AnswerController {
 
     @PatchMapping("/{answerId}")
     public ResponseEntity<?> update(HttpServletRequest request, @RequestBody AnswerUpdateDto dto, @PathVariable(name = "answerId") Long answerId) {
-        log.info(dto.toString());
-        Long idFromToken = JwtUtil.getIdFromToken(request);
         try {
+            log.info(dto.toString());
+            Long idFromToken = JwtUtil.getIdFromToken(request);
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, dto));
-        } catch (NotFoundAnswerException notFoundAnswerException) {
+        } catch (AnswerAndProgrammerDoNotMatchException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
+
+        } catch (NoTokenInHeaderException noTokenInHeaderException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, noTokenInHeaderException.getMessage());
         } catch (Exception e) {
             return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
         }

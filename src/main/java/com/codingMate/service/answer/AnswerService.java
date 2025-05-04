@@ -89,7 +89,9 @@ public class AnswerService {
                 .set(answer.explanation, dto.getExplanation() == null ? null : dto.getExplanation())
                 .set(answer.title, dto.getTitle() == null ? null : dto.getTitle())
                 .execute();
-        if (executed == 0) throw new NotFoundAnswerException(answerId);
+        if (executed == 0) {
+            throw new AnswerAndProgrammerDoNotMatchException("해당 풀이를 수정할 권한을 가지고 있지 않습니다");
+        }
 
         return read(answerId);
     }

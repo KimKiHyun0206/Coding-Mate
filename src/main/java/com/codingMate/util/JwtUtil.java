@@ -1,5 +1,6 @@
 package com.codingMate.util;
 
+import com.codingMate.exception.exception.jwt.NoTokenInHeaderException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,7 +21,8 @@ public class JwtUtil {
 
 
     public static Long getIdFromToken(HttpServletRequest request) {
-        return getUsernameFromToken(request.getHeader(header));
+        String token = request.getHeader(header);
+        return getUsernameFromToken(token);
     }
 
     /**

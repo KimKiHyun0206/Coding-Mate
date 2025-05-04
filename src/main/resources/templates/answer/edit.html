@@ -273,7 +273,7 @@
                 if (!response.ok) {
                     return response.json().then(errorData => {
                         console.error('update error data:', errorData); // 에러 데이터 확인 로그
-                        throw new Error(`풀이 수정에 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
+                        throw new Error(`풀이 수정에 실패했습니다: ${errorData.data || '알 수 없는 오류'}`);
                     });
                 }
                 return response.json();
