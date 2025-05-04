@@ -9,8 +9,8 @@ import org.springframework.stereotype.Component;
 @Getter
 public class HeaderTokenUtil {
 
-    @Value("${jwt.header}")
-    private static String header;
+
+    private static String header = "Coding-Mate-Auth";
 
     public static String getTokenFromHeader(HttpServletRequest request) {
         return request.getHeader(header);

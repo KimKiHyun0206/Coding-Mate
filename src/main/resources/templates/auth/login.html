@@ -180,9 +180,9 @@
                             throw new Error(`로그인 실패: ${errorData.message || '아이디 또는 비밀번호를 확인해주세요.'}`);
                         });
                     }
-                    const token = response.headers.get('coding-mate-auth');
+                    const token = response.headers.get('Coding-Mate-Auth');
                     if (token && token.startsWith('Bearer ')) {
-                        localStorage.setItem('coding-mate-auth', token.substring(7));
+                        localStorage.setItem('Coding-Mate-Auth', token.substring(7));
                         alert('로그인 성공! 토큰이 localStorage에 저장되었습니다.');
                         window.location.href = '/'; // 로그인 성공 후 메인 페이지로
                     } else {

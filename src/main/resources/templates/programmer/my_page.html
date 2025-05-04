@@ -1,22 +1,176 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>코드 메이트 - 백준의 모든 답</title>
-  <link th:rel="stylesheet" href="/css/nav_bar.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마이페이지</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      margin: 0;
+    }
+
+    nav {
+      background-color: #333;
+      color: #fff;
+      width: 100%;
+      padding: 15px 0;
+      text-align: center;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 15px;
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #bbb;
+    }
+
+    .container {
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      width: 80%;
+      max-width: 800px;
+      margin: 30px auto;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .profile-info div {
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      font-size: 1.1em;
+    }
+
+    .profile-info div:last-child {
+      border-bottom: none;
+    }
+
+    .profile-info strong {
+      display: inline-block;
+      width: 150px;
+      color: #555;
+      font-weight: bold;
+    }
+
+    .profile-info span, .profile-info a {
+      color: #333;
+    }
+
+    .profile-info a {
+      text-decoration: none;
+    }
+
+    .profile-info a:hover {
+      text-decoration: underline;
+      color: #007bff;
+    }
+
+    .tip-section {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f0f8ff;
+      border: 1px solid #add8e6;
+      border-radius: 5px;
+      color: #333;
+      font-size: 1em;
+    }
+
+    .tip-section strong {
+      font-weight: bold;
+      color: #007bff;
+    }
+  </style>
 </head>
 <body>
-<div class="menu" >
-  <nav class="clearfix">
-    <ul class="clearfix">
-      <li><a href="http://localhost:8080">Home</a></li> <!--""<-여기 부분에 URL 작성하면 됨-->
-      <li><a href="http://localhost:8080">Answer List</a></li>
-      <li><a href="http://localhost:8080">Ranking</a></li>
-      <li><a href="http://localhost:8080">Notice</a></li>
-      <li><a href="http://localhost:8080/my-page" class="needAuth">MyPage</a></li>
-    </ul>
-  </nav>
+<nav>
+  <a href="/">홈</a>
+  <a href="/login">로그인</a>
+  <a href="/register">회원가입</a>
+  <a href="/profile">프로필</a>
+</nav>
+
+<div class="container">
+  <h1>마이페이지</h1>
+  <div class="profile-info">
+    <div>
+      <strong>이름:</strong> <span id="name"></span>
+    </div>
+    <div>
+      <strong>GitHub:</strong> <a id="githubLink" href="" target="_blank"></a>
+    </div>
+    <div>
+      <strong>이메일:</strong> <span id="email"></span>
+    </div>
+    <div>
+      <strong>답변 수:</strong> <span id="numberOfAnswer"></span>
+    </div>
+  </div>
+
+  <div class="tip-section" id="tipSection" style="display: none;">
+    <strong>나만의 팁:</strong> <span id="tip"></span>
+  </div>
 </div>
-<script th:src="@{js/put_token_in_header.js}"></script>
+
+<script>
+  function fetchDataWithAuth(url, options = {}) {
+    const token = localStorage.getItem('Coding-Mate-Auth');
+    const headers = new Headers(options.headers);
+    if (token) {
+      headers.append('Coding-Mate-Auth', `${token}`);
+    }
+    const newOptions = { ...options, headers: headers };
+    return fetch(url, newOptions);
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    fetchDataWithAuth('/api/v1/programmer/my-page') // 실제 API 엔드포인트로 변경해야 합니다.
+            .then(response => {
+              if (!response.ok) {
+                return response.json().then(errorData => {
+                  throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '알 수 없는 오류'}`);
+                });
+              }
+              return response.json();
+            })
+            .then(responseData => {
+              console.log('받아온 데이터:', responseData);
+              const data = responseData.data;
+              console.log(data);
+
+              document.getElementById('name').textContent = data.name || '정보 없음';
+              const githubLinkElement = document.getElementById('githubLink');
+              githubLinkElement.href = 'https://github.com/' + data.githubId || '#';
+              githubLinkElement.textContent = data.githubId || '없음';
+              document.getElementById('email').textContent = data.email || '정보 없음';
+              document.getElementById('numberOfAnswer').textContent = data.numberOfAnswer !== null ? data.numberOfAnswer : '0';
+
+              if (data.tip) {
+                document.getElementById('tip').textContent = data.tip;
+                document.getElementById('tipSection').style.display = 'block';
+              } else {
+                document.getElementById('tipSection').style.display = 'none';
+              }
+            })
+            .catch(error => {
+              console.error('마이페이지 정보 로딩 실패:', error);
+              alert(`마이페이지 정보를 불러오는 데 실패했습니다: ${error.message}`);
+            });
+  });
+</script>
 </body>
 </html>

@@ -8,7 +8,7 @@ import lombok.Data;
 @Data
 public class ProgrammerCreateDto {
     private String loginId;
-    private String githubLink;
+    private String githubId;
     private String password;
     private String name;
     private String email;
@@ -16,11 +16,12 @@ public class ProgrammerCreateDto {
     public Programmer toEntity(){
         return Programmer.builder()
                 .loginId(loginId)
-                .githubLink(githubLink)
+                .githubId(githubId)
                 .password(password)
                 .name(new Name(name))
                 .email(new Email(email))
                 .tip("팁이 있다면 공유해주세요")
+                .numberOfAnswer(0L)
                 .build();
     }
 }

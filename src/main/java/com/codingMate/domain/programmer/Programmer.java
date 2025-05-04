@@ -4,6 +4,7 @@ import com.codingMate.domain.programmer.converter.PasswordEncodeConverter;
 import com.codingMate.domain.programmer.vo.Authority;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
+import com.codingMate.dto.request.programmer.MyPateDto;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.dto.response.programmer.SimpleProgrammerDto;
 import jakarta.persistence.*;
@@ -26,8 +27,8 @@ public class Programmer {
     @Column(name = "login_id", unique = true)
     private String loginId;
 
-    @Column(name = "github_link")
-    private String githubLink;
+    @Column(name = "github_id")
+    private String githubId;
 
     @Column(name = "login_password")
     @Convert(converter = PasswordEncodeConverter.class)
@@ -54,9 +55,9 @@ public class Programmer {
     private Set<Authority> authorities;
 
     @Builder
-    public Programmer(String loginId, String githubLink, String password, Name name, Email email, Long numberOfAnswer, String tip, Set<Authority> authorities) {
+    public Programmer(String loginId, String githubId, String password, Name name, Email email, Long numberOfAnswer, String tip, Set<Authority> authorities) {
         this.loginId = loginId;
-        this.githubLink = githubLink;
+        this.githubId = githubId;
         this.password = password;
         this.name = name;
         this.email = email;
@@ -70,7 +71,7 @@ public class Programmer {
         return new ProgrammerDto(
                 id,
                 loginId,
-                githubLink,
+                githubId,
                 password,
                 name.getName(),
                 email.getEmail(),
@@ -80,6 +81,16 @@ public class Programmer {
 
     public SimpleProgrammerDto toSimpleDto(){
         return new SimpleProgrammerDto(id, name.getName());
+    }
+
+    public MyPateDto toMyPateDto(){
+        return MyPateDto.builder()
+                .email(email.getEmail())
+                .githubId(githubId)
+                .name(name.getName())
+                .numberOfAnswer(numberOfAnswer)
+                .tip(tip)
+                .build();
     }
 
 
