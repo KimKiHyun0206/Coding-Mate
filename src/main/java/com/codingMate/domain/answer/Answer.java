@@ -3,7 +3,6 @@ package com.codingMate.domain.answer;
 import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.response.answer.AnswerDto;
-import com.codingMate.dto.response.answer.AnswerWithCommentDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -55,16 +54,6 @@ public class Answer {
                 code,
                 explanation,
                 programmer.toDto(),
-                languageType
-        );
-    }
-
-    public AnswerWithCommentDto toWithCommentDto(){
-        return new AnswerWithCommentDto(
-                backJoonId,
-                code,
-                explanation,
-                programmer.toSimpleDto(),
                 languageType
         );
     }

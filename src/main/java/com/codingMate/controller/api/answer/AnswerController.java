@@ -39,17 +39,14 @@ public class AnswerController {
     @GetMapping("/{id}")
     public ResponseEntity<?> read(@PathVariable(name = "id") Long id) {
         try {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.read(id));
+            AnswerDto readResult = answerService.read(id);
+            readResult.setId(null);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, readResult);
         } catch (NotFoundAnswerException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
         } catch (Exception e) {
             return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
         }
-    }
-
-    @GetMapping("/page/{id}")
-    public ResponseEntity<?> readPage(@PathVariable(name = "id") Long id) {
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.answerPageLoadService(id));
     }
 
     @GetMapping("/all")

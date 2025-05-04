@@ -6,7 +6,6 @@ import com.codingMate.dto.request.answer.AnswerCreateDto;
 import com.codingMate.dto.request.answer.AnswerUpdateDto;
 import com.codingMate.dto.response.answer.AnswerDto;
 import com.codingMate.dto.response.answer.AnswerListDto;
-import com.codingMate.dto.response.answer.AnswerWithCommentDto;
 import com.codingMate.dto.response.answer.QAnswerListDto;
 import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
 import com.codingMate.exception.exception.answer.NotFoundAnswerException;
@@ -57,7 +56,7 @@ public class AnswerService {
     @Transactional(readOnly = true)
     public List<AnswerListDto> readAll() {
         log.info("readAll()");
-        return queryFactory.select(new QAnswerListDto(answer.backJoonId, answer.title, answer.programmer.name.name))
+        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name))
                 .from(answer)
                 .join(answer.programmer)
                 .fetch();
@@ -66,7 +65,7 @@ public class AnswerService {
     @Transactional(readOnly = true)
     public List<AnswerListDto> readByBackjoonId(Long backJoonId) {
         log.info("readByBackjoonId({})", backJoonId);
-        return queryFactory.select(new QAnswerListDto(answer.backJoonId, answer.title, answer.programmer.name.name))
+        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name))
                 .from(answer)
                 .where(answer.backJoonId.eq(backJoonId))
                 .join(answer.programmer)
@@ -81,22 +80,11 @@ public class AnswerService {
     @Transactional(readOnly = true)
     public List<AnswerListDto> readAnswerlist() {
         log.info("readAnswerlist()");
-        return queryFactory.select(new QAnswerListDto(answer.backJoonId, answer.title, answer.programmer.name.name))
+        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name))
                 .from(answer)
                 .join(answer.programmer)
                 .fetch()
                 .stream().toList();
-    }
-
-    @Transactional(readOnly = true)
-    public AnswerWithCommentDto answerPageLoadService(@NotNull Long answerId) {
-        log.info("answerPageLoadService({})", answerId);
-        Answer result = queryFactory.selectFrom(answer)
-                .where(answer.id.eq(answerId))
-                .join(answer.programmer).fetchJoin()
-                .fetchOne();
-        if (result == null) throw new NotFoundAnswerException(answerId);
-        else return result.toWithCommentDto();
     }
 
     @Transactional(readOnly = true)

@@ -10,13 +10,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("/answer")
 public class AnswerUIController {
+
     @RequestMapping("/list")
     public String list() {
         return "answer/list";
     }
 
     @RequestMapping("/{id}")
-    public String answerPage(@PathVariable(name = "id") Long id, Model model) {
+    public String answerPage(@PathVariable(name = "id") Long id) {
+        log.info("answerPage({})", id);
         return "answer/answer";
     }
 
