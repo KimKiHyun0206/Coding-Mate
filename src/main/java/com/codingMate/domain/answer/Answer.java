@@ -20,6 +20,9 @@ public class Answer {
     @Column(name = "backjoon_id")
     private Long backJoonId;
 
+    @Column(name = "title")
+    private String title;
+
     @Column(name = "answer")
     private String code;
 
@@ -36,8 +39,9 @@ public class Answer {
     private Programmer programmer;
 
     @Builder
-    public Answer(Long backJoonId, String code, String explanation, LanguageType languageType, Programmer programmer) {
+    public Answer(Long backJoonId, String title, String code, String explanation, LanguageType languageType, Programmer programmer) {
         this.backJoonId = backJoonId;
+        this.title = title;
         this.code = code;
         this.explanation = explanation;
         this.languageType = languageType;

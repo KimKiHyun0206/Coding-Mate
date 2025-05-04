@@ -1,0 +1,27 @@
+package com.codingMate.controller.ui.answer;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+@Slf4j
+@Controller
+@RequestMapping("/answer")
+public class AnswerUIController {
+    @RequestMapping("/list")
+    public String list() {
+        return "answer/list";
+    }
+
+    @RequestMapping("/{id}")
+    public String answerPage(@PathVariable(name = "id") Long id, Model model) {
+        return "answer/answer";
+    }
+
+    @RequestMapping("/write")
+    public String write(){
+        return "answer/write";
+    }
+}

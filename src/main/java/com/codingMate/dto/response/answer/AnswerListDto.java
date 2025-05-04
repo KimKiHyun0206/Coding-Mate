@@ -6,14 +6,14 @@ import lombok.Data;
 
 @Data
 public class AnswerListDto {
-    private Long answerId;
     private Long backjoonId;
+    private String title;
     private String programmerName;
 
     @QueryProjection
-    public AnswerListDto(Long answerId, Long backjoonId, String programmerName) {
-        this.answerId = answerId;
+    public AnswerListDto(Long backjoonId, String title, String programmerName) {
         this.backjoonId = backjoonId;
+        this.title = title;
         this.programmerName = programmerName;
     }
 }

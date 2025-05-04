@@ -8,7 +8,6 @@ import com.codingMate.dto.request.programmer.ProgrammerUpdateDto;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.service.programmer.MyPageService;
 import com.codingMate.service.programmer.ProgrammerService;
-import com.codingMate.util.HeaderTokenUtil;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ public class ProgrammerController {
 
     @GetMapping("/my-page")
     public ResponseEntity<?> myPage(HttpServletRequest request) {
-        String usernameFromToken = JwtUtil.getUsernameFromToken(HeaderTokenUtil.getTokenFromHeader(request));
+        Long usernameFromToken = JwtUtil.getIdFromToken(request);
         MyPateDto myPateDto = myPageService.myPage(usernameFromToken);
         log.info("myPage {}", myPateDto.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPateDto);

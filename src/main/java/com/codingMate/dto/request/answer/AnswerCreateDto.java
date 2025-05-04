@@ -7,14 +7,15 @@ import lombok.Data;
 @Data
 public class AnswerCreateDto {
     private String code;
+    private String title;
     private String explanation;
-    private Integer recommendation;
     private LanguageType languageType;
     private Long backjoonId;
 
     public Answer toEntity(){
         return Answer.builder()
                 .code(code)
+                .title(title)
                 .explanation(explanation)
                 .languageType(languageType)
                 .backJoonId(backjoonId)

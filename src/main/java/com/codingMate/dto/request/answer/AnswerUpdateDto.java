@@ -7,6 +7,7 @@ import lombok.Data;
 public class AnswerUpdateDto {
     private Long id;
     private String code;
+    private String title;
     private String explanation;
     private LanguageType languageType;
 }

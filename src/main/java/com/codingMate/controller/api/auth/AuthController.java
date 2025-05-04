@@ -33,7 +33,6 @@ public class AuthController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final ProgrammerService programmerService;
-    private final PasswordEncoder passwordEncoder;
 
     @Value("${jwt.header}") String header;
 
@@ -45,7 +44,9 @@ public class AuthController {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String jwt = tokenProvider.createToken(authentication);
+        Long userId = programmerService.readIdByUserName(loginDto.getLoginId());
+
+        String jwt = tokenProvider.createToken(authentication, userId);
         response.setHeader(header, "Bearer " + jwt);
         log.info("TOKEN {} ",jwt);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, jwt);

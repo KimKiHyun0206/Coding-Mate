@@ -16,11 +16,11 @@ public class MyPageService {
     private final JPAQueryFactory queryFactory;
 
     @Transactional(readOnly = true)
-    public MyPateDto myPage(String loginId) {
+    public MyPateDto myPage(Long id) {
         Programmer result = queryFactory.selectFrom(programmer)
-                .where(programmer.loginId.eq(loginId))
+                .where(programmer.id.eq(id))
                 .fetchOne();
-        if(result == null) throw new NotFoundProgrammerException(loginId);
+        if(result == null) throw new NotFoundProgrammerException(id);
 
         return result.toMyPateDto();
     }

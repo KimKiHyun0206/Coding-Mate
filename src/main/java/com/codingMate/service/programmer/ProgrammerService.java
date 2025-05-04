@@ -69,6 +69,15 @@ public class ProgrammerService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public Long readIdByUserName(String userName) {
+        log.info("readIdByUserName({})", userName);
+        return queryFactory.select(programmer.id)
+                .from(programmer)
+                .where(programmer.loginId.eq(userName))
+                .fetchOne();
+    }
+
     @Transactional
     public ProgrammerDto update(Long programmerId, ProgrammerUpdateDto dto) {
         long execute = queryFactory.update(programmer)

@@ -55,23 +55,33 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerDto> readAll() {
+    public List<AnswerListDto> readAll() {
         log.info("readAll()");
-        return answerRepository.findAll()
-                .stream()
-                .map(Answer::toDto)
-                .toList();
+        return queryFactory.select(new QAnswerListDto(answer.backJoonId, answer.title, answer.programmer.name.name))
+                .from(answer)
+                .join(answer.programmer)
+                .fetch();
+    }
+
+    @Transactional(readOnly = true)
+    public List<AnswerListDto> readByBackjoonId(Long backJoonId) {
+        log.info("readByBackjoonId({})", backJoonId);
+        return queryFactory.select(new QAnswerListDto(answer.backJoonId, answer.title, answer.programmer.name.name))
+                .from(answer)
+                .where(answer.backJoonId.eq(backJoonId))
+                .join(answer.programmer)
+                .fetch();
     }
 
     /**
      * @apiNote 문제 리스트 페이지에서 간단하게 백준 번호와 작성자만 확인할 수 있도록 해주는 서비스
      * @implSpec join문을 사용하여 쿼리가 한 번만 나가게 함
      * @implNote QDto 객체에 fetchJoin을 사용하면 조회가 안 되니 향후 구현에 주의할 것
-    * */
+     * */
     @Transactional(readOnly = true)
-    public List<AnswerListDto> readAnswerlist(){
+    public List<AnswerListDto> readAnswerlist() {
         log.info("readAnswerlist()");
-        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.programmer.name.name))
+        return queryFactory.select(new QAnswerListDto(answer.backJoonId, answer.title, answer.programmer.name.name))
                 .from(answer)
                 .join(answer.programmer)
                 .fetch()
@@ -85,7 +95,7 @@ public class AnswerService {
                 .where(answer.id.eq(answerId))
                 .join(answer.programmer).fetchJoin()
                 .fetchOne();
-        if(result == null) throw new NotFoundAnswerException(answerId);
+        if (result == null) throw new NotFoundAnswerException(answerId);
         else return result.toWithCommentDto();
     }
 
@@ -111,6 +121,7 @@ public class AnswerService {
                 .set(answer.code, dto.getCode() == null ? null : dto.getCode())
                 .set(answer.languageType, dto.getLanguageType() == null ? null : dto.getLanguageType())
                 .set(answer.explanation, dto.getExplanation() == null ? null : dto.getExplanation())
+                .set(answer.title, dto.getTitle() == null ? null : dto.getTitle())
                 .execute();
         if (executed == 0) throw new NotFoundAnswerException(dto.getId());
 
