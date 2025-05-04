@@ -6,17 +6,10 @@
     <link th:rel="stylesheet" href="/css/nav_bar.css">
 </head>
 <body>
-<div class="menu" >
-    <nav class="clearfix">
-        <ul class="clearfix">
-            <li><a href="http://localhost:8080">Home</a></li> <!--""<-여기 부분에 URL 작성하면 됨-->
-            <li><a href="http://localhost:8080">Answer List</a></li>
-            <li><a href="http://localhost:8080">Ranking</a></li>
-            <li><a href="http://localhost:8080">Notice</a></li>
-            <li><a href="http://localhost:8080/my-page" class="my_page">MyPage</a></li>
-        </ul>
-    </nav>
-</div>
-<script th:src="@{js/put_token_in_header.js}"></script>
+nav>
+<a href="/">홈</a>
+<a href="/answer/list">풀이 목록</a>
+<a href="/login">로그인</a>
+<a href="/my-page">프로필</a>
 </body>
 </html>
