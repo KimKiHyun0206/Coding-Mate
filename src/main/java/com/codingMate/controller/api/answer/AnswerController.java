@@ -2,6 +2,7 @@ package com.codingMate.controller.api.answer;
 
 import com.codingMate.common.response.ResponseDto;
 import com.codingMate.common.response.ResponseMessage;
+import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.dto.request.answer.AnswerCreateDto;
 import com.codingMate.dto.request.answer.AnswerUpdateDto;
 import com.codingMate.dto.response.answer.AnswerDto;
@@ -12,12 +13,14 @@ import com.codingMate.service.answer.AnswerService;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-//전부 실행됨
+
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/answer")
 @RequiredArgsConstructor
@@ -50,14 +53,15 @@ public class AnswerController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> readAll() {
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAll());
-    }
-
-    @GetMapping("/all/{backjoonId}")
-    public ResponseEntity<?> readAllBackJoon(@PathVariable(name = "backjoonId") Long backjoonId) {
-        List<AnswerListDto> answerListDtos = answerService.readByBackjoonId(backjoonId);
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerListDtos);
+    public ResponseEntity<?> readAll(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId",required = false) Long backjoonId) {
+        log.info("readAll()");
+        if(language != null){
+            log.info("language {}", language);
+        }
+        if(backjoonId != null){
+            log.info("backjoonId {}", backjoonId);
+        }
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAll(language, backjoonId));
     }
 
     @GetMapping("/programmer/{id}")
@@ -83,7 +87,7 @@ public class AnswerController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(name = "id")Long answerId, HttpServletRequest request) {
+    public ResponseEntity<?> delete(@PathVariable(name = "id") Long answerId, HttpServletRequest request) {
         Long idFromToken = JwtUtil.getIdFromToken(request);
         try {
             answerService.delete(idFromToken, answerId);

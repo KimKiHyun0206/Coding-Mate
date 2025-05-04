@@ -1,6 +1,7 @@
 package com.codingMate.service.answer;
 
 import com.codingMate.domain.answer.Answer;
+import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.request.answer.AnswerCreateDto;
 import com.codingMate.dto.request.answer.AnswerUpdateDto;
@@ -54,10 +55,12 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerListDto> readAll() {
+    public List<AnswerListDto> readAll(LanguageType languageType, Long backjoonId) {
         log.info("readAll()");
-        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name))
+        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
                 .from(answer)
+                .where(languageType != null ? answer.languageType.eq(languageType) : null)
+                .where(backjoonId != null ? answer.backJoonId.eq(backjoonId) : null)
                 .join(answer.programmer)
                 .fetch();
     }
@@ -65,7 +68,7 @@ public class AnswerService {
     @Transactional(readOnly = true)
     public List<AnswerListDto> readByBackjoonId(Long backJoonId) {
         log.info("readByBackjoonId({})", backJoonId);
-        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name))
+        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
                 .from(answer)
                 .where(answer.backJoonId.eq(backJoonId))
                 .join(answer.programmer)
@@ -80,7 +83,7 @@ public class AnswerService {
     @Transactional(readOnly = true)
     public List<AnswerListDto> readAnswerlist() {
         log.info("readAnswerlist()");
-        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name))
+        return queryFactory.select(new QAnswerListDto(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
                 .from(answer)
                 .join(answer.programmer)
                 .fetch()
