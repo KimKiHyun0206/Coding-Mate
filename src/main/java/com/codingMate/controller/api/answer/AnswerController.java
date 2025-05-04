@@ -7,6 +7,7 @@ import com.codingMate.dto.request.answer.AnswerCreateDto;
 import com.codingMate.dto.request.answer.AnswerUpdateDto;
 import com.codingMate.dto.response.answer.AnswerDto;
 import com.codingMate.dto.response.answer.AnswerListDto;
+import com.codingMate.dto.response.answer.AnswerPageDto;
 import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
 import com.codingMate.exception.exception.answer.NotFoundAnswerException;
 import com.codingMate.exception.exception.jwt.NoTokenInHeaderException;
@@ -20,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 
 @Slf4j
@@ -42,10 +44,21 @@ public class AnswerController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> read(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<?> read(@PathVariable(name = "id") Long id, HttpServletRequest request) {
         try {
+            Long idFromToken = JwtUtil.getIdFromToken(request);
             AnswerDto readResult = answerService.read(id);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, readResult);
+            AnswerPageDto answerPageDto = AnswerPageDto.builder()
+                    .code(readResult.getCode())
+                    .title(readResult.getTitle())
+                    .explanation(readResult.getExplanation())
+                    .languageType(readResult.getLanguageType())
+                    .backjoonId(readResult.getBackjoonId())
+                    .id(idFromToken)
+                    .programmerName(readResult.getProgrammer().getName())
+                    .isRequesterIsOwner(Objects.equals(readResult.getProgrammer().getId(), idFromToken))
+                    .build();
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageDto);
         } catch (NotFoundAnswerException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
         } catch (Exception e) {

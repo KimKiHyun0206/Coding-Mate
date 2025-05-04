@@ -5,6 +5,7 @@ import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.request.answer.AnswerCreateDto;
 import com.codingMate.dto.request.answer.AnswerUpdateDto;
+import com.codingMate.dto.response.answer.AnswerCreateResponse;
 import com.codingMate.dto.response.answer.AnswerDto;
 import com.codingMate.dto.response.answer.AnswerListDto;
 import com.codingMate.dto.response.answer.QAnswerListDto;
@@ -35,14 +36,15 @@ public class AnswerService {
     private final EntityManager em;
 
     @Transactional
-    public AnswerDto create(Long programmerId, AnswerCreateDto answerCreateDto) {
+    public AnswerCreateResponse create(Long programmerId, AnswerCreateDto answerCreateDto) {
         log.info("create({}, {})", programmerId, answerCreateDto.getCode());
         Programmer programmer = programmerRepository.findById(programmerId).orElseThrow(() -> new NotFoundProgrammerException(programmerId));
         programmer.addAnswer();
 
         Answer entity = answerCreateDto.toEntity();
         entity.setProgrammer(programmer);
-        return answerRepository.save(entity).toDto();
+        Answer saved = answerRepository.save(entity);
+        return new AnswerCreateResponse(saved.getId());
     }
 
     @Transactional(readOnly = true)

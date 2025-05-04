@@ -183,7 +183,7 @@
     const languageTypeSelect = document.getElementById('languageType');
     const backjoonIdInput = document.getElementById('backjoonId');
 
-    createProblemForm.addEventListener('submit', function(event) {
+    createProblemForm.addEventListener('submit', function (event) {
         event.preventDefault(); // 기본 폼 제출 막기
         let isValid = true;
 
@@ -234,8 +234,11 @@
                         });
                     }
                     alert('문제가 성공적으로 생성되었습니다.');
-                    createProblemForm.reset(); // 폼 초기화
-                    // 성공 후 리다이렉트 또는 다른 처리
+                    return response.json()
+                })
+                .then(data => {
+                    console.log(data)
+                    window.location.href = `/answer/list`;
                 })
                 .catch(error => {
                     console.error('문제 생성 실패:', error);
