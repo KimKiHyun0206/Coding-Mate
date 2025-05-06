@@ -39,7 +39,7 @@ public class ProgrammerController {
      * */
     @GetMapping("/my-page")
     public ResponseEntity<?> myPage(HttpServletRequest request) {
-        Long usernameFromToken = JwtUtil.getIdFromToken(request);
+        Long usernameFromToken = JwtUtil.getIdFromHttpServletRequest(request);
         MyPageResponse myPageResponse = myPageService.myPage(usernameFromToken);
         log.info("myPage {}", myPageResponse.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPageResponse);
@@ -79,7 +79,7 @@ public class ProgrammerController {
     @PatchMapping
     public ResponseEntity<?> update(@RequestBody ProgrammerUpdateRequest programmerUpdateRequest, HttpServletRequest request) {
         try {
-            Long idFromToken = JwtUtil.getIdFromToken(request);
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
             log.info("update({}, {})", idFromToken, programmerUpdateRequest.toString());
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(idFromToken, programmerUpdateRequest));
         } catch (UnMatchedAuthException unMatchedAuthException) {
@@ -99,7 +99,7 @@ public class ProgrammerController {
     @DeleteMapping
     public ResponseEntity<?> delete(HttpServletRequest request) {
         try {
-            Long idFromToken = JwtUtil.getIdFromToken(request);
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
             log.info("delete({})", idFromToken);
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(idFromToken));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {

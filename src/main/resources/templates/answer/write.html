@@ -4,35 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>문제 생성</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/basic.css">
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f8f8f8;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        nav {
-            background-color: #333;
-            color: #fff;
-            width: 100%;
-            padding: 15px 0;
-            text-align: center;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
-        }
-
-        nav a:hover {
-            color: #bbb;
-        }
-
         .container {
             background-color: #fff;
             padding: 30px;
@@ -44,12 +18,6 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
         }
 
         .form-group {
@@ -124,11 +92,15 @@
     </style>
 </head>
 <body>
-<nav>
-    <a href="/">홈</a>
-    <a href="/answer/list">풀이 목록</a>
-    <a href="/login">로그인</a>
-    <a href="/my-page">프로필</a>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
 </nav>
 
 <div class="container">
@@ -176,6 +148,23 @@
 </div>
 
 <script>
+    //로그인 여부에 따라 navbar가 바뀌도록 함
+    document.addEventListener('DOMContentLoaded', function () {
+        const navElement = document.getElementById('mainNav');
+        const navLeft = navElement.querySelector('.nav-left');
+        const navRight = navElement.querySelector('.nav-right');
+
+        if (localStorage.getItem('Coding-Mate-Auth')) {
+            navLeft.innerHTML = `
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+      `;
+            navRight.innerHTML = `
+        <a href="/my-page">프로필</a>
+      `;
+        }
+    });
+
     const createProblemForm = document.getElementById('createProblemForm');
     const codeInput = document.getElementById('code');
     const titleInput = document.getElementById('title');

@@ -4,37 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>문제 목록</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/table.css">
+    <link rel="stylesheet" href="/css/basic.css">
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f8f8f8;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            position: relative;
-        }
-
-        nav {
-            background-color: #333;
-            color: #fff;
-            width: 100%;
-            padding: 15px 0;
-            text-align: center;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
-        }
-
-        nav a:hover {
-            color: #bbb;
-        }
-
         .container {
             background-color: #fff;
             padding: 30px;
@@ -46,12 +19,6 @@
             display: flex;
             flex-direction: column;
             align-items: center; /* 검색창 중앙 정렬 */
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
         }
 
         .search-container {
@@ -94,41 +61,6 @@
             background-color: gray;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-            white-space: nowrap; /* 내용이 길어지면 줄바꿈 방지 */
-            overflow: hidden; /* 넘치는 내용 숨김 */
-            text-overflow: ellipsis; /* 숨겨진 내용에 ... 표시 */
-        }
-
-        th:nth-child(1), /* 백준 ID */
-        td:nth-child(1) {
-            width: 80px; /* 백준 ID 컬럼 너비 */
-        }
-
-        th:nth-child(2), /* 제목 */
-        td:nth-child(2) {
-            width: 50%; /* 제목 컬럼 너비 */
-        }
-
-        th:nth-child(3), /* 언어 */
-        td:nth-child(3) {
-            width: 100px; /* 언어 컬럼 너비 */
-        }
-
-        th:nth-child(4), /* 작성자 */
-        td:nth-child(4) {
-            width: 120px; /* 작성자 컬럼 너비 */
-        }
-
         .no-results {
             text-align: center;
             padding: 20px;
@@ -166,11 +98,15 @@
     </style>
 </head>
 <body>
-<nav>
-    <a href="/">홈</a>
-    <a href="/answer/list">풀이 목록</a>
-    <a href="/login">로그인</a>
-    <a href="/my-page">프로필</a>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
 </nav>
 
 <div class="container">
@@ -205,6 +141,23 @@
 <button class="create-problem-button" onclick="location.href='/answer/write'">문제 생성</button>
 
 <script>
+    //로그인 여부에 따라 navbar가 바뀌도록 함
+    document.addEventListener('DOMContentLoaded', function () {
+        const navElement = document.getElementById('mainNav');
+        const navLeft = navElement.querySelector('.nav-left');
+        const navRight = navElement.querySelector('.nav-right');
+
+        if (localStorage.getItem('Coding-Mate-Auth')) {
+            navLeft.innerHTML = `
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+      `;
+            navRight.innerHTML = `
+        <a href="/my-page">프로필</a>
+      `;
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', function() {
         fetchProblemList();
     });
