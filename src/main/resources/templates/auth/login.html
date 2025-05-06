@@ -83,6 +83,7 @@
         }
     </style>
 </head>
+<body>
 <nav id="mainNav">
     <div class="nav-left">
         <a href="/">홈</a>
@@ -136,7 +137,7 @@
     const loginIdError = document.getElementById('loginIdError');
     const passwordError = document.getElementById('passwordError');
 
-    loginForm.addEventListener('submit', function(event) {
+    loginForm.addEventListener('submit', function (event) {
         event.preventDefault(); // 기본 폼 제출 막기
         let isValid = true;
 
@@ -169,10 +170,10 @@
                     const token = response.headers.get('Coding-Mate-Auth');
                     if (token) {
                         localStorage.setItem('Coding-Mate-Auth', token);
-                        alert('로그인 성공! 토큰이 localStorage에 저장되었습니다.');
+                        alert('로그인 성공!');
                         window.location.href = '/'; // 로그인 성공 후 메인 페이지로
                     } else {
-                        alert('로그인 성공했지만, 토큰을 받지 못했습니다.');
+                        alert('로그인 성공했지만, 인증 토큰을 받지 못했습니다');
                     }
                 })
                 .catch(error => {
