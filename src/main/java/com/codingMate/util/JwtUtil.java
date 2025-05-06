@@ -1,6 +1,5 @@
 package com.codingMate.util;
 
-import com.codingMate.exception.exception.jwt.NoTokenInHeaderException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
