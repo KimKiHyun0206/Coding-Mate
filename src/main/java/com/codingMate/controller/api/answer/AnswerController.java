@@ -30,11 +30,17 @@ import java.util.Objects;
 public class AnswerController {
     private final AnswerService answerService;
 
+    /**
+     * @implNote dto를 받아서 문제를 생성한다
+     * @param request 토큰을 받아오기 위한 매개변수
+     * @param answerCreateRequest 생성할 문제의 정보를 가져옴
+     * */
     @PostMapping
-    public ResponseEntity<?> create(HttpServletRequest request, AnswerCreateRequest dto) {
+    public ResponseEntity<?> create(AnswerCreateRequest answerCreateRequest, HttpServletRequest request) {
+        log.info("create({}, {})", request.toString(), answerCreateRequest.toString());
         Long idFromToken = JwtUtil.getIdFromToken(request);
         try {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(idFromToken, dto));
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(idFromToken, answerCreateRequest));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {
@@ -42,22 +48,19 @@ public class AnswerController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> read(@PathVariable(name = "id") Long id, HttpServletRequest request) {
+    /**
+     * @implNote 읽는 것은 토큰을 필수로 필요로하지 않지만 토큰을 가지고 있을 경우 수정할 권한을 가질 수 있도록 함
+     * @param id 읽을 Answer 의  ID
+     * @param request 토큰을 받아오기 위한 매개변수
+     * */
+    @GetMapping("/{answerId}")
+    public ResponseEntity<?> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
+        log.info("read({})", id);
         try {
             Long idFromToken = JwtUtil.getIdFromToken(request);
-            AnswerResponse readResult = answerService.read(id);
-            AnswerPageResponse answerPageResponse = AnswerPageResponse.builder()
-                    .code(readResult.getCode())
-                    .title(readResult.getTitle())
-                    .explanation(readResult.getExplanation())
-                    .languageType(readResult.getLanguageType())
-                    .backjoonId(readResult.getBackjoonId())
-                    .id(idFromToken)
-                    .programmerName(readResult.getProgrammer().getName())
-                    .isRequesterIsOwner(Objects.equals(readResult.getProgrammer().getId(), idFromToken))
-                    .build();
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageResponse);
+            AnswerPageResponse answerPageDto = answerService.read(id).toAnswerPageDto();
+            answerPageDto.setIsRequesterIsOwner(Objects.equals(answerPageDto.getId(), idFromToken));
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageDto);
         } catch (NotFoundAnswerException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
         } catch (Exception e) {
@@ -65,6 +68,12 @@ public class AnswerController {
         }
     }
 
+    /**
+     * @implNote 모든 Answer를 읽기 위해서 가져옴
+     * @implSpec 추후 Answer의 수가 많아진다면 페이징 기능을 추가해야함
+     * @param backjoonId 읽어올 문제의 backjoonId
+     * @param language 읽어올 문제의 languageType
+     * */
     @GetMapping("/all")
     public ResponseEntity<?> readAll(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId) {
         log.info("readAll()");
@@ -77,6 +86,12 @@ public class AnswerController {
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAll(language, backjoonId));
     }
 
+    /**
+     * @implNote 프로그래머가 작성한 문제들을 읽어오기 위한 API 현재 사용되지 않지만 추후 기능 추가를 통해 사용할 것임
+     * @implNote 이 기능은 헤더에서 ID값을 받아오는 것으로 변경해야 할 필요가 있음
+     * @implSpec 이 또한 수가 많아진다면 페이징 기능을 추가해야함
+     * @param id 프로그래머의 ID를 이용해서 정보를 가져오기 때문에 값을 받아옴
+     * */
     @GetMapping("/programmer/{id}")
     public ResponseEntity<?> readByProgrammer(@PathVariable(name = "id") Long id) {
         List<AnswerResponse> answerResponses = answerService.readAllByProgrammerId(id);
@@ -87,12 +102,19 @@ public class AnswerController {
         }
     }
 
+    /**
+     * @implNote 등록되어있는 풀이를 수정하기 위해서 사용함
+     * @implSpec request에서 인증 정보를 가져오고 이를 바탕으로 업데이트 로직을 처리함
+     * @param answerId 수정할 풀이의 ID
+     * @param answerUpdateRequest 수정할 풀이의 정보
+     * @param request 토큰을 받아오기 위한 매개변수
+     * */
     @PatchMapping("/{answerId}")
-    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody AnswerUpdateRequest dto, @PathVariable(name = "answerId") Long answerId) {
+    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody AnswerUpdateRequest answerUpdateRequest, @PathVariable(name = "answerId") Long answerId) {
         try {
-            log.info(dto.toString());
+            log.info(answerUpdateRequest.toString());
             Long idFromToken = JwtUtil.getIdFromToken(request);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, dto));
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, answerUpdateRequest));
         } catch (AnswerAndProgrammerDoNotMatchException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
 
@@ -103,8 +125,13 @@ public class AnswerController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(name = "id") Long answerId, HttpServletRequest request) {
+    /**
+     * @implNote 등록된 풀이를 삭제하기 위한 API
+     * @param request 토큰을 받아오기 위한 매개변수
+     * @param answerId 삭제할 풀이의 ID
+     * */
+    @DeleteMapping("/{answerId}")
+    public ResponseEntity<?> delete(@PathVariable(name = "answerId") Long answerId, HttpServletRequest request) {
         Long idFromToken = JwtUtil.getIdFromToken(request);
         try {
             answerService.delete(idFromToken, answerId);
