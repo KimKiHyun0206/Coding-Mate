@@ -17,4 +17,16 @@ public class AnswerResponse {
     private String explanation;
     private ProgrammerDto programmer;
     private LanguageType languageType;
+
+    public AnswerPageResponse toAnswerPageDto(){
+        return AnswerPageResponse.builder()
+                .id(id)
+                .backjoonId(backjoonId)
+                .title(title)
+                .code(code)
+                .explanation(explanation)
+                .programmerName(programmer.getName())
+                .languageType(languageType)
+                .build();
+    }
 }
