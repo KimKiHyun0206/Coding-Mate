@@ -16,5 +16,5 @@ public class AnswerPageResponse {
     private String explanation;
     private String programmerName;
     private LanguageType languageType;
-    private Boolean isRequesterIsOwner;
+    private Boolean isRequesterIsOwner = false;
 }
