@@ -10,7 +10,7 @@ public enum LanguageType {
     C("C"),
     CPP("C++"),
     PYTHON("Python"),
-    JAVASCRIPT("JavaScript"),
+    JAVASCRIPT("JAVASCRIPT"),
     ;
 
     private final String language;
