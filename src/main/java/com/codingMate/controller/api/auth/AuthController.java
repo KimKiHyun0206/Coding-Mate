@@ -29,7 +29,8 @@ public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final ProgrammerService programmerService;
 
-    @Value("${jwt.header}") String header;
+    @Value("${jwt.header}")
+    String header;
 
 
     /**
@@ -63,11 +64,8 @@ public class AuthController {
     public ResponseEntity<?> register(ProgrammerCreateRequest programmerCreateRequest, HttpServletResponse response) throws IOException {
         log.info("register()");
         ProgrammerDto programmerDto = programmerService.create(programmerCreateRequest);
-        programmerDto.setId(null);
-        programmerDto.setPassword(null);
-        programmerDto.setLoginId(null);
-        response.setStatus(200);
-        response.sendRedirect("/login");
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerDto);
+        log.info("programmerDto {}", programmerDto.toString());
+
+        return ResponseEntity.ok(ResponseMessage.SUCCESS);
     }
 }
