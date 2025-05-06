@@ -24,12 +24,19 @@ public class ProgrammerController {
     private final ProgrammerService programmerService;
     private final MyPageService myPageService;
 
+    /**
+     * @apiNote 회원 생성 API
+     * */
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ProgrammerCreateRequest dto) {
         log.info("create {}", dto.getLoginId());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.create(dto));
     }
 
+    /**
+     * @apiNote 마이페이지 API
+     * @implSpec request에서 토큰을 가져와 마이페이지의 정보를 볼 수 있게 한다
+     * */
     @GetMapping("/my-page")
     public ResponseEntity<?> myPage(HttpServletRequest request) {
         Long usernameFromToken = JwtUtil.getIdFromToken(request);
@@ -50,6 +57,9 @@ public class ProgrammerController {
         }
     }*/
 
+    /**
+     * @apiNote 모든 프로그래머의 정보를 읽는 API
+     * */
     @GetMapping
     public ResponseEntity<?> readAll() {
         log.info("readAll()");
@@ -60,12 +70,18 @@ public class ProgrammerController {
         }
     }
 
+    /**
+     * @apiNote 프로그래머 수정 API
+     * @implSpec request 에서 받아온 정보와 요청한 정보가 동일해야 삭제할 수 있도록 구현함
+     * @param programmerUpdateRequest 수정할 프로그래머의 정보가 있는 DTO 여기에 수정할 프로그래머의 ID도 있음
+     * @param request 토큰을 받아올 헤더
+     * */
     @PatchMapping
-    public ResponseEntity<?> update(HttpServletRequest request,@RequestBody  ProgrammerUpdateRequest dto) {
+    public ResponseEntity<?> update(@RequestBody ProgrammerUpdateRequest programmerUpdateRequest, HttpServletRequest request) {
         try {
             Long idFromToken = JwtUtil.getIdFromToken(request);
-            log.info("update({}, {})", idFromToken, dto.toString());
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(idFromToken, dto));
+            log.info("update({}, {})", idFromToken, programmerUpdateRequest.toString());
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(idFromToken, programmerUpdateRequest));
         } catch (UnMatchedAuthException unMatchedAuthException) {
             return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, unMatchedAuthException.getMessage());
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
@@ -75,6 +91,11 @@ public class ProgrammerController {
         }
     }
 
+    /**
+     * @implNote 프로그래머 삭제 API
+     * @implSpec reqeust 에서 받아온 인증 정보와 요청한 정보가 동일해야 삭제할 수 있도록 구현함
+     * @param request 토큰을 받아올 헤더
+     * */
     @DeleteMapping
     public ResponseEntity<?> delete(HttpServletRequest request) {
         try {

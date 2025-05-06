@@ -31,7 +31,7 @@ public class AnswerController {
     private final AnswerService answerService;
 
     /**
-     * @implNote dto를 받아서 문제를 생성한다
+     * @apiNote  풀이 생성 API
      * @param request 토큰을 받아오기 위한 매개변수
      * @param answerCreateRequest 생성할 문제의 정보를 가져옴
      * */
@@ -49,7 +49,8 @@ public class AnswerController {
     }
 
     /**
-     * @implNote 읽는 것은 토큰을 필수로 필요로하지 않지만 토큰을 가지고 있을 경우 수정할 권한을 가질 수 있도록 함
+     * @apiNote 풀이 읽기 API
+     * @implSpec 읽는 것은 토큰을 필수로 필요로하지 않지만 토큰을 가지고 있을 경우 수정할 권한을 가질 수 있도록 함
      * @param id 읽을 Answer 의  ID
      * @param request 토큰을 받아오기 위한 매개변수
      * */
@@ -69,8 +70,9 @@ public class AnswerController {
     }
 
     /**
-     * @implNote 모든 Answer를 읽기 위해서 가져옴
-     * @implSpec 추후 Answer의 수가 많아진다면 페이징 기능을 추가해야함
+     * @apiNote 모든 풀이 읽기 API
+     * @implNote 추후 풀이의 수가 많아진다면 페이징 기능을 추가해야함
+     * @implSpec 현재 페이징 기능이 없음
      * @param backjoonId 읽어올 문제의 backjoonId
      * @param language 읽어올 문제의 languageType
      * */
@@ -87,9 +89,9 @@ public class AnswerController {
     }
 
     /**
-     * @implNote 프로그래머가 작성한 문제들을 읽어오기 위한 API 현재 사용되지 않지만 추후 기능 추가를 통해 사용할 것임
-     * @implNote 이 기능은 헤더에서 ID값을 받아오는 것으로 변경해야 할 필요가 있음
-     * @implSpec 이 또한 수가 많아진다면 페이징 기능을 추가해야함
+     * @apiNote 특정 프로그래머가 작성한 풀이를 읽어오는 API, 프로그래머가 작성한 문제들을 읽어오기 위한 API 현재 사용되지 않지만 추후 기능 추가를 통해 사용할 것임
+     * @implNote 이 기능은 헤더에서 ID 값을 받아오는 것으로 변경해야 할 필요가 있음
+     * @implSpec 현재 페이징 기능이 없음
      * @param id 프로그래머의 ID를 이용해서 정보를 가져오기 때문에 값을 받아옴
      * */
     @GetMapping("/programmer/{id}")
@@ -103,8 +105,8 @@ public class AnswerController {
     }
 
     /**
-     * @implNote 등록되어있는 풀이를 수정하기 위해서 사용함
-     * @implSpec request에서 인증 정보를 가져오고 이를 바탕으로 업데이트 로직을 처리함
+     * @apiNote 풀이 수정 API
+     * @implSpec request    에서 인증 정보를 가져오고 이를 바탕으로 업데이트 로직을 처리함
      * @param answerId 수정할 풀이의 ID
      * @param answerUpdateRequest 수정할 풀이의 정보
      * @param request 토큰을 받아오기 위한 매개변수
@@ -126,7 +128,7 @@ public class AnswerController {
     }
 
     /**
-     * @implNote 등록된 풀이를 삭제하기 위한 API
+     * @apiNote 풀이 삭제 API
      * @param request 토큰을 받아오기 위한 매개변수
      * @param answerId 삭제할 풀이의 ID
      * */

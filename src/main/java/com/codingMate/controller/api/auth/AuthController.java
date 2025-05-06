@@ -31,6 +31,13 @@ public class AuthController {
 
     @Value("${jwt.header}") String header;
 
+
+    /**
+     * @apiNote 로그인 API
+     * @implSpec UserDetails 를 사용하여 로그인한 후 로그인에 성공했다면 loginId로 id를 가져와 토큰에 담아 사용할 수 있게 함
+     * @param loginRequest 로그인 요청에 사용되는 아이디와 비밀번호를 담은 DTO
+     * @param response 응답에 토큰을 담아야하기 때문에 사용하는 매개변수
+     * */
     @PostMapping("/login")
     public ResponseEntity<?> login(LoginRequest loginRequest, HttpServletResponse response) {
         log.info("login({}, {})", loginRequest.getLoginId(), loginRequest.getPassword());
@@ -42,15 +49,20 @@ public class AuthController {
         Long userId = programmerService.readIdByUserName(loginRequest.getLoginId());
 
         String jwt = tokenProvider.createToken(authentication, userId);
-        response.setHeader(header, "Bearer " + jwt);
+        response.setHeader(header, jwt);
         log.info("TOKEN {} ",jwt);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, jwt);
     }
 
+    /**
+     * @apiNote 회원가입 API
+     * @param programmerCreateRequest 회원가입 정보를 가져오는 DTO
+     * @param response 회원가입시 리다이렉션을 하기 위한 매개변수
+     * */
     @PostMapping("/register")
-    public ResponseEntity<?> register(ProgrammerCreateRequest dto, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> register(ProgrammerCreateRequest programmerCreateRequest, HttpServletResponse response) throws IOException {
         log.info("register()");
-        ProgrammerDto programmerDto = programmerService.create(dto);
+        ProgrammerDto programmerDto = programmerService.create(programmerCreateRequest);
         programmerDto.setId(null);
         programmerDto.setPassword(null);
         programmerDto.setLoginId(null);
