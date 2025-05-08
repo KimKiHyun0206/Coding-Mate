@@ -27,6 +27,7 @@ public class AnswerResponse {
                 .explanation(explanation)
                 .programmerName(programmer.getName())
                 .languageType(languageType)
+                .isRequesterIsOwner(false)
                 .build();
     }
 }

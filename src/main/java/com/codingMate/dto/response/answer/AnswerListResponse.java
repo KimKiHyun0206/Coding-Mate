@@ -10,14 +10,14 @@ public class AnswerListResponse {
     private Long backjoonId;
     private String title;
     private String programmerName;
-    private LanguageType language;
+    private LanguageType languageType;
 
     @QueryProjection
-    public AnswerListResponse(Long answerId, Long backjoonId, String title, String programmerName, LanguageType language) {
+    public AnswerListResponse(Long answerId, Long backjoonId, String title, String programmerName, LanguageType languageType) {
         this.answerId = answerId;
         this.backjoonId = backjoonId;
         this.title = title;
         this.programmerName = programmerName;
-        this.language = language;
+        this.languageType = languageType;
     }
 }

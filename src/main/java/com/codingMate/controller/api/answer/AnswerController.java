@@ -60,8 +60,8 @@ public class AnswerController {
     public ResponseEntity<?> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
         try{
             log.info("read({})", id);
-            AnswerPageResponse answerPageDto = answerService.read(id).toAnswerPageDto();
             Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+            AnswerPageResponse answerPageDto = answerService.read(id).toAnswerPageDto();
             if(idFromToken != null) {
                 answerPageDto.setIsRequesterIsOwner(Objects.equals(answerPageDto.getId(), idFromToken));
             }
