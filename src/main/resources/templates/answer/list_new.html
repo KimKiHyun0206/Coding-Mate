@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문제 목록</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/table.css">
+    <link rel="stylesheet" href="/css/basic.css">
+    <style>
+        /* 기본 컨테이너 스타일 */
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 검색 컨테이너 스타일 */
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .search-container input[type="number"],
+        .search-container select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex-grow: 1;
+        }
+
+        .search-container button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-container button:hover {
+            background-color: #0056b3;
+        }
+
+        /* 결과 없음 메시지 스타일 */
+        .no-results {
+            padding: 15px;
+            text-align: center;
+            color: #777;
+        }
+
+        /* 문제 생성 버튼 스타일 */
+        .create-problem-button {
+            display: block;
+            width: fit-content;
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 20px auto;
+            text-decoration: none;
+        }
+
+        .create-problem-button:hover {
+            background-color: #1e7e34;
+        }
+
+        /* 풀이 링크 스타일 (혹시 있을 경우) */
+        .answer-link {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        .answer-link:hover {
+            text-decoration: underline;
+        }
+
+        /* 모달 오버레이 스타일 */
+        .modal-overlay {
+            display: none; /* 초기 상태에서 숨김 */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+        }
+
+        /* 모달 콘텐츠 스타일 */
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 900px;
+            max-height: 90vh; /* 최대 높이 (viewport height의 90%) */
+            position: relative;
+            overflow: auto; /* 내부 내용 스크롤 가능 */
+        }
+
+        /* 모달 헤더 스타일 */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        /* 모달 제목 스타일 */
+        .modal-header h2 {
+            margin: 0;
+        }
+
+        /* 모달 닫기 버튼 스타일 */
+        .modal-close-button {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #777;
+        }
+
+        /* 모달 본문 스타일 */
+        .modal-body {
+            margin-bottom: 20px;
+            overflow: auto;
+        }
+
+        /* 모달 본문 테이블 스타일 */
+        .modal-body table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* 모달 본문 테이블 제목 셀 스타일 */
+        .modal-body th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            width: 20%; /* 제목 부분 너비를 20%로 설정 */
+            vertical-align: top; /* 내용이 많을 경우 위쪽 정렬 */
+        }
+
+        /* 모달 본문 테이블 데이터 셀 스타일 */
+        .modal-body td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            width: 80%; /* 값 부분 너비를 80%로 설정 */
+            vertical-align: top; /* 내용이 많을 경우 위쪽 정렬 */
+        }
+
+        /* 코드 및 설명 부분이 있는 테이블 데이터 셀 스타일 (높이 늘림) */
+        .modal-body tr:nth-child(4) td, /* 코드 TD */
+        .modal-body tr:nth-child(5) td { /* 설명 TD */
+            height: 150px; /* 높이 늘림 (필요에 따라 조정) */
+        }
+
+        /* 코드 및 설명 표시 영역 스타일 */
+        .modal-body td pre {
+            white-space: pre-wrap; /* 긴 공백 및 줄바꿈 유지 */
+            word-break: break-all; /* 긴 단어 줄바꿈 */
+            font-family: monospace; /* 고정폭 글꼴 */
+            font-size: 0.9em;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            height: 100%; /* 부모 TD 높이에 맞춤 */
+            overflow-y: auto; /* 내용이 넘칠 경우 세로 스크롤 */
+        }
+
+        /* 모달 네비게이션 버튼 컨테이너 스타일 */
+        .modal-navigation {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* 모달 네비게이션 버튼 스타일 */
+        .modal-navigation button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        /* 모달 네비게이션 비활성화 버튼 스타일 */
+        .modal-navigation button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .create-problem-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        /* 풀이 상세 테이블 스타일 (모달 내부) */
+        #answerDetailTable {
+            display: none; /* 초기 숨김 */
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        /* 풀이 상세 테이블 제목 셀 스타일 (모달 내부) */
+        #answerDetailTable th, #answerDetailTable td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        #answerDetailTable th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            width: 120px;
+        }
+
+        /* 풀이 상세 테이블 코드 표시 영역 스타일 (모달 내부) */
+        #answerDetailTable td pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.9em;
+            background-color: #f9f9f9;
+            padding: 10px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        /* 오류 메시지 스타일 */
+        #error {
+            display: none;
+            color: red;
+            margin-top: 10px;
+        }
+
+        /* 로딩 메시지 스타일 */
+        #loading {
+            display: none;
+            margin-top: 10px;
+        }
+
+        /* 액션 버튼 컨테이너 스타일 */
+        #actionButtons {
+            display: none;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* 액션 버튼 스타일 */
+        #actionButtons button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+
+        #actionButtons button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>문제 목록</h1>
+    <div class="search-container">
+        <input type="number" id="searchBackjoonId" placeholder="백준 ID로 검색">
+        <select id="searchLanguage">
+            <option value="">전체 언어</option>
+            <option value="JAVA">Java</option>
+            <option value="C">C</option>
+            <option value="CPP">C++</option>
+            <option value="PYTHON">Python</option>
+            <option value="JAVASCRIPT">JavaScript</option>
+        </select>
+        <button onclick="searchProblems()">검색</button>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>백준 ID</th>
+            <th>제목</th>
+            <th>언어</th>
+            <th>작성자</th>
+        </tr>
+        </thead>
+        <tbody id="problemListBody">
+        </tbody>
+    </table>
+    <p id="noProblems" class="no-results" style="display: none;">등록된 문제가 없습니다.</p>
+</div>
+
+<button class="create-problem-button" onclick="location.href='/answer/write'">문제 생성</button>
+
+<div id="solutionModalOverlay" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalProblemTitle">풀이 상세 정보</h2>
+            <button id="modalCloseButton" class="modal-close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="loading" style="display: none;">로딩 중...</div>
+            <div id="error" style="display: none;"></div>
+            <table id="answerDetailTable" style="display: none;">
+                <tbody>
+                <tr>
+                    <th>백준 ID</th>
+                    <td id="modalBackjoonId"></td>
+                </tr>
+                <tr>
+                    <th>작성자</th>
+                    <td id="modalProgrammerName"></td>
+                </tr>
+                <tr>
+                    <th>언어</th>
+                    <td id="modalLanguageType"></td>
+                </tr>
+                <tr>
+                    <th>코드</th>
+                    <td><pre><code id="modalCode"></code></pre></td>
+                </tr>
+                <tr>
+                    <th>설명</th>
+                    <td><pre id="modalExplanation"></pre></td>
+                </tr>
+                </tbody>
+            </table>
+            <div id="actionButtons" style="display: none;">
+                <button>수정</button>
+                <button>삭제</button>
+            </div>
+        </div>
+        <div class="modal-navigation">
+            <button id="modalPrevButton">이전</button>
+            <button id="modalNextButton">다음</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const navElement = document.getElementById('mainNav');
+        const navLeft = navElement.querySelector('.nav-left');
+        const navRight = navElement.querySelector('.nav-right');
+
+        if (localStorage.getItem('Coding-Mate-Auth')) {
+            navLeft.innerHTML = `
+      <a href="/">홈</a>
+      <a href="/answer/list">풀이 목록</a>
+    `;
+            navRight.innerHTML = `
+      <a href="/my-page">프로필</a>
+      <a href="#" id="logoutButton">로그아웃</a>
+    `;
+
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    localStorage.removeItem('Coding-Mate-Auth');
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/';
+                });
+            }
+        }
+
+    });
+
+    const solutionModalOverlay = document.getElementById('solutionModalOverlay');
+    const modalCloseButton = document.getElementById('modalCloseButton');
+    const modalProblemTitle = document.getElementById('modalProblemTitle');
+    const modalBackjoonIdElement = document.getElementById('modalBackjoonId');
+    const modalCodeElement = document.getElementById('modalCode');
+    const modalExplanationElement = document.getElementById('modalExplanation');
+    const modalLanguageTypeElement = document.getElementById('modalLanguageType');
+    const modalProgrammerNameElement = document.getElementById('modalProgrammerName');
+    const modalPrevButton = document.getElementById('modalPrevButton');
+    const modalNextButton = document.getElementById('modalNextButton');
+    const loadingElement = document.getElementById('loading');
+    const errorElement = document.getElementById('error');
+    const answerDetailTableElement = document.getElementById('answerDetailTable');
+    const actionButtonsElement = document.getElementById('actionButtons');
+
+    let currentProblemList = [];
+    let currentIndex = -1;
+    let modalEventListenersRegistered = false;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        fetchProblemList();
+    });
+
+    function fetchProblemList(searchId, searchLanguage) {
+        let url = '/api/v1/answer/all';
+        const queryParams = [];
+        if (searchId) {
+            queryParams.push(`backjoonId=${searchId}`);
+        }
+        if (searchLanguage) {
+            queryParams.push(`language=${searchLanguage}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += `?${queryParams.join('&')}`;
+        }
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                currentProblemList = responseData.data;
+                displayProblemList(currentProblemList);
+            })
+            .catch(error => {
+                console.error('문제 목록을 불러오는 데 실패했습니다:', error);
+                alert('문제 목록을 불러오는 데 실패했습니다.');
+            });
+    }
+
+    function displayProblemList(problemList) {
+        const problemListBody = document.getElementById('problemListBody');
+        const noProblemsElement = document.getElementById('noProblems');
+        problemListBody.innerHTML = '';
+        noProblemsElement.style.display = 'none';
+
+        if (problemList && Array.isArray(problemList) && problemList.length > 0) {
+            problemList.forEach(problem => {
+                const row = problemListBody.insertRow();
+                const backjoonIdCell = row.insertCell();
+                const titleCell = row.insertCell();
+                const languageCell = row.insertCell();
+                const programmerNameCell = row.insertCell();
+
+                backjoonIdCell.textContent = problem.backjoonId;
+                titleCell.textContent = problem.title;
+                languageCell.textContent = problem.languageType || '알 수 없음'; // language 필드 사용
+                programmerNameCell.textContent = problem.programmerName || '알 수 없음';
+
+                row.addEventListener('click', () => openSolutionModal(problem.answerId, problem.title));
+            });
+        } else {
+            noProblemsElement.style.display = 'block';
+        }
+    }
+
+    function searchProblems() {
+        const searchBackjoonIdInput = document.getElementById('searchBackjoonId');
+        const searchLanguageSelect = document.getElementById('searchLanguage');
+        const searchId = searchBackjoonIdInput.value.trim();
+        const searchLanguage = searchLanguageSelect.value;
+        fetchProblemList(searchId, searchLanguage);
+    }
+
+    function openSolutionModal(answerId, problemTitle) {
+        loadingElement.style.display = 'block';
+        errorElement.style.display = 'none';
+        answerDetailTableElement.style.display = 'none';
+        actionButtonsElement.style.display = 'none';
+        solutionModalOverlay.style.display = 'flex';
+        modalProblemTitle.textContent = problemTitle;
+
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        fetch(`/api/v1/answer/${answerId}`, {
+            headers: {
+                'Coding-Mate-Auth': authToken
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(`풀이 정보를 불러오는 데 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                const answer = responseData.data;
+                displayAnswerDetailInModal(answer);
+                registerModalEventListeners();
+
+                // 현재 문제의 인덱스를 찾아서 currentIndex 업데이트
+                const index = currentProblemList.findIndex(problem => problem.answerId === answerId);
+                if (index !== -1) {
+                    currentIndex = index;
+                    updateNavigationButtons(); // 인덱스 업데이트 후 버튼 상태 업데이트
+                }
+            })
+            .catch(error => {
+                console.error('풀이 정보를 불러오는 데 실패했습니다:', error);
+                errorElement.textContent = error.message;
+                errorElement.style.display = 'block';
+            })
+            .finally(() => {
+                loadingElement.style.display = 'none';
+            });
+    }
+
+    function registerModalEventListeners() {
+        if (!modalEventListenersRegistered) {
+            if (modalCloseButton) {
+                modalCloseButton.addEventListener('click', function(event) {
+                    event.preventDefault(); // 추가
+                    closeSolutionModal();
+                });
+            }
+            if (modalPrevButton) {
+                modalPrevButton.addEventListener('click', function(event) {
+                    event.preventDefault(); // 추가
+                    goToPreviousSolution();
+                });
+            }
+            if (modalNextButton) {
+                modalNextButton.addEventListener('click', function(event) {
+                    event.preventDefault(); // 추가
+                    goToNextSolution();
+                });
+            }
+            modalEventListenersRegistered = true;
+            //console.log('모달 이벤트 리스너 등록 완료');
+        } else {
+            //console.log('모달 이벤트 리스너는 이미 등록됨');
+        }
+    }
+
+    function displayAnswerDetailInModal(answer) {
+        modalBackjoonIdElement.textContent = answer.backjoonId;
+        modalCodeElement.textContent = answer.code;
+        modalExplanationElement.textContent = answer.explanation;
+        modalLanguageTypeElement.textContent = answer.languageType;
+        modalProgrammerNameElement.textContent = answer.programmerName || '알 수 없음';
+
+        if (answer.isRequesterIsOwner === true) {
+            actionButtonsElement.style.display = 'flex';
+        } else {
+            actionButtonsElement.style.display = 'none';
+        }
+
+        answerDetailTableElement.style.display = 'table';
+    }
+
+    function closeSolutionModal() {
+        solutionModalOverlay.style.display = 'none';
+    }
+
+    function goToPreviousSolution() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            openSolutionModal(currentProblemList[currentIndex].answerId, currentProblemList[currentIndex].title);
+        }
+    }
+
+    function goToNextSolution() {
+        if (currentIndex < currentProblemList.length - 1) {
+            currentIndex++;
+            openSolutionModal(currentProblemList[currentIndex].answerId, currentProblemList[currentIndex].title);
+        }
+    }
+
+    function updateNavigationButtons() {
+        modalPrevButton.disabled = currentIndex <= 0;
+        modalNextButton.disabled = currentIndex >= currentProblemList.length - 1;
+    }
+
+    modalCloseButton.addEventListener('click', closeSolutionModal);
+    modalPrevButton.addEventListener('click', goToPreviousSolution);
+    modalNextButton.addEventListener('click', goToNextSolution);
+</script>
+</body>
+</html>
