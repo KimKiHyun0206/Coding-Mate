@@ -26,7 +26,7 @@ public class JwtUtil {
 
     public static Long getIdFromHttpServletRequest(HttpServletRequest request) {
         String token = request.getHeader(header);
-        if(Objects.equals(token, "null")) return null;
+        if(token == null) return null;
         return getIdFromString(token);
     }
 
