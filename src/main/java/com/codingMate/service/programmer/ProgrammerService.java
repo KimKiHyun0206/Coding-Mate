@@ -11,6 +11,7 @@ import com.codingMate.exception.exception.jwt.UnMatchedAuthException;
 import com.codingMate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -95,12 +96,11 @@ public class ProgrammerService {
     @Transactional
     public boolean delete(Long id) {
         log.info("remove({})", id);
-        long executed = queryFactory.delete(programmer)
-                .where(programmer.id.eq(id))
-                .execute();
-        if (executed == 0) {
+        if(programmerRepository.existsById(id)) {
+            programmerRepository.deleteById(id);
+            return true;
+        }else {
             throw new NotFoundProgrammerException(id);
         }
-        return true;
     }
 }

@@ -5,8 +5,11 @@ import com.codingMate.common.response.ResponseMessage;
 import com.codingMate.dto.request.programmer.LoginRequest;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
+import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.jwt.TokenProvider;
 import com.codingMate.service.programmer.ProgrammerService;
+import com.codingMate.util.JwtUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +54,7 @@ public class AuthController {
 
         String jwt = tokenProvider.createToken(authentication, userId);
         response.setHeader(header, jwt);
-        log.info("TOKEN {} ",jwt);
+        log.info("TOKEN {} ", jwt);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, jwt);
     }
 
@@ -67,5 +70,17 @@ public class AuthController {
         log.info("programmerDto {}", programmerDto.toString());
 
         return ResponseEntity.ok(ResponseMessage.SUCCESS);
+    }
+
+    @DeleteMapping("/withdrawal")
+    public ResponseEntity<?> withdrawal(HttpServletRequest request) {
+        try {
+            Long idFromHttpServletRequest = JwtUtil.getIdFromHttpServletRequest(request);
+            boolean isDeleted = programmerService.delete(idFromHttpServletRequest);
+            if (isDeleted) return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT, "요청한 계정을 삭제했습니다");
+            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "요청한 계정을 삭제하지 못했습니다");
+        } catch (NotFoundProgrammerException notFoundProgrammerException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
+        }
     }
 }
