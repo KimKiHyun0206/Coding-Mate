@@ -4,9 +4,52 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>마이페이지</title>
-  <link rel="stylesheet" href="/css/nav_bar.css">
-  <link rel="stylesheet" href="/css/basic.css">
   <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f8f8f8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      position: relative;
+    }
+
+    h1 {
+      color: #333;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    nav {
+      background-color: #333;
+      color: #fff;
+      width: 100%;
+      padding: 15px 20px; /* 양쪽 여백 추가 */
+      display: flex;
+      justify-content: space-between; /* 항목들을 최대한 멀리 배치 */
+      align-items: center;
+    }
+
+    .nav-left {
+      display: flex;
+    }
+
+    .nav-right {
+      display: flex;
+    }
+
+    nav a {
+      color: #fff;
+      text-decoration: none;
+      margin: 0 10px; /* 링크 사이 간격 조정 */
+      font-weight: bold;
+    }
+
+    nav a:hover {
+      color: #bbb;
+    }
     .container {
       background-color: #fff;
       padding: 30px;
@@ -66,20 +109,36 @@
     .edit-button-container {
       margin-top: 20px;
       text-align: right;
+      display: flex; /* 버튼들을 가로로 배치 */
+      justify-content: flex-end; /* 오른쪽 정렬 */
+      gap: 10px; /* 버튼 사이 간격 */
     }
 
-    .edit-button {
+    .edit-button, .delete-button {
       padding: 10px 15px;
-      background-color: #333;
-      color: #fff;
-      border: none;
       border-radius: 5px;
       cursor: pointer;
       font-size: 1em;
     }
 
+    .edit-button {
+      background-color: #333;
+      color: #fff;
+      border: none;
+    }
+
     .edit-button:hover {
       background-color: gray;
+    }
+
+    .delete-button {
+      background-color: #dc3545; /* 빨간색 계열 */
+      color: #fff;
+      border: none;
+    }
+
+    .delete-button:hover {
+      background-color: #c82333;
     }
   </style>
 </head>
@@ -118,11 +177,11 @@
 
   <div class="edit-button-container">
     <button class="edit-button" onclick="goToEditPage()">수정</button>
+    <button class="delete-button" onclick="deleteAccount()">탈퇴</button>
   </div>
 </div>
 
 <script>
-  //로그인 여부에 따라 navbar가 바뀌도록 함
   document.addEventListener('DOMContentLoaded', function () {
     const navElement = document.getElementById('mainNav');
     const navLeft = navElement.querySelector('.nav-left');
@@ -130,12 +189,23 @@
 
     if (localStorage.getItem('Coding-Mate-Auth')) {
       navLeft.innerHTML = `
-        <a href="/">홈</a>
-        <a href="/answer/list">풀이 목록</a>
-      `;
+      <a href="/">홈</a>
+      <a href="/answer/list">풀이 목록</a>
+    `;
       navRight.innerHTML = `
-        <a href="/my-page">프로필</a>
-      `;
+      <a href="/my-page">프로필</a>
+      <a href="#" id="logoutButton">로그아웃</a>
+    `;
+
+      const logoutButton = document.getElementById('logoutButton');
+      if (logoutButton) {
+        logoutButton.addEventListener('click', function(event) {
+          event.preventDefault(); // 링크의 기본 동작 막기
+          localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
+          alert('로그아웃 되었습니다.');
+          window.location.href = '/'; // 홈페이지로 리다이렉트
+        });
+      }
     }
   });
 
@@ -186,6 +256,33 @@
 
   function goToEditPage() {
     window.location.href = '/my-page/edit'; // 수정 페이지 URL로 이동
+  }
+
+  function deleteAccount() {
+    if (confirm('정말로 계정을 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+      const token = localStorage.getItem('Coding-Mate-Auth');
+      fetch('/api/v1/auth/withdrawal', { // 실제 계정 탈퇴 API 엔드포인트로 변경해야 합니다.
+        method: 'DELETE',
+        headers: {
+          'Coding-Mate-Auth': token ? `${token}` : '' // 토큰이 있으면 헤더에 추가, 없으면 빈 문자열
+        }
+      })
+              .then(response => {
+                if (response.status === 204) {
+                  alert('계정이 성공적으로 탈퇴되었습니다.');
+                  localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 토큰 제거
+                  window.location.href = '/'; // 홈페이지로 리다이렉트
+                }else {
+                  return response.json().then(errorData => {
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '알 수 없는 오류'}`);
+                  });
+                }
+              })
+              .catch(error => {
+                console.error('계정 탈퇴 실패:', error);
+                alert(`계정 탈퇴에 실패했습니다: ${error.message}`);
+              });
+    }
   }
 </script>
 </body>
