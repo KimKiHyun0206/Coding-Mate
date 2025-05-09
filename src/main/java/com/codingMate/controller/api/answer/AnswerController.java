@@ -58,9 +58,9 @@ public class AnswerController {
      * */
     @GetMapping("/{answerId}")
     public ResponseEntity<?> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
         try{
             log.info("read({})", id);
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
             AnswerPageResponse answerPageDto = answerService.read(id).toAnswerPageDto();
             if(idFromToken != null) {
                 answerPageDto.setIsRequesterIsOwner(Objects.equals(answerPageDto.getProgrammerId(), idFromToken));

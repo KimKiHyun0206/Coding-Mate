@@ -26,7 +26,7 @@ public class JwtUtil {
 
     public static Long getIdFromHttpServletRequest(HttpServletRequest request) {
         String token = request.getHeader(header);
-        if(token == null) return null;
+        if(token == null || token.equals("null")) return null;
         return getIdFromString(token);
     }
 
@@ -35,7 +35,6 @@ public class JwtUtil {
      */
     private static Claims getAllClaims(String token) {
         log.info("getAllClaims token = {}", token);
-        if (token == null) return null;
         return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
