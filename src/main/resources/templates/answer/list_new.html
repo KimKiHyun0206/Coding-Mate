@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/css/nav_bar.css">
     <link rel="stylesheet" href="/css/table.css">
     <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/modal.css">
     <style>
         /* 기본 컨테이너 스타일 */
         .container {
@@ -55,22 +56,8 @@
             color: #777;
         }
 
-        /* 문제 생성 버튼 스타일 */
-        .create-problem-button {
-            display: block;
-            width: fit-content;
-            padding: 10px 15px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            margin: 20px auto;
-            text-decoration: none;
-        }
-
         .create-problem-button:hover {
-            background-color: #1e7e34;
+            background-color: gray;
         }
 
         /* 풀이 링크 스타일 (혹시 있을 경우) */
@@ -81,130 +68,6 @@
 
         .answer-link:hover {
             text-decoration: underline;
-        }
-
-        /* 모달 오버레이 스타일 */
-        .modal-overlay {
-            display: none; /* 초기 상태에서 숨김 */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1001;
-            justify-content: center;
-            align-items: center;
-            overflow: auto;
-        }
-
-        /* 모달 콘텐츠 스타일 */
-        .modal-content {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 900px;
-            max-height: 90vh; /* 최대 높이 (viewport height의 90%) */
-            position: relative;
-            overflow: auto; /* 내부 내용 스크롤 가능 */
-        }
-
-        /* 모달 헤더 스타일 */
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-        }
-
-        /* 모달 제목 스타일 */
-        .modal-header h2 {
-            margin: 0;
-        }
-
-        /* 모달 닫기 버튼 스타일 */
-        .modal-close-button {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #777;
-        }
-
-        /* 모달 본문 스타일 */
-        .modal-body {
-            margin-bottom: 20px;
-            overflow: auto;
-        }
-
-        /* 모달 본문 테이블 스타일 */
-        .modal-body table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        /* 모달 본문 테이블 제목 셀 스타일 */
-        .modal-body th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-            width: 20%; /* 제목 부분 너비를 20%로 설정 */
-            vertical-align: top; /* 내용이 많을 경우 위쪽 정렬 */
-        }
-
-        /* 모달 본문 테이블 데이터 셀 스타일 */
-        .modal-body td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-            width: 80%; /* 값 부분 너비를 80%로 설정 */
-            vertical-align: top; /* 내용이 많을 경우 위쪽 정렬 */
-        }
-
-        /* 코드 및 설명 부분이 있는 테이블 데이터 셀 스타일 (높이 늘림) */
-        .modal-body tr:nth-child(4) td, /* 코드 TD */
-        .modal-body tr:nth-child(5) td { /* 설명 TD */
-            height: 150px; /* 높이 늘림 (필요에 따라 조정) */
-        }
-
-        /* 코드 및 설명 표시 영역 스타일 */
-        .modal-body td pre {
-            white-space: pre-wrap; /* 긴 공백 및 줄바꿈 유지 */
-            word-break: break-all; /* 긴 단어 줄바꿈 */
-            font-family: monospace; /* 고정폭 글꼴 */
-            font-size: 0.9em;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            height: 100%; /* 부모 TD 높이에 맞춤 */
-            overflow-y: auto; /* 내용이 넘칠 경우 세로 스크롤 */
-        }
-
-        /* 모달 네비게이션 버튼 컨테이너 스타일 */
-        .modal-navigation {
-            display: flex;
-            justify-content: space-between;
-        }
-
-        /* 모달 네비게이션 버튼 스타일 */
-        .modal-navigation button {
-            background-color: #333;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            padding: 10px 15px;
-            cursor: pointer;
-            font-size: 1em;
-        }
-
-        /* 모달 네비게이션 비활성화 버튼 스타일 */
-        .modal-navigation button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
         }
 
         .create-problem-button {
@@ -222,75 +85,6 @@
             z-index: 1000;
         }
 
-        /* 풀이 상세 테이블 스타일 (모달 내부) */
-        #answerDetailTable {
-            display: none; /* 초기 숨김 */
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        /* 풀이 상세 테이블 제목 셀 스타일 (모달 내부) */
-        #answerDetailTable th, #answerDetailTable td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        #answerDetailTable th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-            width: 120px;
-        }
-
-        /* 풀이 상세 테이블 코드 표시 영역 스타일 (모달 내부) */
-        #answerDetailTable td pre {
-            white-space: pre-wrap;
-            word-break: break-all;
-            font-family: monospace;
-            font-size: 0.9em;
-            background-color: #f9f9f9;
-            padding: 10px;
-            border: 1px solid #eee;
-            border-radius: 4px;
-            height: 100%;
-            overflow-y: auto;
-        }
-
-        /* 오류 메시지 스타일 */
-        #error {
-            display: none;
-            color: red;
-            margin-top: 10px;
-        }
-
-        /* 로딩 메시지 스타일 */
-        #loading {
-            display: none;
-            margin-top: 10px;
-        }
-
-        /* 액션 버튼 컨테이너 스타일 */
-        #actionButtons {
-            display: none;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        /* 액션 버튼 스타일 */
-        #actionButtons button {
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            background-color: #007bff;
-            color: white;
-            cursor: pointer;
-        }
-
-        #actionButtons button:hover {
-            background-color: #0056b3;
-        }
     </style>
 </head>
 <body>
@@ -361,17 +155,21 @@
                 </tr>
                 <tr>
                     <th>코드</th>
-                    <td><pre><code id="modalCode"></code></pre></td>
+                    <td>
+                        <pre><code id="modalCode"></code></pre>
+                    </td>
                 </tr>
                 <tr>
                     <th>설명</th>
-                    <td><pre id="modalExplanation"></pre></td>
+                    <td>
+                        <pre id="modalExplanation"></pre>
+                    </td>
                 </tr>
                 </tbody>
             </table>
             <div id="actionButtons" style="display: none;">
                 <button>수정</button>
-                <button>삭제</button>
+                <button onclick="deleteAnswer()" id="deleteButton">삭제</button>
             </div>
         </div>
         <div class="modal-navigation">
@@ -399,7 +197,7 @@
 
             const logoutButton = document.getElementById('logoutButton');
             if (logoutButton) {
-                logoutButton.addEventListener('click', function(event) {
+                logoutButton.addEventListener('click', function (event) {
                     event.preventDefault();
                     localStorage.removeItem('Coding-Mate-Auth');
                     alert('로그아웃 되었습니다.');
@@ -424,12 +222,15 @@
     const errorElement = document.getElementById('error');
     const answerDetailTableElement = document.getElementById('answerDetailTable');
     const actionButtonsElement = document.getElementById('actionButtons');
+    const editButton = document.querySelector('#actionButtons button:first-child');
+    // answerId를 저장할 변수 (모달이 열릴 때 업데이트)
+    let currentAnswerId = null;
 
     let currentProblemList = [];
     let currentIndex = -1;
     let modalEventListenersRegistered = false;
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         fetchProblemList();
     });
 
@@ -505,6 +306,7 @@
         actionButtonsElement.style.display = 'none';
         solutionModalOverlay.style.display = 'flex';
         modalProblemTitle.textContent = problemTitle;
+        currentAnswerId = answerId; // 모달이 열릴 때 answerId 저장
 
         const authToken = localStorage.getItem('Coding-Mate-Auth');
         fetch(`/api/v1/answer/${answerId}`, {
@@ -545,19 +347,19 @@
     function registerModalEventListeners() {
         if (!modalEventListenersRegistered) {
             if (modalCloseButton) {
-                modalCloseButton.addEventListener('click', function(event) {
+                modalCloseButton.addEventListener('click', function (event) {
                     event.preventDefault(); // 추가
                     closeSolutionModal();
                 });
             }
             if (modalPrevButton) {
-                modalPrevButton.addEventListener('click', function(event) {
+                modalPrevButton.addEventListener('click', function (event) {
                     event.preventDefault(); // 추가
                     goToPreviousSolution();
                 });
             }
             if (modalNextButton) {
-                modalNextButton.addEventListener('click', function(event) {
+                modalNextButton.addEventListener('click', function (event) {
                     event.preventDefault(); // 추가
                     goToNextSolution();
                 });
@@ -576,6 +378,8 @@
         modalLanguageTypeElement.textContent = answer.languageType;
         modalProgrammerNameElement.textContent = answer.programmerName || '알 수 없음';
 
+        // isRequesterIsOwner 값에 따라 액션 버튼 표시/숨김
+        console.log(answer.isRequesterIsOwner)
         if (answer.isRequesterIsOwner === true) {
             actionButtonsElement.style.display = 'flex';
         } else {
@@ -583,6 +387,18 @@
         }
 
         answerDetailTableElement.style.display = 'table';
+    }
+
+    // 수정 버튼 클릭 이벤트 리스너
+    if (editButton) {
+        editButton.addEventListener('click', function () {
+            if (currentAnswerId !== null) {
+                window.location.href = `/answer/edit/${currentAnswerId}`;
+            } else {
+                console.error('수정할 answerId가 없습니다.');
+                alert('수정할 정보를 찾을 수 없습니다.');
+            }
+        });
     }
 
     function closeSolutionModal() {
@@ -611,6 +427,33 @@
     modalCloseButton.addEventListener('click', closeSolutionModal);
     modalPrevButton.addEventListener('click', goToPreviousSolution);
     modalNextButton.addEventListener('click', goToNextSolution);
+
+    function deleteAnswer() {
+        const answerId = currentAnswerId;
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        if (confirm('정말로 이 풀이를 삭제하시겠습니까?')) {
+            fetch(`/api/v1/answer/${answerId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Coding-Mate-Auth': authToken // 헤더 추가
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(`풀이 삭제에 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
+                        });
+                    }
+                    alert('풀이가 성공적으로 삭제되었습니다.');
+                    window.location.href = '/answer/list'; // 풀이 목록 페이지로 리디렉션
+                })
+                .catch(error => {
+                    console.error('풀이 삭제에 실패했습니다:', error);
+                    alert(error.message);
+                });
+        }
+    }
 </script>
 </body>
 </html>
