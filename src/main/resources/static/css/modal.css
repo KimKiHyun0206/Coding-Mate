@@ -1,0 +1,202 @@
+/* 모달 오버레이 스타일 */
+.modal-overlay {
+    display: none; /* 초기 상태에서 숨김 */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1001;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+}
+
+/* 모달 콘텐츠 스타일 */
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh; /* 최대 높이 (viewport height의 90%) */
+    position: relative;
+    overflow: auto; /* 내부 내용 스크롤 가능 */
+}
+
+/* 모달 헤더 스타일 */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* 모달 제목 스타일 */
+.modal-header h2 {
+    margin: 0;
+}
+
+/* 모달 닫기 버튼 스타일 */
+.modal-close-button {
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #777;
+}
+
+/* 모달 본문 스타일 */
+.modal-body {
+    margin-bottom: 20px;
+    overflow: auto;
+}
+
+/* 모달 본문 테이블 스타일 */
+.modal-body table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* 모달 본문 테이블 제목 셀 스타일 */
+.modal-body th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    width: 10%; /* 제목 부분 너비를 20%로 설정 */
+    vertical-align: top; /* 내용이 많을 경우 위쪽 정렬 */
+}
+
+/* 모달 본문 테이블 데이터 셀 스타일 */
+.modal-body td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    width: 90%; /* 값 부분 너비를 80%로 설정 */
+    vertical-align: top; /* 내용이 많을 경우 위쪽 정렬 */
+}
+
+.modal-body tr:nth-child(4) td, /* 코드 TD */
+.modal-body tr:nth-child(5) td { /* 설명 TD */
+    height: auto; /* 내용에 따라 자동으로 늘어나도록 변경 */
+    /* 또는 더 큰 고정 값 (예: height: 200px;) */
+}
+
+/* 코드 및 설명 표시 영역 스타일 */
+.modal-body td pre {
+    white-space: pre-wrap; /* 긴 공백 및 줄바꿈 유지 */
+    word-break: break-all; /* 긴 단어 줄바꿈 */
+    font-family: monospace; /* 고정폭 글꼴 */
+    font-size: 0.9em;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    height: 100%; /* 부모 TD 높이에 맞춤 */
+    overflow-y: auto; /* 내용이 넘칠 경우 세로 스크롤 */
+}
+
+/* 모달 네비게이션 버튼 컨테이너 스타일 */
+.modal-navigation {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* 모달 네비게이션 버튼 스타일 */
+.modal-navigation button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+/* 모달 네비게이션 비활성화 버튼 스타일 */
+.modal-navigation button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* 풀이 상세 테이블 스타일 (모달 내부) */
+#answerDetailTable {
+    display: none; /* 초기 숨김 */
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+/* 풀이 상세 테이블 제목 셀 스타일 (모달 내부) */
+#answerDetailTable th, #answerDetailTable td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    vertical-align: top;
+}
+
+#answerDetailTable th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    width: 120px;
+}
+
+/* 풀이 상세 테이블 코드 표시 영역 스타일 (모달 내부) */
+#answerDetailTable td pre {
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: monospace;
+    font-size: 0.9em;
+    background-color: #f9f9f9;
+    padding: 10px;
+    border: 1px solid #eee;
+    border-radius: 4px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+/* 오류 메시지 스타일 */
+#error {
+    display: none;
+    color: red;
+    margin-top: 10px;
+}
+
+/* 로딩 메시지 스타일 */
+#loading {
+    display: none;
+    margin-top: 10px;
+}
+
+#actionButtons button {
+    background-color: #6c757d; /* 회색 계열 */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+#actionButtons button:hover {
+    background-color: #545b62;
+}
+
+#actionButtons button:last-child { /* 삭제 버튼 */
+    background-color: #343a40; /* 더 어두운 회색 계열 */
+}
+
+#actionButtons button:last-child:hover {
+    background-color: #23272b;
+}
+
+#actionButtons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
