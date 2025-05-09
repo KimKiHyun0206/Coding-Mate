@@ -2,10 +2,11 @@ nav {
     background-color: #333;
     color: #fff;
     width: 100%;
-    padding: 15px 20px; /* 양쪽 여백 추가 */
+    padding: 15px 20px;
     display: flex;
-    justify-content: space-between; /* 항목들을 최대한 멀리 배치 */
+    justify-content: space-between;
     align-items: center;
+    box-sizing: border-box; /* 추가 */
 }
 
 .nav-left {
