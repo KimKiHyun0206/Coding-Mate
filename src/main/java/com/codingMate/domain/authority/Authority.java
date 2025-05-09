@@ -1,4 +1,4 @@
-package com.codingMate.domain.programmer.vo;
+package com.codingMate.domain.authority;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
