@@ -1,7 +1,6 @@
 package com.codingMate.controller.ui.programmer;
 
 
-import com.codingMate.service.programmer.MyPageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,8 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping()
 @RequiredArgsConstructor
 public class MyPageController {
-    private final MyPageService myPageService;
-
     @RequestMapping("/my-page")
     public String myPage() {
         return "programmer/my_page";

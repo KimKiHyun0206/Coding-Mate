@@ -7,7 +7,6 @@ import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
 import com.codingMate.exception.exception.jwt.UnMatchedAuthException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
-import com.codingMate.service.programmer.MyPageService;
 import com.codingMate.service.programmer.ProgrammerService;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ProgrammerController {
     private final ProgrammerService programmerService;
-    private final MyPageService myPageService;
 
     /**
      * @apiNote 회원 생성 API
@@ -40,7 +38,7 @@ public class ProgrammerController {
     @GetMapping("/my-page")
     public ResponseEntity<?> myPage(HttpServletRequest request) {
         Long usernameFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        MyPageResponse myPageResponse = myPageService.myPage(usernameFromToken);
+        MyPageResponse myPageResponse = programmerService.myPage(usernameFromToken);
         log.info("myPage {}", myPageResponse.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPageResponse);
     }

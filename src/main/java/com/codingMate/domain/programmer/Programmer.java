@@ -2,7 +2,7 @@ package com.codingMate.domain.programmer;
 
 import com.codingMate.common.BaseEntity;
 import com.codingMate.domain.programmer.converter.PasswordEncodeConverter;
-import com.codingMate.domain.programmer.vo.Authority;
+import com.codingMate.domain.authority.Authority;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.dto.response.programmer.MyPageResponse;

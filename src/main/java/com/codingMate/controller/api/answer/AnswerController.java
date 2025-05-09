@@ -15,7 +15,6 @@ import com.codingMate.service.answer.AnswerService;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class AnswerController {
     private final AnswerService answerService;
-    private final String header = JwtUtil.getHeader();
 
     /**
      * @apiNote 풀이 생성 API
@@ -89,7 +87,7 @@ public class AnswerController {
         if (backjoonId != null) {
             log.info("backjoonId {}", backjoonId);
         }
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAll(language, backjoonId));
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllToListResponse(language, backjoonId));
     }
 
     /**
