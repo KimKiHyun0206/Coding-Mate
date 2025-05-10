@@ -4,36 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마이페이지</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/basic.css">
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f8f8f8;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        nav {
-            background-color: #333;
-            color: #fff;
-            width: 100%;
-            padding: 15px 0;
-            text-align: center;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
-        }
-
-        nav a:hover {
-            color: #bbb;
-        }
-
         .container {
             background-color: #fff;
             padding: 30px;
@@ -42,12 +15,6 @@
             width: 80%;
             max-width: 600px;
             margin-top: 30px;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
         }
 
         .form-group {
@@ -100,11 +67,15 @@
     </style>
 </head>
 <body>
-<nav>
-    <a href="/">홈</a>
-    <a href="/answer/list">풀이 목록</a>
-    <a href="/login">로그인</a>
-    <a href="/my-page">마이페이지</a>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
 </nav>
 
 <div class="container">
@@ -140,22 +111,47 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    //로그인 여부에 따라 navbar가 바뀌도록 함
+    document.addEventListener('DOMContentLoaded', function () {
+        const navElement = document.getElementById('mainNav');
+        const navLeft = navElement.querySelector('.nav-left');
+        const navRight = navElement.querySelector('.nav-right');
+
+        if (localStorage.getItem('Coding-Mate-Auth')) {
+            navLeft.innerHTML = `
+      <a href="/">홈</a>
+      <a href="/answer/list">풀이 목록</a>
+    `;
+            navRight.innerHTML = `
+      <a href="/my-page">프로필</a>
+      <a href="#" id="logoutButton">로그아웃</a>
+    `;
+
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function (event) {
+                    event.preventDefault(); // 링크의 기본 동작 막기
+                    localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/'; // 홈페이지로 리다이렉트
+                });
+            }
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
         fetchProfile();
 
         const profileForm = document.getElementById('profileForm');
-        profileForm.addEventListener('submit', function(event) {
+        profileForm.addEventListener('submit', function (event) {
             event.preventDefault();
             updateProfile();
         });
     });
 
     function fetchProfile() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
         fetch('/api/v1/programmer/my-page', { // 실제 마이페이지 정보 API 엔드포인트
-            headers: {
-                'Coding-Mate-Auth': authToken
-            }
+            headers: createAuthHeaderFromLocalStorage()
         })
             .then(response => {
                 if (!response.ok) {
@@ -177,28 +173,23 @@
 
     function populateProfileForm(profile) {
         console.log('populateProfileForm 호출됨', profile);
-        document.getElementById('githubId').value    = profile.githubId || '';
+        document.getElementById('githubId').value = profile.githubId || '';
         document.getElementById('name').value = profile.name || '';
         document.getElementById('email').value = profile.email || '';
         document.getElementById('tip').value = profile.tip || '';
     }
 
     function updateProfile() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
         const formData = {
             githubId: document.getElementById('githubId').value,
             name: document.getElementById('name').value,
             email: document.getElementById('email').value,
             tip: document.getElementById('tip').value
         };
-        console.log(formData)
 
         fetch('/api/v1/programmer', { // 실제 마이페이지 정보 수정 API 엔드포인트 (PUT 또는 PATCH)
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Coding-Mate-Auth': authToken
-            },
+            headers: createAuthHeaderFromLocalStorage(),
             body: JSON.stringify(formData)
         })
             .then(response => {
@@ -219,6 +210,19 @@
                 document.getElementById('errorMessage').textContent = error.message;
                 document.getElementById('errorMessage').style.display = 'block';
             });
+    }
+
+    function createAuthHeaderFromLocalStorage() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = `${authToken}`;
+        }
+
+        return headers
     }
 </script>
 </body>

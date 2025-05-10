@@ -1,7 +1,8 @@
 package com.codingMate.domain.programmer;
 
+import com.codingMate.common.BaseEntity;
 import com.codingMate.domain.programmer.converter.PasswordEncodeConverter;
-import com.codingMate.domain.programmer.vo.Authority;
+import com.codingMate.domain.authority.Authority;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.dto.response.programmer.MyPageResponse;
@@ -18,7 +19,7 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
 @Setter
-public class Programmer {
+public class Programmer extends BaseEntity {
     @Id
     @GeneratedValue
     @Column(name = "programmer_id")
@@ -67,7 +68,7 @@ public class Programmer {
     }
 
 
-    public ProgrammerDto toDto(){
+    public ProgrammerDto toDto() {
         return new ProgrammerDto(
                 id,
                 loginId,
@@ -79,11 +80,11 @@ public class Programmer {
         );
     }
 
-    public SimpleProgrammerDto toSimpleDto(){
+    public SimpleProgrammerDto toSimpleDto() {
         return new SimpleProgrammerDto(id, name.getName());
     }
 
-    public MyPageResponse toMyPateDto(){
+    public MyPageResponse toMyPateDto() {
         return MyPageResponse.builder()
                 .email(email.getEmail())
                 .githubId(githubId)
@@ -94,10 +95,11 @@ public class Programmer {
     }
 
 
-    public void addAnswer(){
+    public void addAnswer() {
         this.numberOfAnswer++;
     }
-    public void removeAnswer(){
+
+    public void removeAnswer() {
         this.numberOfAnswer--;
     }
 }

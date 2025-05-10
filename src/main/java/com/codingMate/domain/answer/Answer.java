@@ -1,7 +1,9 @@
 package com.codingMate.domain.answer;
 
+import com.codingMate.common.BaseEntity;
 import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
+import com.codingMate.dto.response.answer.AnswerPageResponse;
 import com.codingMate.dto.response.answer.AnswerResponse;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +11,7 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Answer {
+public class Answer extends BaseEntity {
 
     @Id
     @GeneratedValue

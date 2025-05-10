@@ -4,43 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원가입</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/basic.css">
     <style>
-        body {
-            font-family: sans-serif;
-            background-color: #f8f8f8; /* 밝은 회색 배경 */
-            display: flex;
-            flex-direction: column; /* navbar를 상단에 배치하기 위해 column으로 변경 */
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        nav {
-            background-color: #333; /* 어두운 회색 navbar 배경 */
-            color: #fff; /* 흰색 navbar 텍스트 */
-            width: 100%;
-            padding: 15px 0;
-            text-align: center;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
-        }
-
-        nav a:hover {
-            color: #bbb;
-        }
-
-        h1 {
-            color: #333; /* 어두운 회색 제목 */
-            text-align: center;
-            margin-top: 30px; /* navbar와의 간격 조절 */
-            margin-bottom: 20px;
-        }
-
         form {
             background-color: #fff; /* 흰색 폼 배경 */
             padding: 30px;
@@ -104,15 +70,19 @@
     </style>
 </head>
 <body>
-<nav>
-    <a href="/">홈</a>
-    <a href="/answer/list">풀이 목록</a>
-    <a href="/login">로그인</a>
-    <a href="/my-page">프로필</a>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
 </nav>
 
 <h1>회원가입</h1>
-<form action="/api/v1/auth/register" method="post">
+<form id="registrationForm" action="/api/v1/auth/register" method="post">
     <div>
         <label for="name">이름:</label>
         <input type="text" id="name" name="name" required>
@@ -147,102 +117,122 @@
 </form>
 
 <script>
-    const form = document.getElementById('registrationForm');
-    const nameInput = document.getElementById('name');
-    const loginIdInput = document.getElementById('loginId');
-    const githubIdInput = document.getElementById('githubId');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const confirmPasswordInput = document.getElementById('confirm_password');
-    const nameError = document.getElementById('nameError');
-    const usernameError = document.getElementById('usernameError');
-    const githubError = document.getElementById('githubError');
-    const emailError = document.getElementById('emailError');
-    const passwordError = document.getElementById('passwordError');
-    const confirmPasswordError = document.getElementById('confirmPasswordError');
+    document.addEventListener('DOMContentLoaded', function () {
+        const navElement = document.getElementById('mainNav');
+        const navLeft = navElement.querySelector('.nav-left');
+        const navRight = navElement.querySelector('.nav-right');
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault(); // 기본 폼 제출 동작을 막습니다.
-        let isValid = true;
+        if (localStorage.getItem('Coding-Mate-Auth')) {
+            navLeft.innerHTML = `
+      <a href="/">홈</a>
+      <a href="/answer/list">풀이 목록</a>
+    `;
+            navRight.innerHTML = `
+      <a href="/my-page">프로필</a>
+      <a href="#" id="logoutButton">로그아웃</a>
+    `;
 
-        if (nameInput.value.trim() === '') {
-            nameError.textContent = '이름을 입력해주세요.';
-            isValid = false;
-        } else {
-            nameError.textContent = '';
-        }
-
-        if (loginIdInput.value.trim() === '') {
-            usernameError.textContent = '아이디를 입력해주세요.';
-            isValid = false;
-        } else {
-            usernameError.textContent = '';
-        }
-
-        if (emailInput.value.trim() === '') {
-            emailError.textContent = '이메일을 입력해주세요.';
-            isValid = false;
-        } else if (!isValidEmail(emailInput.value.trim())) {
-            emailError.textContent = '올바른 이메일 형식이 아닙니다.';
-            isValid = false;
-        } else {
-            emailError.textContent = '';
-        }
-
-        if (passwordInput.value.trim() === '') {
-            passwordError.textContent = '비밀번호를 입력해주세요.';
-            isValid = false;
-        } else if (passwordInput.value.length < 6) {
-            passwordError.textContent = '비밀번호는 최소 6자 이상이어야 합니다.';
-            isValid = false;
-        } else {
-            passwordError.textContent = '';
-        }
-
-        if (confirmPasswordInput.value.trim() === '') {
-            confirmPasswordError.textContent = '비밀번호 확인을 입력해주세요.';
-            isValid = false;
-        } else if (passwordInput.value !== confirmPasswordInput.value) {
-            confirmPasswordError.textContent = '비밀번호가 일치하지 않습니다.';
-            isValid = false;
-        } else {
-            confirmPasswordError.textContent = '';
-        }
-
-        if (isValid) {
-            const formData = new FormData(form);
-            fetch('/api/v1/auth/register', {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errorData => {
-                            throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '알 수 없는 오류'}`);
-                        });
-                    }
-                    // 응답 헤더에서 JWT 토큰을 추출합니다.
-                    const token = response.headers.get('coding-mate-auth');
-                    if (token && token.startsWith('Bearer ')) {
-                        localStorage.setItem('coding-mate-auth', token.substring(7)); // "Bearer " 접두사 제거 후 저장
-                        alert('회원가입 성공! 토큰이 localStorage에 저장되었습니다.');
-                        // 회원가입 성공 후 리다이렉트 또는 다른 동작 수행
-                        window.location.href = '/'; // 예: 홈페이지로 리다이렉트
-                    } else {
-                        alert('회원가입 성공했지만, 토큰을 받지 못했습니다.');
-                    }
-                })
-                .catch(error => {
-                    console.error('회원가입 실패:', error);
-                    alert(`회원가입에 실패했습니다: ${error.message}`);
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function(event) {
+                    event.preventDefault(); // 링크의 기본 동작 막기
+                    localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/'; // 홈페이지로 리다이렉트
                 });
+            }
+        }
+
+        const form = document.getElementById('registrationForm');
+        const nameInput = document.getElementById('name');
+        const loginIdInput = document.getElementById('loginId');
+        const githubIdInput = document.getElementById('githubId');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        const nameError = document.getElementById('nameError');
+        const usernameError = document.getElementById('usernameError');
+        const githubError = document.getElementById('githubError');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
+        const confirmPasswordError = document.getElementById('confirmPasswordError');
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault(); // 기본 폼 제출 동작을 막습니다.
+            let isValid = true;
+
+            if (nameInput.value.trim() === '') {
+                nameError.textContent = '이름을 입력해주세요.';
+                isValid = false;
+            } else {
+                nameError.textContent = '';
+            }
+
+            if (loginIdInput.value.trim() === '') {
+                usernameError.textContent = '아이디를 입력해주세요.';
+                isValid = false;
+            } else {
+                usernameError.textContent = '';
+            }
+
+            if (emailInput.value.trim() === '') {
+                emailError.textContent = '이메일을 입력해주세요.';
+                isValid = false;
+            } else if (!isValidEmail(emailInput.value.trim())) {
+                emailError.textContent = '올바른 이메일 형식이 아닙니다.';
+                isValid = false;
+            } else {
+                emailError.textContent = '';
+            }
+
+            if (passwordInput.value.trim() === '') {
+                passwordError.textContent = '비밀번호를 입력해주세요.';
+                isValid = false;
+            } else if (passwordInput.value.length < 6) {
+                passwordError.textContent = '비밀번호는 최소 6자 이상이어야 합니다.';
+                isValid = false;
+            } else {
+                passwordError.textContent = '';
+            }
+
+            if (confirmPasswordInput.value.trim() === '') {
+                confirmPasswordError.textContent = '비밀번호 확인을 입력해주세요.';
+                isValid = false;
+            } else if (passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordError.textContent = '비밀번호가 일치하지 않습니다.';
+                isValid = false;
+            } else {
+                confirmPasswordError.textContent = '';
+            }
+
+            if (isValid) {
+                const formData = new FormData(form);
+                fetch('/api/v1/auth/register', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(errorData => {
+                                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '알 수 없는 오류'}`);
+                            });
+                        } else {
+                            alert('회원가입 성공!');
+                            window.location.href = '/login';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('회원가입 실패:', error);
+                        alert(`회원가입에 실패했습니다: ${error.message}`);
+                    });
+            }
+        });
+
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         }
     });
-
-    function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
 </script>
 </body>
 </html>

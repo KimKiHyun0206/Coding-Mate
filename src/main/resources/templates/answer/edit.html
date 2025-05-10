@@ -4,37 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>풀이 수정</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/basic.css">
     <style>
-        /* 이전 스타일 유지 */
-        body {
-            font-family: sans-serif;
-            background-color: #f8f8f8;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        nav {
-            background-color: #333;
-            color: #fff;
-            width: 100%;
-            padding: 15px 0;
-            text-align: center;
-        }
-
-        nav a {
-            color: #fff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-weight: bold;
-        }
-
-        nav a:hover {
-            color: #bbb;
-        }
-
         .container {
             background-color: #fff;
             padding: 30px;
@@ -43,12 +15,6 @@
             width: 80%;
             max-width: 700px;
             margin-top: 30px;
-        }
-
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 20px;
         }
 
         .form-group {
@@ -124,11 +90,15 @@
     </style>
 </head>
 <body>
-<nav>
-    <a href="/">홈</a>
-    <a href="/answer/list">풀이 목록</a>
-    <a href="/login">로그인</a>
-    <a href="/my-page">프로필</a>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
 </nav>
 
 <div class="container">
@@ -176,7 +146,35 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    //로그인 여부에 따라 navbar가 바뀌도록 함
+    document.addEventListener('DOMContentLoaded', function () {
+        const navElement = document.getElementById('mainNav');
+        const navLeft = navElement.querySelector('.nav-left');
+        const navRight = navElement.querySelector('.nav-right');
+
+        if (localStorage.getItem('Coding-Mate-Auth')) {
+            navLeft.innerHTML = `
+      <a href="/">홈</a>
+      <a href="/answer/list">풀이 목록</a>
+    `;
+            navRight.innerHTML = `
+      <a href="/my-page">프로필</a>
+      <a href="#" id="logoutButton">로그아웃</a>
+    `;
+
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function (event) {
+                    event.preventDefault(); // 링크의 기본 동작 막기
+                    localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/'; // 홈페이지로 리다이렉트
+                });
+            }
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
         const answerId = getAnswerIdFromUrl();
         console.log('answerId:', answerId); // ID 확인 로그 추가
         if (answerId) {
@@ -186,7 +184,7 @@
             document.getElementById('errorMessage').style.display = 'block';
         }
 
-        document.getElementById('updateAnswerForm').addEventListener('submit', function(event) {
+        document.getElementById('updateAnswerForm').addEventListener('submit', function (event) {
             event.preventDefault();
             updateAnswer(answerId);
         });
@@ -204,14 +202,10 @@
     }
 
     function fetchAnswerDetails(answerId) {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        console.log('authToken:', authToken); // 토큰 확인 로그 추가
-
+        const headers = createAuthHeaderFromLocalStorage();
         fetch(`/api/v1/answer/${answerId}`, {
             method: 'GET',
-            headers: {
-                'Coding-Mate-Auth': authToken
-            }
+            headers
         })
             .then(response => {
                 console.log('fetch response:', response); // 응답 확인 로그 추가
@@ -255,17 +249,10 @@
             languageType: document.getElementById('languageType').value || null
         };
 
-        console.log('formData before stringify:', formData); // 폼 데이터 확인 로그
-
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        console.log('authToken for update:', authToken); // 토큰 확인 로그
-
+        const headers = createAuthHeaderFromLocalStorage();
         fetch(`/api/v1/answer/${answerId}`, {
             method: 'PATCH', // 요청 메서드를 PATCH로 변경
-            headers: {
-                'Content-Type': 'application/json',
-                'Coding-Mate-Auth': authToken
-            },
+            headers,
             body: JSON.stringify(formData)
         })
             .then(response => {
@@ -288,6 +275,19 @@
                 document.getElementById('errorMessage').textContent = error.message;
                 document.getElementById('errorMessage').style.display = 'block';
             });
+    }
+
+    function createAuthHeaderFromLocalStorage() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = `${authToken}`;
+        }
+
+        return headers
     }
 </script>
 </body>

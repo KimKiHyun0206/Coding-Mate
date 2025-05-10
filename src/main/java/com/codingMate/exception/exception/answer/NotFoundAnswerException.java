@@ -7,4 +7,8 @@ public class NotFoundAnswerException extends BusinessException {
     public NotFoundAnswerException(Long answerId) {
         super(ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION, "answerId : " + answerId);
     }
+
+    public NotFoundAnswerException(String message) {
+        super(ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION, message);
+    }
 }
