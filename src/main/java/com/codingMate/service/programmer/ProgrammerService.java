@@ -85,8 +85,7 @@ public class ProgrammerService {
         boolean isExist = defaultProgrammerRepository.existsById(programmerId);
         if (isExist) {
             defaultProgrammerRepository.deleteById(programmerId);
-        } else
-            throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + programmerId);
+        } else throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + programmerId);
 
         return true;
     }
