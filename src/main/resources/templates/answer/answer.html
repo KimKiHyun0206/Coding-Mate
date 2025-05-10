@@ -140,7 +140,7 @@
 
             const logoutButton = document.getElementById('logoutButton');
             if (logoutButton) {
-                logoutButton.addEventListener('click', function(event) {
+                logoutButton.addEventListener('click', function (event) {
                     event.preventDefault(); // 링크의 기본 동작 막기
                     localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
                     alert('로그아웃 되었습니다.');
@@ -173,9 +173,7 @@
     function fetchAnswerDetail(answerId) {
         const authToken = localStorage.getItem('Coding-Mate-Auth');
         fetch(`/api/v1/answer/${answerId}`, {
-            headers: {
-                'Coding-Mate-Auth': authToken // 헤더 추가
-            }
+            headers: createAuthHeaderFromLocalStorage()
         })
             .then(response => {
                 if (!response.ok) {
@@ -219,13 +217,10 @@
 
     function editAnswer() {
         const answerId = getAnswerIdFromUrl();
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
         if (answerId) {
             fetch(`/api/v1/answer/${answerId}`, {
                 method: 'GET',
-                headers: {
-                    'Coding-Mate-Auth': authToken
-                }
+                headers: createAuthHeaderFromLocalStorage()
             })
                 .then(response => {
                     if (!response.ok) {
@@ -255,14 +250,10 @@
 
     function deleteAnswer() {
         const answerId = getAnswerIdFromUrl();
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
         if (confirm('정말로 이 풀이를 삭제하시겠습니까?')) {
             fetch(`/api/v1/answer/${answerId}`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Coding-Mate-Auth': authToken // 헤더 추가
-                }
+                headers: createAuthHeaderFromLocalStorage()
             })
                 .then(response => {
                     if (!response.ok) {
@@ -278,6 +269,19 @@
                     alert(error.message);
                 });
         }
+    }
+
+    function createAuthHeaderFromLocalStorage() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = `${authToken}`;
+        }
+
+        return headers
     }
 </script>
 </body>

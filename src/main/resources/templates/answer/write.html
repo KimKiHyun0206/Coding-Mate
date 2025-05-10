@@ -218,13 +218,10 @@
 
         if (isValid) {
             const formData = new FormData(createProblemForm);
-            const token = localStorage.getItem('Coding-Mate-Auth');
 
             fetch('/api/v1/answer', { // 실제 API 엔드포인트로 변경
                 method: 'POST',
-                headers: {
-                    'Coding-Mate-Auth': `${token}` // 헤더에 토큰 추가
-                },
+                headers: createAuthHeaderFromLocalStorage(),
                 body: formData
             })
                 .then(response => {
@@ -246,6 +243,19 @@
                 });
         }
     });
+
+    function createAuthHeaderFromLocalStorage() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {
+
+        };
+
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = `${authToken}`;
+        }
+
+        return headers
+    }
 </script>
 </body>
 </html>

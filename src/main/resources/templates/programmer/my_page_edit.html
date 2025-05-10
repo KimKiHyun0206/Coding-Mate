@@ -129,7 +129,7 @@
 
             const logoutButton = document.getElementById('logoutButton');
             if (logoutButton) {
-                logoutButton.addEventListener('click', function(event) {
+                logoutButton.addEventListener('click', function (event) {
                     event.preventDefault(); // 링크의 기본 동작 막기
                     localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
                     alert('로그아웃 되었습니다.');
@@ -139,22 +139,19 @@
         }
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         fetchProfile();
 
         const profileForm = document.getElementById('profileForm');
-        profileForm.addEventListener('submit', function(event) {
+        profileForm.addEventListener('submit', function (event) {
             event.preventDefault();
             updateProfile();
         });
     });
 
     function fetchProfile() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
         fetch('/api/v1/programmer/my-page', { // 실제 마이페이지 정보 API 엔드포인트
-            headers: {
-                'Coding-Mate-Auth': authToken
-            }
+            headers: createAuthHeaderFromLocalStorage()
         })
             .then(response => {
                 if (!response.ok) {
@@ -176,28 +173,23 @@
 
     function populateProfileForm(profile) {
         console.log('populateProfileForm 호출됨', profile);
-        document.getElementById('githubId').value    = profile.githubId || '';
+        document.getElementById('githubId').value = profile.githubId || '';
         document.getElementById('name').value = profile.name || '';
         document.getElementById('email').value = profile.email || '';
         document.getElementById('tip').value = profile.tip || '';
     }
 
     function updateProfile() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
         const formData = {
             githubId: document.getElementById('githubId').value,
             name: document.getElementById('name').value,
             email: document.getElementById('email').value,
             tip: document.getElementById('tip').value
         };
-        console.log(formData)
 
         fetch('/api/v1/programmer', { // 실제 마이페이지 정보 수정 API 엔드포인트 (PUT 또는 PATCH)
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Coding-Mate-Auth': authToken
-            },
+            headers: createAuthHeaderFromLocalStorage(),
             body: JSON.stringify(formData)
         })
             .then(response => {
@@ -218,6 +210,19 @@
                 document.getElementById('errorMessage').textContent = error.message;
                 document.getElementById('errorMessage').style.display = 'block';
             });
+    }
+
+    function createAuthHeaderFromLocalStorage() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = `${authToken}`;
+        }
+
+        return headers
     }
 </script>
 </body>

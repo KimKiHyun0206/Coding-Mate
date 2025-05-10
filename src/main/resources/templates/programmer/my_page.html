@@ -1,289 +1,296 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>마이페이지</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      background-color: #f8f8f8;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      position: relative;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>마이페이지</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            position: relative;
+        }
 
-    h1 {
-      color: #333;
-      text-align: center;
-      margin-bottom: 20px;
-    }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    nav {
-      background-color: #333;
-      color: #fff;
-      width: 100%;
-      padding: 15px 20px; /* 양쪽 여백 추가 */
-      display: flex;
-      justify-content: space-between; /* 항목들을 최대한 멀리 배치 */
-      align-items: center;
-    }
+        nav {
+            background-color: #333;
+            color: #fff;
+            width: 100%;
+            padding: 15px 20px; /* 양쪽 여백 추가 */
+            display: flex;
+            justify-content: space-between; /* 항목들을 최대한 멀리 배치 */
+            align-items: center;
+        }
 
-    .nav-left {
-      display: flex;
-    }
+        .nav-left {
+            display: flex;
+        }
 
-    .nav-right {
-      display: flex;
-    }
+        .nav-right {
+            display: flex;
+        }
 
-    nav a {
-      color: #fff;
-      text-decoration: none;
-      margin: 0 10px; /* 링크 사이 간격 조정 */
-      font-weight: bold;
-    }
+        nav a {
+            color: #fff;
+            text-decoration: none;
+            margin: 0 10px; /* 링크 사이 간격 조정 */
+            font-weight: bold;
+        }
 
-    nav a:hover {
-      color: #bbb;
-    }
-    .container {
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      width: 80%;
-      max-width: 800px;
-      margin: 30px auto;
-    }
+        nav a:hover {
+            color: #bbb;
+        }
 
-    .profile-info div {
-      margin-bottom: 15px;
-      padding-bottom: 15px;
-      border-bottom: 1px solid #eee;
-      font-size: 1.1em;
-    }
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 800px;
+            margin: 30px auto;
+        }
 
-    .profile-info div:last-child {
-      border-bottom: none;
-    }
+        .profile-info div {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            font-size: 1.1em;
+        }
 
-    .profile-info strong {
-      display: inline-block;
-      width: 150px;
-      color: #555;
-      font-weight: bold;
-    }
+        .profile-info div:last-child {
+            border-bottom: none;
+        }
 
-    .profile-info span, .profile-info a {
-      color: #333;
-    }
+        .profile-info strong {
+            display: inline-block;
+            width: 150px;
+            color: #555;
+            font-weight: bold;
+        }
 
-    .profile-info a {
-      text-decoration: none;
-    }
+        .profile-info span, .profile-info a {
+            color: #333;
+        }
 
-    .profile-info a:hover {
-      text-decoration: underline;
-      color: #007bff;
-    }
+        .profile-info a {
+            text-decoration: none;
+        }
 
-    .tip-section {
-      margin-top: 30px;
-      padding: 20px;
-      background-color: #f0f8ff;
-      border: 1px solid #add8e6;
-      border-radius: 5px;
-      color: #333;
-      font-size: 1em;
-    }
+        .profile-info a:hover {
+            text-decoration: underline;
+            color: #007bff;
+        }
 
-    .tip-section strong {
-      font-weight: bold;
-      color: #007bff;
-    }
+        .tip-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f0f8ff;
+            border: 1px solid #add8e6;
+            border-radius: 5px;
+            color: #333;
+            font-size: 1em;
+        }
 
-    .edit-button-container {
-      margin-top: 20px;
-      text-align: right;
-      display: flex; /* 버튼들을 가로로 배치 */
-      justify-content: flex-end; /* 오른쪽 정렬 */
-      gap: 10px; /* 버튼 사이 간격 */
-    }
+        .tip-section strong {
+            font-weight: bold;
+            color: #007bff;
+        }
 
-    .edit-button, .delete-button {
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 1em;
-    }
+        .edit-button-container {
+            margin-top: 20px;
+            text-align: right;
+            display: flex; /* 버튼들을 가로로 배치 */
+            justify-content: flex-end; /* 오른쪽 정렬 */
+            gap: 10px; /* 버튼 사이 간격 */
+        }
 
-    .edit-button {
-      background-color: #333;
-      color: #fff;
-      border: none;
-    }
+        .edit-button, .delete-button {
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+        }
 
-    .edit-button:hover {
-      background-color: gray;
-    }
+        .edit-button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+        }
 
-    .delete-button {
-      background-color: #dc3545; /* 빨간색 계열 */
-      color: #fff;
-      border: none;
-    }
+        .edit-button:hover {
+            background-color: gray;
+        }
 
-    .delete-button:hover {
-      background-color: #c82333;
-    }
-  </style>
+        .delete-button {
+            background-color: #dc3545; /* 빨간색 계열 */
+            color: #fff;
+            border: none;
+        }
+
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+    </style>
 </head>
 <body>
 <nav id="mainNav">
-  <div class="nav-left">
-    <a href="/">홈</a>
-    <a href="/answer/list">풀이 목록</a>
-  </div>
-  <div class="nav-right">
-    <a href="/login">로그인</a>
-    <a href="/register">회원가입</a>
-  </div>
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
 </nav>
 
 <div class="container">
-  <h1>마이페이지</h1>
-  <div class="profile-info">
-    <div>
-      <strong>이름:</strong> <span id="name"></span>
+    <h1>마이페이지</h1>
+    <div class="profile-info">
+        <div>
+            <strong>이름:</strong> <span id="name"></span>
+        </div>
+        <div>
+            <strong>GitHub:</strong> <a id="githubLink" href="" target="_blank"></a>
+        </div>
+        <div>
+            <strong>이메일:</strong> <span id="email"></span>
+        </div>
+        <div>
+            <strong>답변 수:</strong> <span id="numberOfAnswer"></span>
+        </div>
     </div>
-    <div>
-      <strong>GitHub:</strong> <a id="githubLink" href="" target="_blank"></a>
-    </div>
-    <div>
-      <strong>이메일:</strong> <span id="email"></span>
-    </div>
-    <div>
-      <strong>답변 수:</strong> <span id="numberOfAnswer"></span>
-    </div>
-  </div>
 
-  <div class="tip-section" id="tipSection" style="display: none;">
-    <strong>나만의 팁:</strong> <span id="tip"></span>
-  </div>
+    <div class="tip-section" id="tipSection" style="display: none;">
+        <strong>나만의 팁:</strong> <span id="tip"></span>
+    </div>
 
-  <div class="edit-button-container">
-    <button class="edit-button" onclick="goToEditPage()">수정</button>
-    <button class="delete-button" onclick="deleteAccount()">탈퇴</button>
-  </div>
+    <div class="edit-button-container">
+        <button class="edit-button" onclick="goToEditPage()">수정</button>
+        <button class="delete-button" onclick="deleteAccount()">탈퇴</button>
+    </div>
 </div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const navElement = document.getElementById('mainNav');
-    const navLeft = navElement.querySelector('.nav-left');
-    const navRight = navElement.querySelector('.nav-right');
+    document.addEventListener('DOMContentLoaded', function () {
+        const navElement = document.getElementById('mainNav');
+        const navLeft = navElement.querySelector('.nav-left');
+        const navRight = navElement.querySelector('.nav-right');
 
-    if (localStorage.getItem('Coding-Mate-Auth')) {
-      navLeft.innerHTML = `
+        if (localStorage.getItem('Coding-Mate-Auth')) {
+            navLeft.innerHTML = `
       <a href="/">홈</a>
       <a href="/answer/list">풀이 목록</a>
     `;
-      navRight.innerHTML = `
+            navRight.innerHTML = `
       <a href="/my-page">프로필</a>
       <a href="#" id="logoutButton">로그아웃</a>
     `;
 
-      const logoutButton = document.getElementById('logoutButton');
-      if (logoutButton) {
-        logoutButton.addEventListener('click', function(event) {
-          event.preventDefault(); // 링크의 기본 동작 막기
-          localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
-          alert('로그아웃 되었습니다.');
-          window.location.href = '/'; // 홈페이지로 리다이렉트
-        });
-      }
-    }
-  });
-
-  function fetchDataWithAuth(url, options = {}) {
-    const token = localStorage.getItem('Coding-Mate-Auth');
-    const headers = new Headers(options.headers);
-    if (token) {
-      headers.append('Coding-Mate-Auth', `${token}`);
-    }
-    const newOptions = { ...options, headers: headers };
-    return fetch(url, newOptions);
-  }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    fetchDataWithAuth('/api/v1/programmer/my-page') // 실제 API 엔드포인트로 변경해야 합니다.
-            .then(response => {
-              if (!response.ok) {
-                return response.json().then(errorData => {
-                  throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '알 수 없는 오류'}`);
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function (event) {
+                    event.preventDefault(); // 링크의 기본 동작 막기
+                    localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/'; // 홈페이지로 리다이렉트
                 });
-              }
-              return response.json();
+            }
+        }
+    });
+
+    function fetchDataWithAuth(url, options = {}) {
+        const createdHeader = createAuthHeaderFromLocalStorage();
+        const newOptions = {...options, headers: createdHeader}
+        return fetch(url, newOptions);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchDataWithAuth('/api/v1/programmer/my-page') // 실제 API 엔드포인트로 변경해야 합니다.
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '알 수 없는 오류'}`);
+                    });
+                }
+                return response.json();
             })
             .then(responseData => {
-              console.log('받아온 데이터:', responseData);
-              const data = responseData.data;
-              console.log(data);
+                console.log('받아온 데이터:', responseData);
+                const data = responseData.data;
+                console.log(data);
 
-              document.getElementById('name').textContent = data.name || '정보 없음';
-              const githubLinkElement = document.getElementById('githubLink');
-              githubLinkElement.href = 'https://github.com/' + data.githubId || '#';
-              githubLinkElement.textContent = data.githubId || '없음';
-              document.getElementById('email').textContent = data.email || '정보 없음';
-              document.getElementById('numberOfAnswer').textContent = data.numberOfAnswer !== null ? data.numberOfAnswer : '0';
+                document.getElementById('name').textContent = data.name || '정보 없음';
+                const githubLinkElement = document.getElementById('githubLink');
+                githubLinkElement.href = 'https://github.com/' + data.githubId || '#';
+                githubLinkElement.textContent = data.githubId || '없음';
+                document.getElementById('email').textContent = data.email || '정보 없음';
+                document.getElementById('numberOfAnswer').textContent = data.numberOfAnswer !== null ? data.numberOfAnswer : '0';
 
-              if (data.tip) {
-                document.getElementById('tip').textContent = data.tip;
-                document.getElementById('tipSection').style.display = 'block';
-              } else {
-                document.getElementById('tipSection').style.display = 'none';
-              }
+                if (data.tip) {
+                    document.getElementById('tip').textContent = data.tip;
+                    document.getElementById('tipSection').style.display = 'block';
+                } else {
+                    document.getElementById('tipSection').style.display = 'none';
+                }
             })
             .catch(error => {
-              console.error('마이페이지 정보 로딩 실패:', error);
-              alert(`마이페이지 정보를 불러오는 데 실패했습니다: ${error.message}`);
+                console.error('마이페이지 정보 로딩 실패:', error);
+                alert(`마이페이지 정보를 불러오는 데 실패했습니다: ${error.message}`);
             });
-  });
+    });
 
-  function goToEditPage() {
-    window.location.href = '/my-page/edit'; // 수정 페이지 URL로 이동
-  }
-
-  function deleteAccount() {
-    if (confirm('정말로 계정을 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-      const token = localStorage.getItem('Coding-Mate-Auth');
-      fetch('/api/v1/auth/withdrawal', { // 실제 계정 탈퇴 API 엔드포인트로 변경해야 합니다.
-        method: 'DELETE',
-        headers: {
-          'Coding-Mate-Auth': token ? `${token}` : '' // 토큰이 있으면 헤더에 추가, 없으면 빈 문자열
-        }
-      })
-              .then(response => {
-                if (response.status === 204) {
-                  alert('계정이 성공적으로 탈퇴되었습니다.');
-                  localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 토큰 제거
-                  window.location.href = '/'; // 홈페이지로 리다이렉트
-                }else {
-                  return response.json().then(errorData => {
-                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '알 수 없는 오류'}`);
-                  });
-                }
-              })
-              .catch(error => {
-                console.error('계정 탈퇴 실패:', error);
-                alert(`계정 탈퇴에 실패했습니다: ${error.message}`);
-              });
+    function goToEditPage() {
+        window.location.href = '/my-page/edit'; // 수정 페이지 URL로 이동
     }
-  }
+
+    function deleteAccount() {
+        if (confirm('정말로 계정을 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+            fetch('/api/v1/auth/withdrawal', { // 실제 계정 탈퇴 API 엔드포인트로 변경해야 합니다.
+                method: 'DELETE',
+                headers: createAuthHeaderFromLocalStorage()
+            })
+                .then(response => {
+                    if (response.status === 204) {
+                        alert('계정이 성공적으로 탈퇴되었습니다.');
+                        localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 토큰 제거
+                        window.location.href = '/'; // 홈페이지로 리다이렉트
+                    } else {
+                        return response.json().then(errorData => {
+                            throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message || '알 수 없는 오류'}`);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('계정 탈퇴 실패:', error);
+                    alert(`계정 탈퇴에 실패했습니다: ${error.message}`);
+                });
+        }
+    }
+
+    function createAuthHeaderFromLocalStorage() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = `${authToken}`;
+        }
+
+        return headers
+    }
 </script>
 </body>
 </html>

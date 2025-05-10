@@ -308,11 +308,9 @@
         modalProblemTitle.textContent = problemTitle;
         currentAnswerId = answerId; // 모달이 열릴 때 answerId 저장
 
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
         fetch(`/api/v1/answer/${answerId}`, {
-            headers: {
-                'Coding-Mate-Auth': authToken
-            }
+            method : 'GET',
+            headers: createAuthHeaderFromLocalStorage()
         })
             .then(response => {
                 if (!response.ok) {
@@ -430,14 +428,11 @@
 
     function deleteAnswer() {
         const answerId = currentAnswerId;
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = createAuthHeaderFromLocalStorage();
         if (confirm('정말로 이 풀이를 삭제하시겠습니까?')) {
             fetch(`/api/v1/answer/${answerId}`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Coding-Mate-Auth': authToken // 헤더 추가
-                }
+                headers
             })
                 .then(response => {
                     if (!response.ok) {
@@ -453,6 +448,19 @@
                     alert(error.message);
                 });
         }
+    }
+
+    function createAuthHeaderFromLocalStorage() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = `${authToken}`;
+        }
+
+        return headers
     }
 </script>
 </body>

@@ -164,7 +164,7 @@
 
             const logoutButton = document.getElementById('logoutButton');
             if (logoutButton) {
-                logoutButton.addEventListener('click', function(event) {
+                logoutButton.addEventListener('click', function (event) {
                     event.preventDefault(); // 링크의 기본 동작 막기
                     localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
                     alert('로그아웃 되었습니다.');
@@ -174,7 +174,7 @@
         }
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const answerId = getAnswerIdFromUrl();
         console.log('answerId:', answerId); // ID 확인 로그 추가
         if (answerId) {
@@ -184,7 +184,7 @@
             document.getElementById('errorMessage').style.display = 'block';
         }
 
-        document.getElementById('updateAnswerForm').addEventListener('submit', function(event) {
+        document.getElementById('updateAnswerForm').addEventListener('submit', function (event) {
             event.preventDefault();
             updateAnswer(answerId);
         });
@@ -202,14 +202,10 @@
     }
 
     function fetchAnswerDetails(answerId) {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        console.log('authToken:', authToken); // 토큰 확인 로그 추가
-
+        const headers = createAuthHeaderFromLocalStorage();
         fetch(`/api/v1/answer/${answerId}`, {
             method: 'GET',
-            headers: {
-                'Coding-Mate-Auth': authToken
-            }
+            headers
         })
             .then(response => {
                 console.log('fetch response:', response); // 응답 확인 로그 추가
@@ -253,17 +249,10 @@
             languageType: document.getElementById('languageType').value || null
         };
 
-        console.log('formData before stringify:', formData); // 폼 데이터 확인 로그
-
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        console.log('authToken for update:', authToken); // 토큰 확인 로그
-
+        const headers = createAuthHeaderFromLocalStorage();
         fetch(`/api/v1/answer/${answerId}`, {
             method: 'PATCH', // 요청 메서드를 PATCH로 변경
-            headers: {
-                'Content-Type': 'application/json',
-                'Coding-Mate-Auth': authToken
-            },
+            headers,
             body: JSON.stringify(formData)
         })
             .then(response => {
@@ -286,6 +275,19 @@
                 document.getElementById('errorMessage').textContent = error.message;
                 document.getElementById('errorMessage').style.display = 'block';
             });
+    }
+
+    function createAuthHeaderFromLocalStorage() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = `${authToken}`;
+        }
+
+        return headers
     }
 </script>
 </body>
