@@ -138,8 +138,8 @@ public class AnswerController {
     public ResponseEntity<?> delete(@PathVariable(name = "answerId") Long answerId, HttpServletRequest request) {
         Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
         try {
-            answerService.delete(idFromToken, answerId);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, null);
+            boolean isDeleted = answerService.delete(idFromToken, answerId);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, isDeleted);
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {

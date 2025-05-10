@@ -33,9 +33,8 @@ public class CustomAnswerRepository {
     private final EntityManager em;
 
     @Transactional
-    public Answer create(Long programmerId, AnswerCreateRequest answerCreateRequest) {
-        log.info("create({}, {})", programmerId, answerCreateRequest.getCode());
-        Programmer programmer = programmerRepository.findById(programmerId).orElseThrow(() -> new NotFoundProgrammerException(programmerId));
+    public Answer create(Programmer programmer, AnswerCreateRequest answerCreateRequest) {
+        log.info("create({}, {})", programmer, answerCreateRequest.getCode());
         programmer.addAnswer();
 
         Answer entity = answerCreateRequest.toEntity();
@@ -46,9 +45,10 @@ public class CustomAnswerRepository {
     @Transactional(readOnly = true)
     public Answer read(Long answerId) {
         log.info("read({})", answerId);
-        return answerRepository
-                .findById(answerId)
-                .orElseThrow(() -> new NotFoundAnswerException(answerId));
+        return queryFactory.selectFrom(answer)
+                .where(answer.id.eq(answerId))
+                .join(answer.programmer)
+                .fetchOne();
     }
 
     @Transactional(readOnly = true)
@@ -86,7 +86,7 @@ public class CustomAnswerRepository {
     }
 
     @Transactional
-    public void delete(@NotNull Long programmerId, @NotNull Long answerId) {
+    public boolean delete(@NotNull Long programmerId, @NotNull Long answerId) {
         /*long executedRow = queryFactory
                 .delete(answer)
                 .where(answer.id.eq(answerId))
@@ -97,13 +97,14 @@ public class CustomAnswerRepository {
         }*/
         Answer answer = answerRepository
                 .findById(answerId)
-                .orElseThrow(() -> new NotFoundAnswerException(answerId));
+                .orElse(null);
+        if (answer == null) return false;
 
         if (answer.getProgrammer().getId().equals(programmerId)) {
             answer.getProgrammer().removeAnswer();
             answerRepository.delete(answer);
-        } else {
-            throw new AnswerAndProgrammerDoNotMatchException(programmerId, answerId);
+            return true;
         }
+        return false;
     }
 }
