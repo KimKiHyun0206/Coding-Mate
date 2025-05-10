@@ -6,8 +6,10 @@ import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
 import com.codingMate.dto.response.programmer.MyPageResponse;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
+import com.codingMate.exception.exception.programmer.ProgrammerNotCreateException;
 import com.codingMate.repository.programmer.CustomProgrammerRepository;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
+import com.sun.jdi.request.DuplicateRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,32 +26,58 @@ public class ProgrammerService {
 
     @Transactional
     public ProgrammerDto create(ProgrammerCreateRequest request) {
-        return customProgrammerRepository.create(request).toDto();
+        ProgrammerDto dto = customProgrammerRepository.create(request).toDto();
+        if (dto == null) throw new ProgrammerNotCreateException("Programmer가 생성되지 않았습니다. " + request);
+        dto.setLoginId(null);
+        dto.setPassword(null);
+        return dto;
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isExistLoginId(String loginId) {
+        boolean isExistLoginId = defaultProgrammerRepository.existsByLoginId(loginId);
+        if (isExistLoginId) throw new DuplicateRequestException("요청한 ID는 중복된 ID입니다. " + loginId);
+        return false;
     }
 
     @Transactional(readOnly = true)
     public ProgrammerDto read(Long id) {
-        return customProgrammerRepository.read(id).toDto();
+        ProgrammerDto dto = customProgrammerRepository.read(id).toDto();
+        if (dto == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
+        dto.setLoginId(null);
+        dto.setPassword(null);
+        return dto;
     }
 
     @Transactional(readOnly = true)
-    public MyPageResponse myPage(Long id){
-        return customProgrammerRepository.read(id).toMyPateDto();
+    public MyPageResponse myPage(Long id) {
+        MyPageResponse myPateDto = customProgrammerRepository.read(id).toMyPateDto();
+        if (myPateDto == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
+        return myPateDto;
     }
 
     @Transactional(readOnly = true)
     public List<ProgrammerDto> readAll() {
-        return customProgrammerRepository.readAll().stream().map(Programmer::toDto).toList();
+        List<ProgrammerDto> list = customProgrammerRepository.readAll().stream().map(Programmer::toDto).toList();
+        if (list.isEmpty()) throw new NotFoundProgrammerException("전체 Programmer를 조회할 수 없습니다.");
+        return list;
     }
 
     @Transactional
-    public Long readIdByUserName(String username) {
-        return customProgrammerRepository.readIdByUserName(username);
+    public Long readIdByLoginId(String loginId) {
+        Long id = customProgrammerRepository.readIdByUserName(loginId);
+        if (id == null) throw new NotFoundProgrammerException("요청한 loginId로 Programmer를 조회할 수 없습니다." + loginId);
+        return id;
     }
 
     @Transactional
     public ProgrammerDto update(Long programmerId, ProgrammerUpdateRequest request) {
-        return customProgrammerRepository.update(programmerId, request).toDto();
+        ProgrammerDto dto = customProgrammerRepository.update(programmerId, request).toDto();
+        if (dto == null)
+            throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Update또한 이루어지지 않았습니다" + programmerId);
+        dto.setLoginId(null);
+        dto.setPassword(null);
+        return dto;
     }
 
     @Transactional
@@ -57,7 +85,8 @@ public class ProgrammerService {
         boolean isExist = defaultProgrammerRepository.existsById(programmerId);
         if (isExist) {
             defaultProgrammerRepository.deleteById(programmerId);
-        }else throw new NotFoundProgrammerException(programmerId);
+        } else
+            throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + programmerId);
 
         return true;
     }

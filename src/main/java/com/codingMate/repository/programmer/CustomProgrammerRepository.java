@@ -37,10 +37,7 @@ public class CustomProgrammerRepository {
      * */
     @Transactional
     public Programmer create(ProgrammerCreateRequest dto) {
-        if (programmerRepository.existsByLoginId(dto.getLoginId())) {
-            throw new DuplicateProgrammerLoginIdException();
-        }
-
+        log.info("create({})", dto);
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
                 .build();
@@ -51,11 +48,17 @@ public class CustomProgrammerRepository {
     }
 
     @Transactional(readOnly = true)
+    public boolean isExistLoginId(String loginId) {
+        log.info("isExistLoginId({})", loginId);
+        return programmerRepository.existsByLoginId(loginId);
+    }
+
+    @Transactional(readOnly = true)
     public Programmer read(Long id) {
         log.info("read({})", id);
         return programmerRepository
                 .findById(id)
-                .orElseThrow(() -> new NotFoundProgrammerException(id));
+                .orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -85,10 +88,9 @@ public class CustomProgrammerRepository {
 
     @Transactional
     public Programmer update(Long programmerId, ProgrammerUpdateRequest dto) {
-        Programmer findById = programmerRepository.findById(programmerId).orElseThrow(() -> new NotFoundProgrammerException(programmerId));
-        if (!Objects.equals(findById.getId(), programmerId)) {
-            throw new UnMatchedAuthException("수정될 사용자 정보와 요청한 사용자의 정보가 일치하지 않습니다");
-        }
+        Programmer findById = programmerRepository.findById(programmerId).orElse(null);
+        if (findById == null) return null;
+
         findById.setName(dto.getName() == null ? findById.getName() : new Name(dto.getName()));
         findById.setEmail(dto.getEmail() == null ? findById.getEmail() : new Email(dto.getEmail()));
         findById.setTip(dto.getTip() == null ? findById.getTip() : dto.getTip());
@@ -99,10 +101,10 @@ public class CustomProgrammerRepository {
     @Transactional
     public boolean delete(Long id) {
         log.info("remove({})", id);
-        if(programmerRepository.existsById(id)) {
+        if (programmerRepository.existsById(id)) {
             programmerRepository.deleteById(id);
             return true;
-        }else {
+        } else {
             throw new NotFoundProgrammerException(id);
         }
     }

@@ -28,7 +28,23 @@ public class ProgrammerController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ProgrammerCreateRequest dto) {
         log.info("create {}", dto.getLoginId());
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.create(dto));
+        boolean isExistLoginId = programmerService.isExistLoginId(dto.getLoginId());
+        if(!isExistLoginId){
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.create(dto));
+        }else return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "요청한 ID는 이미 존재하는 ID입니다");
+    }
+
+    /**
+     * @apiNote 회원 생성 전에 아이디 중복 확인 버튼으로 아이디가 중복되는지 검사할 API
+     * */
+    @GetMapping("/login-id-exist")
+    public ResponseEntity<?> isExistLoginId(@RequestParam("loginId") String loginId) {
+        log.info("isExistLoginId {}", loginId);
+        boolean isExistLoginId = programmerService.isExistLoginId(loginId);
+        if(!isExistLoginId){
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, "존재하지 않는 ID입니다");
+        }
+        return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "존재하는 ID입니다");
     }
 
     /**
@@ -58,7 +74,7 @@ public class ProgrammerController {
     /**
      * @apiNote 모든 프로그래머의 정보를 읽는 API
      * */
-    @GetMapping
+    //@GetMapping
     public ResponseEntity<?> readAll() {
         log.info("readAll()");
         try {

@@ -4,13 +4,10 @@ import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.repository.programmer.CustomProgrammerRepository;
 import com.codingMate.util.SecurityUtil;
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import static com.codingMate.domain.programmer.QProgrammer.programmer;
 
 @Slf4j
 @Service
