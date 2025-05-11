@@ -57,14 +57,14 @@ public class AnswerController {
     @GetMapping("/{answerId}")
     public ResponseEntity<?> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
         Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        try{
+        try {
             log.info("read({})", id);
             AnswerPageResponse answerPageDto = answerService.read(id).toAnswerPageDto();
-            if(idFromToken != null) {
+            if (idFromToken != null) {
                 answerPageDto.setIsRequesterIsOwner(Objects.equals(answerPageDto.getProgrammerId(), idFromToken));
             }
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageDto);
-        }catch (NotFoundAnswerException notFoundAnswerException){
+        } catch (NotFoundAnswerException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
         } catch (Exception e) {
             return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
@@ -81,12 +81,8 @@ public class AnswerController {
     @GetMapping("/all")
     public ResponseEntity<?> readAll(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId) {
         log.info("readAll()");
-        if (language != null) {
-            log.info("language {}", language);
-        }
-        if (backjoonId != null) {
-            log.info("backjoonId {}", backjoonId);
-        }
+        log.info("language {}", language);
+        log.info("backjoonId {}", backjoonId);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllToListResponse(language, backjoonId));
     }
 
@@ -99,7 +95,7 @@ public class AnswerController {
     @GetMapping("/programmer/{id}")
     public ResponseEntity<?> readByProgrammer(@PathVariable(name = "id") Long id) {
         List<AnswerResponse> answerResponses = answerService.readAllByProgrammerId(id);
-        if (answerResponses.size() == 0) {
+        if (answerResponses.isEmpty()) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, answerService.read(id));
         } else {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerResponses);
@@ -136,8 +132,8 @@ public class AnswerController {
      * */
     @DeleteMapping("/{answerId}")
     public ResponseEntity<?> delete(@PathVariable(name = "answerId") Long answerId, HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
         try {
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
             boolean isDeleted = answerService.delete(idFromToken, answerId);
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, isDeleted);
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
