@@ -90,16 +90,12 @@ public class AnswerController {
      * @apiNote 특정 프로그래머가 작성한 풀이를 읽어오는 API, 프로그래머가 작성한 문제들을 읽어오기 위한 API 현재 사용되지 않지만 추후 기능 추가를 통해 사용할 것임
      * @implNote 이 기능은 헤더에서 ID 값을 받아오는 것으로 변경해야 할 필요가 있음
      * @implSpec 현재 페이징 기능이 없음
-     * @param id 프로그래머의 ID를 이용해서 정보를 가져오기 때문에 값을 받아옴
      * */
-    @GetMapping("/programmer/{id}")
-    public ResponseEntity<?> readByProgrammer(@PathVariable(name = "id") Long id) {
-        List<AnswerResponse> answerResponses = answerService.readAllByProgrammerId(id);
-        if (answerResponses.isEmpty()) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, answerService.read(id));
-        } else {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerResponses);
-        }
+    @GetMapping("/programmer")
+    public ResponseEntity<?> readByProgrammer(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId, HttpServletRequest request) {
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        log.info("readByProgrammer({})", idFromToken);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllByProgrammerId(language, backjoonId, idFromToken));
     }
 
     /**

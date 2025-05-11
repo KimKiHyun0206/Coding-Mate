@@ -115,7 +115,7 @@
             gap: 10px; /* 버튼 사이 간격 */
         }
 
-        .edit-button, .delete-button {
+        .edit-button, .delete-button, .my-answer-button {
             padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
@@ -140,6 +140,16 @@
 
         .delete-button:hover {
             background-color: #c82333;
+        }
+
+        .my-answer-button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+        }
+
+        .my-answer-button:hover {
+            background-color: gray;
         }
     </style>
 </head>
@@ -177,7 +187,8 @@
     </div>
 
     <div class="edit-button-container">
-        <button class="edit-button" onclick="goToEditPage()">수정</button>
+        <button class="my-answer-button" onclick="moveMyAnswer()">내가 작성한 풀이</button>
+        <button class="edit-button" onclick="goToEditPage()">정보 수정</button>
         <button class="delete-button" onclick="deleteAccount()">탈퇴</button>
     </div>
 </div>
@@ -209,6 +220,10 @@
             }
         }
     });
+
+    function moveMyAnswer() {
+        window.location.href = '/my-page/answer';
+    }
 
     function fetchDataWithAuth(url, options = {}) {
         const createdHeader = createAuthHeaderFromLocalStorage();

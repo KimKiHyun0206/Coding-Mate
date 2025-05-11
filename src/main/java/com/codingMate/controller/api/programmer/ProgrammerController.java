@@ -53,8 +53,8 @@ public class ProgrammerController {
      * */
     @GetMapping("/my-page")
     public ResponseEntity<?> myPage(HttpServletRequest request) {
-        Long usernameFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        MyPageResponse myPageResponse = programmerService.myPage(usernameFromToken);
+        Long idFromHeader = JwtUtil.getIdFromHttpServletRequest(request);
+        MyPageResponse myPageResponse = programmerService.myPage(idFromHeader);
         log.info("myPage {}", myPageResponse.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPageResponse);
     }

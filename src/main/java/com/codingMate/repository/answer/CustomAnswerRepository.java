@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -63,14 +64,12 @@ public class CustomAnswerRepository {
     }
 
     @Transactional(readOnly = true)
-    public List<Answer> readAllByProgrammerId(Long programmerId) {
-        return answerRepository.readAnswersByProgrammerId(programmerId);
-        /*return queryFactory.selectFrom(answer)
+    public List<Answer> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
+        return queryFactory.selectFrom(answer)
                 .where(answer.programmer.id.eq(programmerId))
-                .fetch()
-                .stream()
-                .map(Answer::toDto)
-                .toList();*/
+                .where(language != null ? answer.languageType.eq(language) : null)
+                .where(backjoonId != null ? answer.backJoonId.eq(backjoonId) : null)
+                .fetch();
     }
 
     @Transactional

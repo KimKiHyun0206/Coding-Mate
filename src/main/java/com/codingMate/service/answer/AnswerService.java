@@ -6,6 +6,7 @@ import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.request.answer.AnswerCreateRequest;
 import com.codingMate.dto.request.answer.AnswerUpdateRequest;
 import com.codingMate.dto.response.answer.AnswerListResponse;
+import com.codingMate.dto.response.answer.AnswerPageResponse;
 import com.codingMate.dto.response.answer.AnswerResponse;
 import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
 import com.codingMate.exception.exception.answer.AnswerNotCreateException;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -32,7 +34,7 @@ public class AnswerService {
 
     @Transactional
     public AnswerResponse create(Long programmerId, AnswerCreateRequest request) {
-        Programmer writer = defaultProgrammerRepository.findById(programmerId).orElseThrow(() ->new NotFoundProgrammerException("Answer를 생성하던 중 Programmer를 조회하지 못했습니다. " + programmerId));
+        Programmer writer = defaultProgrammerRepository.findById(programmerId).orElseThrow(() -> new NotFoundProgrammerException("Answer를 생성하던 중 Programmer를 조회하지 못했습니다. " + programmerId));
         Answer createdResult = answerRepository.create(writer, request);
         if (createdResult == null) throw new AnswerNotCreateException("요청한 Answer를 생성하지 못했습니다. " + request);
         return createdResult.toDto();
@@ -51,8 +53,8 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerResponse> readAllByProgrammerId(Long programmerId) {
-        return answerRepository.readAllByProgrammerId(programmerId).stream().map(Answer::toDto).toList();
+    public List<AnswerPageResponse> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
+        return answerRepository.readAllByProgrammerId(language, backjoonId, programmerId).stream().map(Answer::toAnswerPageDto).toList();
     }
 
     @Transactional

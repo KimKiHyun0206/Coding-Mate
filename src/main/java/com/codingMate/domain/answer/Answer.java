@@ -60,4 +60,18 @@ public class Answer extends BaseEntity {
                 .programmer(this.programmer.toDto())
                 .build();
     }
+
+    public AnswerPageResponse toAnswerPageDto(){
+        return AnswerPageResponse.builder()
+                .id(id)
+                .backjoonId(backJoonId)
+                .title(title)
+                .code(code)
+                .explanation(explanation)
+                .programmerName(programmer.getName().getName())
+                .languageType(languageType)
+                .isRequesterIsOwner(false)
+                .programmerId(programmer.getId())
+                .build();
+    }
 }
