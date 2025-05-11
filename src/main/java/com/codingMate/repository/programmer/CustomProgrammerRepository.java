@@ -104,8 +104,7 @@ public class CustomProgrammerRepository {
         if (programmerRepository.existsById(id)) {
             programmerRepository.deleteById(id);
             return true;
-        } else {
-            throw new NotFoundProgrammerException(id);
         }
+        return false;
     }
 }
