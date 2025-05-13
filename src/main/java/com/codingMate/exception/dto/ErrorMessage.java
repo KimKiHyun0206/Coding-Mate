@@ -26,6 +26,8 @@ public enum ErrorMessage {
     //JWT
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다"),
     NO_TOKEN_IN_HEADER(HttpStatus.UNAUTHORIZED, "헤더에 토큰이 없습니다"),
+    EXPIRED_JWT(HttpStatus.UNAUTHORIZED, "토큰 유효기간이 만료되었습니다"),
+    SECURITY_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 JWT 서명입니다"),
 
     //Redis
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Server에서 오류가 발생했습니다");

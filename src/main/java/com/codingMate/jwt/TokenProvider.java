@@ -1,5 +1,10 @@
 package com.codingMate.jwt;
 
+import com.codingMate.exception.dto.ErrorMessage;
+import com.codingMate.exception.exception.jwt.ExpiredTokenException;
+import com.codingMate.exception.exception.jwt.IllegalTokenException;
+import com.codingMate.exception.exception.jwt.TokenSecutiryException;
+import com.codingMate.exception.exception.jwt.UnsupportedTokenException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -81,14 +86,17 @@ public class TokenProvider implements InitializingBean {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-            log.info("잘못된 JWT 서명입니다.");
+            log.info("잘못된 JWT 서명입니다 {}", token);
+            throw new TokenSecutiryException(ErrorMessage.SECURITY_TOKEN, "잘못된 JWT 서명입니다");
         } catch (ExpiredJwtException e) {
-            log.info("만료된 JWT 토큰입니다.");
+            log.info("유효기간이 지난 JWT 토큰입니다 {}", token);
+            throw new ExpiredTokenException(ErrorMessage.EXPIRED_JWT, "유효기간이 지난 JWT 토큰입니다");
         } catch (UnsupportedJwtException e) {
-            log.info("지원되지 않는 JWT 토큰입니다.");
+            log.info("지원되지 않는 JWT 토큰입니다 {}", token);
+            throw new UnsupportedTokenException(ErrorMessage.INVALID_JWT, "지원되지 않는 JWT 토큰입니다");
         } catch (IllegalArgumentException e) {
-            log.info("JWT 토큰이 잘못되었습니다.");
+            log.info("JWT 토큰이 잘못되었습니다 {}", token);
+            throw new IllegalTokenException(ErrorMessage.INVALID_JWT, "JWT 토큰이 잘못되었습니다");
         }
-        return false;
     }
 }
