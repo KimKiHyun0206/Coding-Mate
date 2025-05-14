@@ -87,8 +87,8 @@ public class CustomProgrammerRepository {
     }
 
     @Transactional
-    public Programmer update(Long programmerId, ProgrammerUpdateRequest dto) {
-        Programmer findById = programmerRepository.findById(programmerId).orElse(null);
+    public Programmer update(String programmerId, ProgrammerUpdateRequest dto) {
+        Programmer findById = programmerRepository.findByLoginId(programmerId);
         if (findById == null) return null;
 
         findById.setName(dto.getName() == null ? findById.getName() : new Name(dto.getName()));

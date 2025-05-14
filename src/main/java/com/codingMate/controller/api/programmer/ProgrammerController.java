@@ -53,8 +53,8 @@ public class ProgrammerController {
      * */
     @GetMapping("/my-page")
     public ResponseEntity<?> myPage(HttpServletRequest request) {
-        Long idFromHeader = JwtUtil.getIdFromHttpServletRequest(request);
-        MyPageResponse myPageResponse = programmerService.myPage(idFromHeader);
+        String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
+        MyPageResponse myPageResponse = programmerService.myPage(loginIdFromToken);
         log.info("myPage {}", myPageResponse.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPageResponse);
     }
@@ -93,9 +93,9 @@ public class ProgrammerController {
     @PatchMapping
     public ResponseEntity<?> update(@RequestBody ProgrammerUpdateRequest programmerUpdateRequest, HttpServletRequest request) {
         try {
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            log.info("update({}, {})", idFromToken, programmerUpdateRequest.toString());
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(idFromToken, programmerUpdateRequest));
+            String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
+            log.info("update({}, {})", loginIdFromToken, programmerUpdateRequest.toString());
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(loginIdFromToken, programmerUpdateRequest));
         } catch (UnMatchedAuthException unMatchedAuthException) {
             return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, unMatchedAuthException.getMessage());
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
@@ -113,9 +113,9 @@ public class ProgrammerController {
     @DeleteMapping
     public ResponseEntity<?> delete(HttpServletRequest request) {
         try {
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            log.info("delete({})", idFromToken);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(idFromToken));
+            String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
+            log.info("delete({})", loginIdFromToken);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(loginIdFromToken));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {

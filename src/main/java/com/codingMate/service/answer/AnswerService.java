@@ -33,10 +33,14 @@ public class AnswerService {
     private final DefaultProgrammerRepository defaultProgrammerRepository;
 
     @Transactional
-    public AnswerResponse create(Long programmerId, AnswerCreateRequest request) {
-        Programmer writer = defaultProgrammerRepository.findById(programmerId).orElseThrow(() -> new NotFoundProgrammerException("Answer를 생성하던 중 Programmer를 조회하지 못했습니다. " + programmerId));
+    public AnswerResponse create(String programmerId, AnswerCreateRequest request) {
+        Programmer writer = defaultProgrammerRepository.findByLoginId(programmerId);
+        if (writer == null) throw new NotFoundProgrammerException("Answer를 생성하던 중 Programmer를 조회하지 못했습니다. " + programmerId);
+
+
         Answer createdResult = answerRepository.create(writer, request);
         if (createdResult == null) throw new AnswerNotCreateException("요청한 Answer를 생성하지 못했습니다. " + request);
+
         return createdResult.toDto();
     }
 
@@ -53,7 +57,7 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerPageResponse> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
+    public List<AnswerPageResponse> readAllByProgrammerId(LanguageType language, Long backjoonId, String programmerId) {
         return answerRepository.readAllByProgrammerId(language, backjoonId, programmerId).stream().map(Answer::toAnswerPageDto).toList();
     }
 

@@ -8,6 +8,8 @@ import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.jwt.TokenProvider;
 import com.codingMate.service.programmer.ProgrammerService;
+import com.codingMate.service.redis.RefreshTokenService;
+import com.codingMate.service.redis.TokenDto;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -31,6 +33,7 @@ public class AuthController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final ProgrammerService programmerService;
+    private final RefreshTokenService refreshTokenService;
 
     @Value("${jwt.header}")
     private String header;
@@ -53,13 +56,15 @@ public class AuthController {
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        Long userId = programmerService.readIdByLoginId(loginRequest.getLoginId());
+        String accessToken = tokenProvider.createAccessToken(authentication);
+        String refreshToken = tokenProvider.createRefreshToken(authentication);
 
-        String accessToken = tokenProvider.createAccessToken(authentication, userId);
-        String refreshToken = tokenProvider.createRefreshToken(authentication, userId);
+        refreshTokenService.saveToken(refreshToken, loginRequest.getLoginId(), authentication.getAuthorities());
         response.setHeader(header, accessToken);
         response.setHeader(refreshHeader, refreshToken);
         log.info("TOKEN {} ", accessToken);
+        log.info("REFRESH TOKEN {}", refreshToken);
+
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, accessToken);
     }
 
@@ -79,12 +84,20 @@ public class AuthController {
     @DeleteMapping("/withdrawal")
     public ResponseEntity<?> withdrawal(HttpServletRequest request) {
         try {
-            Long idFromHttpServletRequest = JwtUtil.getIdFromHttpServletRequest(request);
+            String idFromHttpServletRequest = JwtUtil.getLoginIdFromToken(request);
             boolean isDeleted = programmerService.delete(idFromHttpServletRequest);
             if (isDeleted) return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT, "요청한 계정을 삭제했습니다");
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "요청한 계정을 삭제하지 못했습니다");
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         }
+    }
+
+    @GetMapping("/refresh-token")
+    public ResponseEntity<?> tokenRecurrence(@RequestParam String token) {
+        //String refreshToken = JwtUtil.getRefreshTokenFromHttpServletRequest(request);
+        TokenDto tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(token);
+        log.info("tokenDto {}", tokenDto.toString());
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
     }
 }

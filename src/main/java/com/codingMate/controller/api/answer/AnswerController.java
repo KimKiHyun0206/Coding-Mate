@@ -39,8 +39,8 @@ public class AnswerController {
     public ResponseEntity<?> create(AnswerCreateRequest answerCreateRequest, HttpServletRequest request) {
         try {
             log.info("create({}, {})", request.toString(), answerCreateRequest.toString());
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(idFromToken, answerCreateRequest));
+            String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(loginIdFromToken, answerCreateRequest));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {
@@ -93,9 +93,9 @@ public class AnswerController {
      * */
     @GetMapping("/programmer")
     public ResponseEntity<?> readByProgrammer(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId, HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        log.info("readByProgrammer({})", idFromToken);
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllByProgrammerId(language, backjoonId, idFromToken));
+        String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
+        log.info("readByProgrammer({})", loginIdFromToken);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllByProgrammerId(language, backjoonId, loginIdFromToken));
     }
 
     /**

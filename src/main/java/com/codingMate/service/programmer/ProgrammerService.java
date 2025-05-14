@@ -51,8 +51,8 @@ public class ProgrammerService {
     }
 
     @Transactional(readOnly = true)
-    public MyPageResponse myPage(Long id) {
-        MyPageResponse myPateDto = customProgrammerRepository.read(id).toMyPateDto();
+    public MyPageResponse myPage(String id) {
+        MyPageResponse myPateDto = customProgrammerRepository.readByLoginId(id).toMyPateDto();
         if (myPateDto == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
         return myPateDto;
     }
@@ -72,7 +72,7 @@ public class ProgrammerService {
     }
 
     @Transactional
-    public ProgrammerDto update(Long programmerId, ProgrammerUpdateRequest request) {
+    public ProgrammerDto update(String programmerId, ProgrammerUpdateRequest request) {
         ProgrammerDto dto = customProgrammerRepository.update(programmerId, request).toDto();
         if (dto == null)
             throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Update또한 이루어지지 않았습니다" + programmerId);
@@ -82,10 +82,10 @@ public class ProgrammerService {
     }
 
     @Transactional
-    public boolean delete(Long programmerId) {
-        boolean isExist = defaultProgrammerRepository.existsById(programmerId);
+    public boolean delete(String programmerId) {
+        boolean isExist = defaultProgrammerRepository.existsByLoginId(programmerId);
         if (isExist) {
-            defaultProgrammerRepository.deleteById(programmerId);
+            defaultProgrammerRepository.deleteByLoginId(programmerId);
         } else throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + programmerId);
 
         return true;

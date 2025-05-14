@@ -64,9 +64,9 @@ public class CustomAnswerRepository {
     }
 
     @Transactional(readOnly = true)
-    public List<Answer> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
+    public List<Answer> readAllByProgrammerId(LanguageType language, Long backjoonId, String programmerId) {
         return queryFactory.selectFrom(answer)
-                .where(answer.programmer.id.eq(programmerId))
+                .where(answer.programmer.loginId.eq(programmerId))
                 .where(language != null ? answer.languageType.eq(language) : null)
                 .where(backjoonId != null ? answer.backJoonId.eq(backjoonId) : null)
                 .fetch();
