@@ -1,4 +1,4 @@
-package com.codingMate.service.redis;
+package com.codingMate.exception.exception.redis;
 
 import com.codingMate.exception.BusinessException;
 import com.codingMate.exception.dto.ErrorMessage;

@@ -1,4 +1,4 @@
-package com.codingMate.service.redis;
+package com.codingMate.dto.response.token;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

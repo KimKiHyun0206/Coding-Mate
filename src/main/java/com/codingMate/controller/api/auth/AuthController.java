@@ -9,7 +9,7 @@ import com.codingMate.exception.exception.programmer.NotFoundProgrammerException
 import com.codingMate.jwt.TokenProvider;
 import com.codingMate.service.programmer.ProgrammerService;
 import com.codingMate.service.redis.RefreshTokenService;
-import com.codingMate.service.redis.TokenDto;
+import com.codingMate.dto.response.token.TokenDto;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
