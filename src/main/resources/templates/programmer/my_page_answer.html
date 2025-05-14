@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문제 목록</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/table.css">
+    <link rel="stylesheet" href="/css/basic.css">
+    <link rel="stylesheet" href="/css/modal.css">
+    <style>
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 960px;
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .search-container input[type="number"],
+        .search-container select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        .search-container input[type="number"] {
+            flex-grow: 1;
+            max-width: 200px;
+        }
+
+        .search-container select {
+            width: 150px;
+        }
+
+        .search-container button {
+            background-color: #333333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .search-container button:hover {
+            background-color: gray;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+
+        .create-problem-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .create-problem-button:hover {
+            background-color: gray;
+        }
+
+        .answer-link {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .answer-link:hover {
+        }
+    </style>
+</head>
+<body>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>내가 작성한 풀이 목록</h1>
+    <div class="search-container">
+        <input type="number" id="searchBackjoonId" placeholder="백준 ID로 검색">
+        <select id="searchLanguage">
+            <option value="">전체 언어</option>
+            <option value="JAVA">Java</option>
+            <option value="C">C</option>
+            <option value="CPP">C++</option>
+            <option value="PYTHON">Python</option>
+            <option value="JAVASCRIPT">JavaScript</option>
+        </select>
+        <button onclick="searchProblems()">검색</button>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>백준 ID</th>
+            <th>제목</th>
+            <th>언어</th>
+            <th>작성자</th>
+        </tr>
+        </thead>
+        <tbody id="problemListBody">
+        </tbody>
+    </table>
+    <p id="noProblems" class="no-results" style="display: none;">등록된 문제가 없습니다.</p>
+</div>
+
+<button class="create-problem-button" onclick="location.href='/answer/write'">문제 생성</button>
+
+<div id="solutionModalOverlay" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalProblemTitle">풀이 상세 정보</h2>
+            <button id="modalCloseButton" class="modal-close-button">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="loading" style="display: none;">로딩 중...</div>
+            <div id="error" style="display: none;"></div>
+            <table>
+                <tbody>
+                <tr>
+                    <th>백준 ID</th>
+                    <td id="modalBackjoonId"></td>
+                </tr>
+                <tr>
+                    <th>작성자</th>
+                    <td id="modalProgrammerName"></td>
+                </tr>
+                <tr>
+                    <th>언어</th>
+                    <td id="modalLanguageType"></td>
+                </tr>
+                <tr>
+                    <th>코드</th>
+                    <td>
+                        <pre id="modalCode"></pre>
+                    </td>
+                </tr>
+                <tr>
+                    <th>설명</th>
+                    <td>
+                        <pre id="modalExplanation"></pre>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div id="actionButtons" style="display: none;">
+                <button>수정</button>
+                <button onclick="deleteAnswer()" id="deleteButton">삭제</button>
+            </div>
+        </div>
+        <div class="modal-navigation">
+            <button id="modalPrevButton" disabled>이전</button>
+            <button id="modalNextButton" disabled>다음</button>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const navElement = document.getElementById('mainNav');
+        const navLeft = navElement.querySelector('.nav-left');
+        const navRight = navElement.querySelector('.nav-right');
+
+        if (localStorage.getItem('Coding-Mate-Auth')) {
+            navLeft.innerHTML = `
+      <a href="/">홈</a>
+      <a href="/answer/list">풀이 목록</a>
+    `;
+            navRight.innerHTML = `
+      <a href="/my-page">프로필</a>
+      <a href="#" id="logoutButton">로그아웃</a>
+    `;
+
+            const logoutButton = document.getElementById('logoutButton');
+            if (logoutButton) {
+                logoutButton.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    localStorage.removeItem('Coding-Mate-Auth');
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/';
+                });
+            }
+        }
+        fetchProblemList();
+        registerModalEventListeners();
+    })
+
+    const solutionModalOverlay = document.getElementById('solutionModalOverlay');
+    const modalCloseButton = document.getElementById('modalCloseButton');
+    const modalProblemTitle = document.getElementById('modalProblemTitle');
+    const modalBackjoonIdElement = document.getElementById('modalBackjoonId');
+    const modalProgrammerNameElement = document.getElementById('modalProgrammerName');
+    const modalLanguageTypeElement = document.getElementById('modalLanguageType');
+    const modalCodeElement = document.getElementById('modalCode');
+    const modalExplanationElement = document.getElementById('modalExplanation');
+    const loadingElement = document.getElementById('loading');
+    const errorElement = document.getElementById('error');
+    const answerDetailTableElement = document.querySelector('#solutionModalOverlay .modal-body table');
+    const actionButtonsElement = document.getElementById('actionButtons');
+    const modalPrevButton = document.getElementById('modalPrevButton');
+    const modalNextButton = document.getElementById('modalNextButton');
+
+    let currentProblemList = [];
+    let currentIndex = 0;
+    let currentAnswerId = null; // 현재 모달에 표시된 answerId 저장
+
+    function fetchProblemList(searchId, searchLanguage) {
+        let url = '/api/v1/answer/programmer'; // 변경된 API 엔드포인트
+        const queryParams = [];
+        if (searchId) {
+            queryParams.push(`backjoonId=${searchId}`);
+        }
+        if (searchLanguage) {
+            queryParams.push(`language=${searchLanguage}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += `?${queryParams.join('&')}`;
+        }
+
+        fetch(url, {
+            headers: createAuthHeaderFromLocalStorage() // 헤더 포함
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(`HTTP error! status: ${response.status}: ${errorData.message || '알 수 없는 오류'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                currentProblemList = responseData.data; // 전체 목록 저장
+                displayAnswerList(currentProblemList);
+            })
+            .catch(error => {
+                console.error('풀이 목록을 불러오는 데 실패했습니다:', error);
+                alert('풀이 목록을 불러오는 데 실패했습니다.');
+            });
+    }
+
+    function displayAnswerList(answerList) {
+        const problemListBody = document.getElementById('problemListBody');
+        const noProblemsElement = document.getElementById('noProblems');
+        problemListBody.innerHTML = '';
+        noProblemsElement.style.display = 'none';
+
+        if (answerList && Array.isArray(answerList) && answerList.length > 0) {
+            answerList.forEach(answer => {
+                const row = problemListBody.insertRow();
+                const backjoonIdCell = row.insertCell();
+                const titleCell = row.insertCell();
+                const languageCell = row.insertCell();
+                const programmerNameCell = row.insertCell();
+
+                backjoonIdCell.textContent = answer.backjoonId;
+
+                const titleLink = document.createElement('a');
+                titleLink.href = `/answer/${answer.id}`;
+                titleLink.textContent = answer.title;
+                titleLink.classList.add('answer-link');
+                titleCell.appendChild(titleLink);
+                titleLink.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    openSolutionModal(answer.id, answer.title);
+                });
+
+                languageCell.textContent = answer.languageType || '알 수 없음';
+                programmerNameCell.textContent = answer.programmerName || '알 수 없음';
+            });
+        } else {
+            noProblemsElement.style.display = 'block';
+        }
+    }
+
+    function openSolutionModal(answerId, problemTitle) {
+        currentAnswerId = answerId; // 모달 열릴 때 answerId 저장
+        loadingElement.style.display = 'block';
+        errorElement.style.display = 'none';
+        answerDetailTableElement.style.display = 'none';
+        actionButtonsElement.style.display = 'none';
+        solutionModalOverlay.style.display = 'flex';
+        modalProblemTitle.textContent = problemTitle;
+
+        fetch(`/api/v1/answer/${answerId}`, {
+            headers: createAuthHeaderFromLocalStorage()
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(`풀이 정보를 불러오는 데 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                const answer = responseData.data;
+                displayAnswerDetailInModal(answer);
+
+                currentIndex = currentProblemList.findIndex(item => item.id === answerId);
+                updateNavigationButtons();
+            })
+            .catch(error => {
+                console.error('풀이 정보를 불러오는 데 실패했습니다:', error);
+                errorElement.textContent = error.message;
+                errorElement.style.display = 'block';
+            })
+            .finally(() => {
+                loadingElement.style.display = 'none';
+            });
+    }
+
+    function displayAnswerDetailInModal(answer) {
+        modalBackjoonIdElement.textContent = answer.backjoonId;
+        modalCodeElement.textContent = answer.code;
+        modalExplanationElement.textContent = answer.explanation;
+        modalLanguageTypeElement.textContent = answer.languageType;
+        modalProgrammerNameElement.textContent = answer.programmerName || '알 수 없음';
+
+        if (answer.isRequesterIsOwner === true) {
+            actionButtonsElement.style.display = 'flex';
+        } else {
+            actionButtonsElement.style.display = 'none';
+        }
+        answerDetailTableElement.style.display = 'table';
+    }
+
+    // 수정 버튼 이벤트 리스너 (이전에 제공된 코드 활용)
+    const editButton = document.querySelector('#actionButtons button:first-child');
+
+    function registerModalEventListeners() {
+        if (modalCloseButton) {
+            modalCloseButton.addEventListener('click', () => {
+                solutionModalOverlay.style.display = 'none';
+                currentAnswerId = null; // 모달 닫힐 때 answerId 초기화
+            });
+        }
+
+        if (editButton) {
+            editButton.addEventListener('click', function () {
+                if (currentAnswerId !== null) {
+                    window.location.href = `/answer/edit/${currentAnswerId}`;
+                } else {
+                    console.error('수정할 answerId가 없습니다.');
+                    alert('수정할 정보를 찾을 수 없습니다.');
+                }
+            });
+        }
+
+        if (modalPrevButton) {
+            modalPrevButton.addEventListener('click', showPreviousProblem);
+        }
+
+        if (modalNextButton) {
+            modalNextButton.addEventListener('click', showNextProblem);
+        }
+    }
+
+    function showPreviousProblem() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            const prevProblem = currentProblemList[currentIndex];
+            openSolutionModal(prevProblem.id, prevProblem.title);
+        }
+        updateNavigationButtons();
+    }
+
+    function showNextProblem() {
+        if (currentIndex < currentProblemList.length - 1) {
+            currentIndex++;
+            const nextProblem = currentProblemList[currentIndex];
+            openSolutionModal(nextProblem.id, nextProblem.title);
+        }
+        updateNavigationButtons();
+    }
+
+    function updateNavigationButtons() {
+        if (modalPrevButton) {
+            modalPrevButton.disabled = currentIndex === 0;
+        }
+        if (modalNextButton) {
+            modalNextButton.disabled = currentIndex === currentProblemList.length - 1;
+        }
+    }
+
+    function searchProblems() {
+        const searchBackjoonIdInput = document.getElementById('searchBackjoonId');
+        const searchLanguageSelect = document.getElementById('searchLanguage');
+        const searchId = searchBackjoonIdInput.value.trim();
+        const searchLanguage = searchLanguageSelect.value;
+        fetchProblemList(searchId, searchLanguage);
+    }
+
+    function deleteAnswer() {
+        if (confirm('정말로 이 풀이를 삭제하시겠습니까?')) {
+            fetch(`/api/v1/answer/${currentAnswerId}`, {
+                method: 'DELETE',
+                headers: createAuthHeaderFromLocalStorage()
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(`풀이 삭제에 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
+                        });
+                    }
+                    alert('풀이가 성공적으로 삭제되었습니다.');
+                    window.location.href = '/my-page/answer'; // 풀이 목록 페이지로 리디렉션
+                })
+                .catch(error => {
+                    console.error('풀이 삭제에 실패했습니다:', error);
+                    alert(error.message);
+                });
+        }
+    }
+
+    function createAuthHeaderFromLocalStorage() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {
+
+        };
+
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = authToken;
+        }
+
+        return headers
+    }
+</script>
+</body>
+</html>

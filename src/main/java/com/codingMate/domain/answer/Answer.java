@@ -1,7 +1,9 @@
 package com.codingMate.domain.answer;
 
+import com.codingMate.common.BaseEntity;
 import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
+import com.codingMate.dto.response.answer.AnswerPageResponse;
 import com.codingMate.dto.response.answer.AnswerResponse;
 import jakarta.persistence.*;
 import lombok.*;
@@ -9,7 +11,7 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Answer {
+public class Answer extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -56,6 +58,20 @@ public class Answer {
                 .languageType(this.languageType)
                 .backjoonId(this.backJoonId)
                 .programmer(this.programmer.toDto())
+                .build();
+    }
+
+    public AnswerPageResponse toAnswerPageDto(){
+        return AnswerPageResponse.builder()
+                .id(id)
+                .backjoonId(backJoonId)
+                .title(title)
+                .code(code)
+                .explanation(explanation)
+                .programmerName(programmer.getName().getName())
+                .languageType(languageType)
+                .isRequesterIsOwner(false)
+                .programmerId(programmer.getId())
                 .build();
     }
 }

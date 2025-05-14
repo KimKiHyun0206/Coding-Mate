@@ -30,11 +30,17 @@ import java.util.Objects;
 public class AnswerController {
     private final AnswerService answerService;
 
+    /**
+     * @apiNote 풀이 생성 API
+     * @param request 토큰을 받아오기 위한 매개변수
+     * @param answerCreateRequest 생성할 문제의 정보를 가져옴
+     * */
     @PostMapping
-    public ResponseEntity<?> create(HttpServletRequest request, AnswerCreateRequest dto) {
-        Long idFromToken = JwtUtil.getIdFromToken(request);
+    public ResponseEntity<?> create(AnswerCreateRequest answerCreateRequest, HttpServletRequest request) {
         try {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(idFromToken, dto));
+            log.info("create({}, {})", request.toString(), answerCreateRequest.toString());
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(idFromToken, answerCreateRequest));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {
@@ -42,22 +48,22 @@ public class AnswerController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> read(@PathVariable(name = "id") Long id, HttpServletRequest request) {
+    /**
+     * @apiNote 풀이 읽기 API
+     * @implSpec 읽는 것은 토큰을 필수로 필요로하지 않지만 토큰을 가지고 있을 경우 수정할 권한을 가질 수 있도록 함
+     * @param id 읽을 Answer 의  ID
+     * @param request 토큰을 받아오기 위한 매개변수
+     * */
+    @GetMapping("/{answerId}")
+    public ResponseEntity<?> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
         try {
-            Long idFromToken = JwtUtil.getIdFromToken(request);
-            AnswerResponse readResult = answerService.read(id);
-            AnswerPageResponse answerPageResponse = AnswerPageResponse.builder()
-                    .code(readResult.getCode())
-                    .title(readResult.getTitle())
-                    .explanation(readResult.getExplanation())
-                    .languageType(readResult.getLanguageType())
-                    .backjoonId(readResult.getBackjoonId())
-                    .id(idFromToken)
-                    .programmerName(readResult.getProgrammer().getName())
-                    .isRequesterIsOwner(Objects.equals(readResult.getProgrammer().getId(), idFromToken))
-                    .build();
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageResponse);
+            log.info("read({})", id);
+            AnswerPageResponse answerPageDto = answerService.read(id).toAnswerPageDto();
+            if (idFromToken != null) {
+                answerPageDto.setIsRequesterIsOwner(Objects.equals(answerPageDto.getProgrammerId(), idFromToken));
+            }
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageDto);
         } catch (NotFoundAnswerException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
         } catch (Exception e) {
@@ -65,34 +71,46 @@ public class AnswerController {
         }
     }
 
+    /**
+     * @apiNote 모든 풀이 읽기 API
+     * @implNote 추후 풀이의 수가 많아진다면 페이징 기능을 추가해야함
+     * @implSpec 현재 페이징 기능이 없음
+     * @param backjoonId 읽어올 문제의 backjoonId
+     * @param language 읽어올 문제의 languageType
+     * */
     @GetMapping("/all")
     public ResponseEntity<?> readAll(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId) {
         log.info("readAll()");
-        if (language != null) {
-            log.info("language {}", language);
-        }
-        if (backjoonId != null) {
-            log.info("backjoonId {}", backjoonId);
-        }
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAll(language, backjoonId));
+        log.info("language {}", language);
+        log.info("backjoonId {}", backjoonId);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllToListResponse(language, backjoonId));
     }
 
-    @GetMapping("/programmer/{id}")
-    public ResponseEntity<?> readByProgrammer(@PathVariable(name = "id") Long id) {
-        List<AnswerResponse> answerResponses = answerService.readAllByProgrammerId(id);
-        if (answerResponses.size() == 0) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, answerService.read(id));
-        } else {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerResponses);
-        }
+    /**
+     * @apiNote 특정 프로그래머가 작성한 풀이를 읽어오는 API, 프로그래머가 작성한 문제들을 읽어오기 위한 API 현재 사용되지 않지만 추후 기능 추가를 통해 사용할 것임
+     * @implNote 이 기능은 헤더에서 ID 값을 받아오는 것으로 변경해야 할 필요가 있음
+     * @implSpec 현재 페이징 기능이 없음
+     * */
+    @GetMapping("/programmer")
+    public ResponseEntity<?> readByProgrammer(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId, HttpServletRequest request) {
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        log.info("readByProgrammer({})", idFromToken);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllByProgrammerId(language, backjoonId, idFromToken));
     }
 
+    /**
+     * @apiNote 풀이 수정 API
+     * @implSpec request    에서 인증 정보를 가져오고 이를 바탕으로 업데이트 로직을 처리함
+     * @param answerId 수정할 풀이의 ID
+     * @param answerUpdateRequest 수정할 풀이의 정보
+     * @param request 토큰을 받아오기 위한 매개변수
+     * */
     @PatchMapping("/{answerId}")
-    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody AnswerUpdateRequest dto, @PathVariable(name = "answerId") Long answerId) {
+    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody AnswerUpdateRequest answerUpdateRequest, @PathVariable(name = "answerId") Long answerId) {
         try {
-            log.info(dto.toString());
-            Long idFromToken = JwtUtil.getIdFromToken(request);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, dto));
+            log.info(answerUpdateRequest.toString());
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, answerUpdateRequest));
         } catch (AnswerAndProgrammerDoNotMatchException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
 
@@ -103,12 +121,17 @@ public class AnswerController {
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable(name = "id") Long answerId, HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromToken(request);
+    /**
+     * @apiNote 풀이 삭제 API
+     * @param request 토큰을 받아오기 위한 매개변수
+     * @param answerId 삭제할 풀이의 ID
+     * */
+    @DeleteMapping("/{answerId}")
+    public ResponseEntity<?> delete(@PathVariable(name = "answerId") Long answerId, HttpServletRequest request) {
         try {
-            answerService.delete(idFromToken, answerId);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, null);
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+            boolean isDeleted = answerService.delete(idFromToken, answerId);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, isDeleted);
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {
