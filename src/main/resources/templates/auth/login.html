@@ -132,7 +132,7 @@
 
             const logoutButton = document.getElementById('logoutButton');
             if (logoutButton) {
-                logoutButton.addEventListener('click', function(event) {
+                logoutButton.addEventListener('click', function (event) {
                     event.preventDefault(); // 링크의 기본 동작 막기
                     localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
                     alert('로그아웃 되었습니다.');
@@ -179,8 +179,10 @@
                         });
                     }
                     const token = response.headers.get('Coding-Mate-Auth');
+                    const refreshToken = response.headers.get('Coding-Mate-Auth-Ref');
                     if (token) {
                         localStorage.setItem('Coding-Mate-Auth', token);
+                        localStorage.setItem('Coding-Mate-Auth-Ref', refreshToken);
                         alert('로그인 성공!');
                         window.location.href = '/'; // 로그인 성공 후 메인 페이지로
                     } else {
