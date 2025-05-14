@@ -35,6 +35,9 @@ public class AuthController {
     @Value("${jwt.header}")
     private String header;
 
+    @Value("${jwt.refresh}")
+    private String refreshHeader;
+
 
     /**
      * @apiNote 로그인 API
@@ -52,19 +55,20 @@ public class AuthController {
 
         Long userId = programmerService.readIdByLoginId(loginRequest.getLoginId());
 
-        String jwt = tokenProvider.createToken(authentication, userId);
-        response.setHeader(header, jwt);
-        log.info("TOKEN {} ", jwt);
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, jwt);
+        String accessToken = tokenProvider.createAccessToken(authentication, userId);
+        String refreshToken = tokenProvider.createRefreshToken(authentication, userId);
+        response.setHeader(header, accessToken);
+        response.setHeader(refreshHeader, refreshToken);
+        log.info("TOKEN {} ", accessToken);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, accessToken);
     }
 
     /**
      * @apiNote 회원가입 API
      * @param programmerCreateRequest 회원가입 정보를 가져오는 DTO
-     * @param response 회원가입시 리다이렉션을 하기 위한 매개변수
      * */
     @PostMapping("/register")
-    public ResponseEntity<?> register(ProgrammerCreateRequest programmerCreateRequest, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> register(ProgrammerCreateRequest programmerCreateRequest) throws IOException {
         log.info("register()");
         ProgrammerDto programmerDto = programmerService.create(programmerCreateRequest);
         log.info("programmerDto {}", programmerDto.toString());
