@@ -5,11 +5,13 @@ import com.codingMate.common.response.ResponseMessage;
 import com.codingMate.dto.request.programmer.LoginRequest;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
+import com.codingMate.dto.response.token.TokenDto;
+import com.codingMate.exception.BusinessException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
+import com.codingMate.exception.exception.redis.InvalidRefreshTokenException;
 import com.codingMate.jwt.TokenProvider;
 import com.codingMate.service.programmer.ProgrammerService;
 import com.codingMate.service.redis.RefreshTokenService;
-import com.codingMate.dto.response.token.TokenDto;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -93,11 +95,34 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/access-token")
+    public ResponseEntity<?> validateAccessToken(HttpServletRequest request) {
+        String accessToken = JwtUtil.getAccessTokenFromHttpServletRequest(request);
+        try {
+            if (accessToken != null) {
+                if (tokenProvider.validateToken(accessToken)) {
+                    return ResponseEntity.ok(ResponseMessage.SUCCESS);
+                }
+            }
+            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, null);
+        } catch (BusinessException businessException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, businessException.getMessage());
+        }
+    }
+
     @GetMapping("/refresh-token")
-    public ResponseEntity<?> tokenRecurrence(@RequestParam String token) {
-        //String refreshToken = JwtUtil.getRefreshTokenFromHttpServletRequest(request);
-        TokenDto tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(token);
-        log.info("tokenDto {}", tokenDto.toString());
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
+    public ResponseEntity<?> newRefreshToken(HttpServletRequest request) {
+        String refreshToken = JwtUtil.getRefreshTokenFromHttpServletRequest(request);
+        try {
+            if (refreshToken != null) {
+                TokenDto tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(refreshToken);
+                return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
+            }
+            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, null);
+        } catch (InvalidRefreshTokenException invalidRefreshTokenException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, invalidRefreshTokenException.getMessage());
+        } catch (BusinessException businessException) {
+            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, businessException.getMessage());
+        }
     }
 }

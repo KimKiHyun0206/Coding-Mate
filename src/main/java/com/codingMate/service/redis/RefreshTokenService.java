@@ -55,7 +55,7 @@ public class RefreshTokenService {
         return Boolean.TRUE.equals(redisTemplate.delete(token));
     }
 
-    public TokenDto createAccessTokenFromRefreshToken(String refreshToken) {
+    public TokenDto createAccessTokenFromRefreshToken(String refreshToken) throws InvalidRefreshTokenException {
         log.info("createAccessTokenFromRefreshToken({})", refreshToken);
         RedisCacheInfo redisCacheInfo = valueOperations.get(refreshToken);
         if (redisCacheInfo == null)
