@@ -42,6 +42,12 @@ public class JwtUtil {
         return token;
     }
 
+    public static String getAccessTokenFromHttpServletRequest(HttpServletRequest request) {
+        String token = request.getHeader(header);
+        if (token == null || token.equals("null")) return null;
+        return token;
+    }
+
     /**
      * 토큰의 Claim 디코딩
      */
