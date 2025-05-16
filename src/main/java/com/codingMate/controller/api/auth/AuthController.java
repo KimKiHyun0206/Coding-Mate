@@ -7,6 +7,7 @@ import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.dto.response.token.TokenDto;
 import com.codingMate.exception.BusinessException;
+import com.codingMate.exception.exception.jwt.ExpiredTokenException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.exception.exception.redis.InvalidRefreshTokenException;
 import com.codingMate.jwt.TokenProvider;
@@ -98,6 +99,7 @@ public class AuthController {
     @GetMapping("/access-token")
     public ResponseEntity<?> validateAccessToken(HttpServletRequest request) {
         String accessToken = JwtUtil.getAccessTokenFromHttpServletRequest(request);
+        log.info("validateAccessToken({})", accessToken);
         try {
             if (accessToken != null) {
                 if (tokenProvider.validateToken(accessToken)) {
@@ -105,15 +107,16 @@ public class AuthController {
                 }
             }
             return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, null);
-        } catch (BusinessException businessException) {
+        } catch (ExpiredTokenException businessException) {
             return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, businessException.getMessage());
         }
     }
 
     @GetMapping("/refresh-token")
     public ResponseEntity<?> newRefreshToken(HttpServletRequest request) {
-        String refreshToken = JwtUtil.getRefreshTokenFromHttpServletRequest(request);
         try {
+            String refreshToken = JwtUtil.getRefreshTokenFromHttpServletRequest(request);
+            log.info("newRefreshToken({})", refreshToken);
             if (refreshToken != null) {
                 TokenDto tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(refreshToken);
                 return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
