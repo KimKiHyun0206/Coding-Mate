@@ -67,8 +67,9 @@ public class RefreshTokenService {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         //UserDetails로 새로운 토큰 생성
-        String newAccessToken = tokenProvider.createRefreshToken(authentication);
+        String newAccessToken = tokenProvider.createAccessToken(authentication);
         String newRefreshToken = tokenProvider.createRefreshToken(authentication);
+        log.info("new Tokens \n {} \n {}", newAccessToken, newRefreshToken);
 
         //기존 토큰을 제거하고 새로운 refreshToken을 저장함 그리고
         Boolean delete = redisTemplate.delete(refreshToken);
