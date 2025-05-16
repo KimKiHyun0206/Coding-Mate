@@ -37,7 +37,7 @@ public class TokenProvider implements InitializingBean {
     public TokenProvider(
             @Value("${jwt.secret}") String secret,
             @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds
-            ) {
+    ) {
         this.secret = secret;
         this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
 
@@ -65,7 +65,7 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
-    public String createRefreshToken(Authentication authentication){
+    public String createRefreshToken(Authentication authentication) {
         Claims claims = Jwts.claims().setSubject(authentication.getName());
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + tokenValidityInMilliseconds);
