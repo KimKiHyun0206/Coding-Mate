@@ -8,6 +8,7 @@ import com.codingMate.dto.response.programmer.MyPageResponse;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.exception.exception.programmer.ProgrammerNotCreateException;
+import com.codingMate.repository.answer.CustomAnswerRepository;
 import com.codingMate.repository.programmer.CustomProgrammerRepository;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
 import com.sun.jdi.request.DuplicateRequestException;
@@ -24,6 +25,7 @@ import java.util.List;
 public class ProgrammerService {
     private final DefaultProgrammerRepository defaultProgrammerRepository;
     private final CustomProgrammerRepository customProgrammerRepository;
+    private final CustomAnswerRepository customAnswerRepository;
 
     @Transactional
     public ProgrammerDto create(ProgrammerCreateRequest request) {
@@ -85,6 +87,8 @@ public class ProgrammerService {
     public boolean delete(String programmerId) {
         boolean isExist = defaultProgrammerRepository.existsByLoginId(programmerId);
         if (isExist) {
+            long delete = customAnswerRepository.deleteByProgrammerLoginId(programmerId);
+            log.info("deleted answer {}",delete);
             defaultProgrammerRepository.deleteByLoginId(programmerId);
         } else throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + programmerId);
 

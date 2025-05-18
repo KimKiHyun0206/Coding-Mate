@@ -73,10 +73,10 @@ public class CustomAnswerRepository {
     }
 
     @Transactional
-    public long update(Long programmerId, Long answerId, AnswerUpdateRequest dto) {
+    public long update(String programmerId, Long answerId, AnswerUpdateRequest dto) {
         return queryFactory.update(answer)
                 .where(answer.id.eq(answerId))
-                .where(answer.programmer.id.eq(programmerId))
+                .where(answer.programmer.loginId.eq(programmerId))
                 .set(answer.code, dto.getCode() == null ? null : dto.getCode())
                 .set(answer.languageType, dto.getLanguageType() == null ? null : dto.getLanguageType())
                 .set(answer.explanation, dto.getExplanation() == null ? null : dto.getExplanation())
@@ -105,5 +105,12 @@ public class CustomAnswerRepository {
             return true;
         }
         return false;
+    }
+
+    @Transactional
+    public long deleteByProgrammerLoginId(String loginId){
+        return queryFactory.delete(answer)
+                .where(answer.programmer.loginId.eq(loginId))
+                .execute();
     }
 }
