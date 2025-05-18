@@ -63,6 +63,7 @@ public class TokenProvider implements InitializingBean {
     public String createAccessToken(Long userId, String role) {
         var claims = Jwts.claims().setSubject(String.valueOf(userId));
         claims.put(AUTHORITIES_KEY, role);
+        claims.put("id", userId);
         var date = new Date();
         return Jwts.builder()
                 .setClaims(claims)
@@ -72,7 +73,7 @@ public class TokenProvider implements InitializingBean {
                 .compact();
     }
 
-    public String createRefreshToken(Long userId, String role) {
+    public String createRefreshToken(Long userId) {
         var claims = Jwts.claims().setSubject(String.valueOf(userId));
         Date now = new Date();
 

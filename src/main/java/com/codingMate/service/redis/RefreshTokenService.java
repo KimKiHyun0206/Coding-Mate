@@ -55,7 +55,7 @@ public class RefreshTokenService {
         Long id = redisCacheInfo.getId();
         String role = redisCacheInfo.getAuthority();
         String newAccessToken = tokenProvider.createAccessToken(id, role);
-        String newRefreshToken = tokenProvider.createRefreshToken(id, role);
+        String newRefreshToken = tokenProvider.createRefreshToken(id);
         log.info("new Tokens \n {} \n {}", newAccessToken, newRefreshToken);
 
         //기존 토큰을 제거하고 새로운 refreshToken을 저장함 그리고

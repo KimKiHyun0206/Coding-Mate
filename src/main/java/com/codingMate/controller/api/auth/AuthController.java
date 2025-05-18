@@ -58,7 +58,7 @@ public class AuthController {
         log.info("login({}, {})", loginRequest.getLoginId(), loginRequest.getPassword());
         ProgrammerDto programmerDto = loginService.login(loginRequest.getLoginId(), loginRequest.getPassword());
         String accessToken = tokenProvider.createAccessToken(programmerDto.getId(), programmerDto.getAuthority());
-        String refreshToken = tokenProvider.createRefreshToken(programmerDto.getId(), programmerDto.getAuthority());
+        String refreshToken = tokenProvider.createRefreshToken(programmerDto.getId());
 
         refreshTokenService.saveToken(refreshToken, programmerDto.getId(), programmerDto.getAuthority());
         response.setHeader(header, accessToken);
