@@ -28,10 +28,7 @@ public class ProgrammerController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ProgrammerCreateRequest dto) {
         log.info("create {}", dto.getLoginId());
-        boolean isExistLoginId = programmerService.isExistLoginId(dto.getLoginId());
-        if(!isExistLoginId){
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.create(dto));
-        }else return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "요청한 ID는 이미 존재하는 ID입니다");
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.create(dto));
     }
 
     /**
@@ -41,7 +38,7 @@ public class ProgrammerController {
     public ResponseEntity<?> isExistLoginId(@RequestParam("loginId") String loginId) {
         log.info("isExistLoginId {}", loginId);
         boolean isExistLoginId = programmerService.isExistLoginId(loginId);
-        if(!isExistLoginId){
+        if (!isExistLoginId) {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, "존재하지 않는 ID입니다");
         }
         return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "존재하는 ID입니다");
@@ -53,7 +50,7 @@ public class ProgrammerController {
      * */
     @GetMapping("/my-page")
     public ResponseEntity<?> myPage(HttpServletRequest request) {
-        String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
+        Long loginIdFromToken = JwtUtil.getIdFromHttpServletRequest(request);
         MyPageResponse myPageResponse = programmerService.myPage(loginIdFromToken);
         log.info("myPage {}", myPageResponse.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPageResponse);
@@ -93,9 +90,9 @@ public class ProgrammerController {
     @PatchMapping
     public ResponseEntity<?> update(@RequestBody ProgrammerUpdateRequest programmerUpdateRequest, HttpServletRequest request) {
         try {
-            String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
-            log.info("update({}, {})", loginIdFromToken, programmerUpdateRequest.toString());
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(loginIdFromToken, programmerUpdateRequest));
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+            log.info("update({}, {})", idFromToken, programmerUpdateRequest.toString());
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(idFromToken, programmerUpdateRequest));
         } catch (UnMatchedAuthException unMatchedAuthException) {
             return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, unMatchedAuthException.getMessage());
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
@@ -113,9 +110,9 @@ public class ProgrammerController {
     @DeleteMapping
     public ResponseEntity<?> delete(HttpServletRequest request) {
         try {
-            String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
-            log.info("delete({})", loginIdFromToken);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(loginIdFromToken));
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+            log.info("delete({})", idFromToken);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(idFromToken));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {

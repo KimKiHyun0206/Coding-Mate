@@ -7,9 +7,6 @@ import com.codingMate.dto.request.answer.AnswerCreateRequest;
 import com.codingMate.dto.request.answer.AnswerUpdateRequest;
 import com.codingMate.dto.response.answer.AnswerListResponse;
 import com.codingMate.dto.response.answer.QAnswerListResponse;
-import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
-import com.codingMate.exception.exception.answer.NotFoundAnswerException;
-import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -18,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -64,19 +60,19 @@ public class CustomAnswerRepository {
     }
 
     @Transactional(readOnly = true)
-    public List<Answer> readAllByProgrammerId(LanguageType language, Long backjoonId, String programmerId) {
+    public List<Answer> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
         return queryFactory.selectFrom(answer)
-                .where(answer.programmer.loginId.eq(programmerId))
+                .where(answer.programmer.id.eq(programmerId))
                 .where(language != null ? answer.languageType.eq(language) : null)
                 .where(backjoonId != null ? answer.backJoonId.eq(backjoonId) : null)
                 .fetch();
     }
 
     @Transactional
-    public long update(String programmerId, Long answerId, AnswerUpdateRequest dto) {
+    public long update(Long programmerId, Long answerId, AnswerUpdateRequest dto) {
         return queryFactory.update(answer)
                 .where(answer.id.eq(answerId))
-                .where(answer.programmer.loginId.eq(programmerId))
+                .where(answer.programmer.id.eq(programmerId))
                 .set(answer.code, dto.getCode() == null ? null : dto.getCode())
                 .set(answer.languageType, dto.getLanguageType() == null ? null : dto.getLanguageType())
                 .set(answer.explanation, dto.getExplanation() == null ? null : dto.getExplanation())
@@ -108,9 +104,9 @@ public class CustomAnswerRepository {
     }
 
     @Transactional
-    public long deleteByProgrammerLoginId(String loginId){
+    public long deleteByProgrammerId(Long id){
         return queryFactory.delete(answer)
-                .where(answer.programmer.loginId.eq(loginId))
+                .where(answer.programmer.id.eq(id))
                 .execute();
     }
 }

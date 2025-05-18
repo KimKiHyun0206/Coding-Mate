@@ -3,9 +3,9 @@ package com.codingMate.service.programmer;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
-import com.codingMate.dto.response.answer.AnswerListResponse;
 import com.codingMate.dto.response.programmer.MyPageResponse;
 import com.codingMate.dto.response.programmer.ProgrammerDto;
+import com.codingMate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.exception.exception.programmer.ProgrammerNotCreateException;
 import com.codingMate.repository.answer.CustomAnswerRepository;
@@ -29,6 +29,8 @@ public class ProgrammerService {
 
     @Transactional
     public ProgrammerDto create(ProgrammerCreateRequest request) {
+        if(customProgrammerRepository.isExistLoginId(request.getLoginId())) throw new DuplicateProgrammerLoginIdException();
+
         ProgrammerDto dto = customProgrammerRepository.create(request).toDto();
         if (dto == null) throw new ProgrammerNotCreateException("Programmer가 생성되지 않았습니다. " + request);
         dto.setLoginId(null);
@@ -38,7 +40,7 @@ public class ProgrammerService {
 
     @Transactional(readOnly = true)
     public boolean isExistLoginId(String loginId) {
-        boolean isExistLoginId = defaultProgrammerRepository.existsByLoginId(loginId);
+        boolean isExistLoginId = customProgrammerRepository.isExistLoginId(loginId);
         if (isExistLoginId) throw new DuplicateRequestException("요청한 ID는 중복된 ID입니다. " + loginId);
         return false;
     }
@@ -53,8 +55,8 @@ public class ProgrammerService {
     }
 
     @Transactional(readOnly = true)
-    public MyPageResponse myPage(String id) {
-        MyPageResponse myPateDto = customProgrammerRepository.readByLoginId(id).toMyPateDto();
+    public MyPageResponse myPage(Long id) {
+        MyPageResponse myPateDto = customProgrammerRepository.read(id).toMyPateDto();
         if (myPateDto == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
         return myPateDto;
     }
@@ -67,14 +69,14 @@ public class ProgrammerService {
     }
 
     @Transactional
-    public Long readIdByLoginId(String loginId) {
-        Long id = customProgrammerRepository.readIdByUserName(loginId);
-        if (id == null) throw new NotFoundProgrammerException("요청한 loginId로 Programmer를 조회할 수 없습니다." + loginId);
-        return id;
+    public Long readIdByLoginId(Long id) {
+        Long result = customProgrammerRepository.read(id).getId();
+        if (result == null) throw new NotFoundProgrammerException("요청한 loginId로 Programmer를 조회할 수 없습니다." + id);
+        return result;
     }
 
     @Transactional
-    public ProgrammerDto update(String programmerId, ProgrammerUpdateRequest request) {
+    public ProgrammerDto update(Long programmerId, ProgrammerUpdateRequest request) {
         ProgrammerDto dto = customProgrammerRepository.update(programmerId, request).toDto();
         if (dto == null)
             throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Update또한 이루어지지 않았습니다" + programmerId);
@@ -84,13 +86,13 @@ public class ProgrammerService {
     }
 
     @Transactional
-    public boolean delete(String programmerId) {
-        boolean isExist = defaultProgrammerRepository.existsByLoginId(programmerId);
+    public boolean delete(Long id) {
+        boolean isExist = defaultProgrammerRepository.existsById(id);
         if (isExist) {
-            long delete = customAnswerRepository.deleteByProgrammerLoginId(programmerId);
+            long delete = customAnswerRepository.deleteByProgrammerId(id);
             log.info("deleted answer {}",delete);
-            defaultProgrammerRepository.deleteByLoginId(programmerId);
-        } else throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + programmerId);
+            defaultProgrammerRepository.deleteById(id);
+        } else throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + id);
 
         return true;
     }

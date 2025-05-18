@@ -11,8 +11,6 @@ import com.codingMate.dto.response.programmer.SimpleProgrammerDto;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.Set;
-
 
 //TODO follow 기능 추가 염두해둘 것
 @Entity
@@ -47,16 +45,11 @@ public class Programmer extends BaseEntity {
     @Column(name = "tip", length = 2000)
     private String tip;
 
-    @ManyToMany
-    @JoinTable(
-            name = "programmer_authority",
-            joinColumns = {@JoinColumn(name = "programmer_id", referencedColumnName = "programmer_id")},
-            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")}
-    )
-    private Set<Authority> authorities;
+    @ManyToOne
+    private Authority authority;
 
     @Builder
-    public Programmer(String loginId, String githubId, String password, Name name, Email email, Long numberOfAnswer, String tip, Set<Authority> authorities) {
+    public Programmer(String loginId, String githubId, String password, Name name, Email email, Long numberOfAnswer, String tip, Authority authority) {
         this.loginId = loginId;
         this.githubId = githubId;
         this.password = password;
@@ -64,7 +57,7 @@ public class Programmer extends BaseEntity {
         this.email = email;
         this.numberOfAnswer = numberOfAnswer;
         this.tip = tip;
-        this.authorities = authorities;
+        this.authority = authority;
     }
 
 
@@ -76,7 +69,8 @@ public class Programmer extends BaseEntity {
                 password,
                 name.getName(),
                 email.getEmail(),
-                tip
+                tip,
+                authority.getAuthorityName()
         );
     }
 

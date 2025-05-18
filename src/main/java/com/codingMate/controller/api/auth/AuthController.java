@@ -11,6 +11,7 @@ import com.codingMate.exception.exception.jwt.ExpiredTokenException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.exception.exception.redis.InvalidRefreshTokenException;
 import com.codingMate.jwt.TokenProvider;
+import com.codingMate.service.programmer.LoginService;
 import com.codingMate.service.programmer.ProgrammerService;
 import com.codingMate.service.redis.RefreshTokenService;
 import com.codingMate.util.JwtUtil;
@@ -24,6 +25,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -34,9 +36,9 @@ import java.io.IOException;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final TokenProvider tokenProvider;
-    private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final ProgrammerService programmerService;
     private final RefreshTokenService refreshTokenService;
+    private final LoginService loginService;
 
     @Value("${jwt.header}")
     private String header;
@@ -52,17 +54,13 @@ public class AuthController {
      * @param response 응답에 토큰을 담아야하기 때문에 사용하는 매개변수
      * */
     @PostMapping("/login")
-    public ResponseEntity<?> login(LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         log.info("login({}, {})", loginRequest.getLoginId(), loginRequest.getPassword());
-        UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(loginRequest.getLoginId(), loginRequest.getPassword());
-        Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        ProgrammerDto programmerDto = loginService.login(loginRequest.getLoginId(), loginRequest.getPassword());
+        String accessToken = tokenProvider.createAccessToken(programmerDto.getId(), programmerDto.getAuthority());
+        String refreshToken = tokenProvider.createRefreshToken(programmerDto.getId(), programmerDto.getAuthority());
 
-        String accessToken = tokenProvider.createAccessToken(authentication);
-        String refreshToken = tokenProvider.createRefreshToken(authentication);
-
-        refreshTokenService.saveToken(refreshToken, loginRequest.getLoginId(), authentication.getAuthorities());
+        refreshTokenService.saveToken(refreshToken, programmerDto.getId(), programmerDto.getAuthority());
         response.setHeader(header, accessToken);
         response.setHeader(refreshHeader, refreshToken);
         log.info("TOKEN {} ", accessToken);
@@ -76,7 +74,7 @@ public class AuthController {
      * @param programmerCreateRequest 회원가입 정보를 가져오는 DTO
      * */
     @PostMapping("/register")
-    public ResponseEntity<?> register(ProgrammerCreateRequest programmerCreateRequest) throws IOException {
+    public ResponseEntity<?> register(@RequestBody ProgrammerCreateRequest programmerCreateRequest) throws IOException {
         log.info("register()");
         ProgrammerDto programmerDto = programmerService.create(programmerCreateRequest);
         log.info("programmerDto {}", programmerDto.toString());
@@ -84,11 +82,18 @@ public class AuthController {
         return ResponseEntity.ok(ResponseMessage.SUCCESS);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+        refreshTokenService.deleteRefreshToken(JwtUtil.getRefreshTokenFromHttpServletRequest(request));
+
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, "로그아웃 성공했습니다");
+    }
+
     @DeleteMapping("/withdrawal")
     public ResponseEntity<?> withdrawal(HttpServletRequest request) {
         try {
-            String idFromHttpServletRequest = JwtUtil.getLoginIdFromToken(request);
-            boolean isDeleted = programmerService.delete(idFromHttpServletRequest);
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+            boolean isDeleted = programmerService.delete(idFromToken);
             if (isDeleted) return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT, "요청한 계정을 삭제했습니다");
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "요청한 계정을 삭제하지 못했습니다");
         } catch (NotFoundProgrammerException notFoundProgrammerException) {

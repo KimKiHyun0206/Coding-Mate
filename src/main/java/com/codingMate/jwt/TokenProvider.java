@@ -6,6 +6,7 @@ import com.codingMate.exception.exception.jwt.IllegalTokenException;
 import com.codingMate.exception.exception.jwt.TokenSecutiryException;
 import com.codingMate.exception.exception.jwt.UnsupportedTokenException;
 import com.codingMate.service.redis.RefreshTokenService;
+import com.codingMate.util.DateUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -39,8 +40,8 @@ public class TokenProvider implements InitializingBean {
             @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds
     ) {
         this.secret = secret;
-        this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
-
+        //this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.tokenValidityInMilliseconds = 10000;
     }
 
     @Override
@@ -49,31 +50,36 @@ public class TokenProvider implements InitializingBean {
         this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    public String createAccessToken(Authentication authentication) {
-        String authorities = authentication.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
-                .collect(Collectors.joining(","));
-
-        long now = (new Date()).getTime();
-        Date validity = new Date(now + this.tokenValidityInMilliseconds);
-
+    /**
+     * @param * claim : 데이터 (String userId)
+     *          * Subject : 토큰 생성 목적
+     *          * IssuedAt : jwt 발급 시간
+     *          * Expiration Time : jwt 만료시간
+     *          * signWith : 암호화 알고리즘, secret 값 세팅
+     *          *
+     * @return * access Jwt Token
+     * @brief * 토큰 생성 / jjwt 라이브러리
+     */
+    public String createAccessToken(Long userId, String role) {
+        var claims = Jwts.claims().setSubject(String.valueOf(userId));
+        claims.put(AUTHORITIES_KEY, role);
+        var date = new Date();
         return Jwts.builder()
-                .setSubject(authentication.getName())
-                .claim(AUTHORITIES_KEY, authorities)
-                .signWith(key, SignatureAlgorithm.HS512)
-                .setExpiration(validity)
+                .setClaims(claims)
+                .setIssuedAt(date)
+                .signWith(SignatureAlgorithm.HS256, key)
+                .setExpiration(DateUtil.getTokenValidTime(date, tokenValidityInMilliseconds))
                 .compact();
     }
 
-    public String createRefreshToken(Authentication authentication) {
-        Claims claims = Jwts.claims().setSubject(authentication.getName());
+    public String createRefreshToken(Long userId, String role) {
+        var claims = Jwts.claims().setSubject(String.valueOf(userId));
         Date now = new Date();
-        Date expireDate = new Date(now.getTime() + tokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(expireDate)
+                .setExpiration(DateUtil.getTokenValidTime(now, tokenValidityInMilliseconds))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }

@@ -1,4 +1,4 @@
-function createAuthHeaderFromLocalStorage() {
+function create_header() {
     const authToken = localStorage.getItem('Coding-Mate-Auth');
     const headers = {
         'Content-Type': 'application/json',

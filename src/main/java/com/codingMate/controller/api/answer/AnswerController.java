@@ -19,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Objects;
 
 
@@ -36,11 +35,11 @@ public class AnswerController {
      * @param answerCreateRequest 생성할 문제의 정보를 가져옴
      * */
     @PostMapping
-    public ResponseEntity<?> create(AnswerCreateRequest answerCreateRequest, HttpServletRequest request) {
+    public ResponseEntity<?> create(@RequestBody AnswerCreateRequest answerCreateRequest, HttpServletRequest request) {
         try {
             log.info("create({}, {})", request.toString(), answerCreateRequest.toString());
-            String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(loginIdFromToken, answerCreateRequest));
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(idFromToken, answerCreateRequest));
         } catch (NotFoundProgrammerException notFoundProgrammerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
         } catch (Exception e) {
@@ -56,13 +55,11 @@ public class AnswerController {
      * */
     @GetMapping("/{answerId}")
     public ResponseEntity<?> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
         try {
-            log.info("read({})", id);
+            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+            log.info("read({}, {})", id, idFromToken);
             AnswerPageResponse answerPageDto = answerService.read(id).toAnswerPageDto();
-            if (idFromToken != null) {
-                answerPageDto.setIsRequesterIsOwner(Objects.equals(answerPageDto.getProgrammerId(), idFromToken));
-            }
+            if (idFromToken != null) answerPageDto.setIsRequesterIsOwner(Objects.equals(answerPageDto.getId(), idFromToken));
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageDto);
         } catch (NotFoundAnswerException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
@@ -93,9 +90,9 @@ public class AnswerController {
      * */
     @GetMapping("/programmer")
     public ResponseEntity<?> readByProgrammer(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId, HttpServletRequest request) {
-        String loginIdFromToken = JwtUtil.getLoginIdFromToken(request);
-        log.info("readByProgrammer({})", loginIdFromToken);
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllByProgrammerId(language, backjoonId, loginIdFromToken));
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        log.info("readByProgrammer({})", idFromToken);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllByProgrammerId(language, backjoonId, idFromToken));
     }
 
     /**

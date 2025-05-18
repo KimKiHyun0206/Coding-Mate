@@ -6,9 +6,6 @@ import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
-import com.codingMate.exception.exception.jwt.UnMatchedAuthException;
-import com.codingMate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
-import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 import static com.codingMate.domain.authority.QAuthority.authority;
 import static com.codingMate.domain.programmer.QProgrammer.programmer;
@@ -43,14 +38,22 @@ public class CustomProgrammerRepository {
                 .build();
 
         Programmer entity = dto.toEntity();
-        entity.setAuthorities(Collections.singleton(authority));
+        entity.setAuthority(authority);
         return programmerRepository.save(entity);
     }
 
+    /**
+     * @implSpec * exists를 사용하지 않음으로써 성능 개선
+     *           * limit 1을 사용해서 1개를 찾으면 쿼리를 중단하도록 함
+     * */
     @Transactional(readOnly = true)
     public boolean isExistLoginId(String loginId) {
         log.info("isExistLoginId({})", loginId);
-        return programmerRepository.existsByLoginId(loginId);
+        return queryFactory.selectOne()
+                .from(programmer)
+                .where(programmer.loginId.eq(loginId))
+                .limit(1)
+                .fetchFirst() != null;
     }
 
     @Transactional(readOnly = true)
@@ -66,7 +69,7 @@ public class CustomProgrammerRepository {
         log.info("readByLoginId({})", loginId);
         return queryFactory.selectFrom(programmer)
                 .where(programmer.loginId.eq(loginId))
-                .leftJoin(programmer.authorities, authority)
+                .leftJoin(programmer.authority, authority)
                 .fetchOne();
     }
 
@@ -87,8 +90,8 @@ public class CustomProgrammerRepository {
     }
 
     @Transactional
-    public Programmer update(String programmerId, ProgrammerUpdateRequest dto) {
-        Programmer findById = programmerRepository.findByLoginId(programmerId);
+    public Programmer update(Long programmerId, ProgrammerUpdateRequest dto) {
+        Programmer findById = programmerRepository.findById(programmerId).orElse(null);
         if (findById == null) return null;
 
         findById.setName(dto.getName() == null ? findById.getName() : new Name(dto.getName()));
