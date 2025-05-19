@@ -13,7 +13,7 @@ public class AnswerUIController {
 
     @RequestMapping("/list")
     public String list() {
-        return "answer/list_new";
+        return "answer/list";
     }
 
     @RequestMapping("/{id}")
