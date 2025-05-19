@@ -70,7 +70,10 @@ public class AnswerService {
     public boolean delete(Long programmerId, Long answerId) {
         Answer answer = answerRepository.read(answerId);
         if (answer == null) throw new NotFoundAnswerException("삭제하기 위한 Answer를 조회할 수 없습니다. " + answerId);
-        if (answer.getProgrammer().getId().equals(programmerId)) defaultAnswerRepository.delete(answer);
+        if (answer.getProgrammer().getId().equals(programmerId)) {
+            defaultAnswerRepository.delete(answer);
+            answer.getProgrammer().removeAnswer();
+        }
         else throw new AnswerAndProgrammerDoNotMatchException("요청한 Programmer가 작성한 Answer가 아닙니다. " + programmerId);
         return true;
     }
