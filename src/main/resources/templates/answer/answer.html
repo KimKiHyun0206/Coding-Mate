@@ -116,130 +116,153 @@
     <p id="error" style="color: red; display: none;">풀이 정보를 불러오는 데 실패했습니다.</p>
 
     <div class="button-container" id="actionButtons" style="display: none;">
-        <button onclick="editAnswer()" id="editButton">수정</button>
-        <button onclick="deleteAnswer()" id="deleteButton">삭제</button>
+        <button onclick="edit_answer()" id="editButton">수정</button>
+        <button onclick="delete_answer()" id="deleteButton">삭제</button>
     </div>
 </div>
 
 <script>
     //로그인 여부에 따라 navbar가 바뀌도록 함
     document.addEventListener('DOMContentLoaded', function () {
-        checkAndRefreshAccessToken();
+        check_and_refresh_token_for_nav_bar()
+            .then(() => {
+                const answerId = get_answer_id_from_url();
+                if (answerId) {
+                    fetch_answer_detail(answerId);
+                } else {
+                    document.getElementById('error').textContent = '잘못된 풀이 ID입니다.';
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('loading').style.display = 'none';
+                }
+            })
+            .catch(() => {
+                // 토큰 갱신 실패 시 처리 (선택 사항)
+                console.error('토큰 갱신 실패 후 처리');
+                document.getElementById('error').textContent = '토큰 갱신에 실패했습니다.';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+                // 필요한 경우 에러 메시지 표시 또는 다른 동작 수행
+            });
+    });
+
+    async function check_and_refresh_token_for_nav_bar() {
+        console.log('checkAndRefreshAccessTokenForNavbar');
+        const accessToken = localStorage.getItem('Coding-Mate-Auth');
+        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
         const navElement = document.getElementById('mainNav');
         const navLeft = navElement.querySelector('.nav-left');
         const navRight = navElement.querySelector('.nav-right');
 
-        if (localStorage.getItem('Coding-Mate-Auth')) {
-            navLeft.innerHTML = `
-                <a href="/">홈</a>
-                <a href="/answer/list">풀이 목록</a>
-                `;
-            navRight.innerHTML = `
-                <a href="/my-page">프로필</a>
-                <a href="#" id="logoutButton">로그아웃</a>
-                `;
+        if (accessToken) {
 
-            const logoutButton = document.getElementById('logoutButton');
-            if (logoutButton) {
-                logoutButton.addEventListener('click', function (event) {
-                    event.preventDefault(); // 링크의 기본 동작 막기
-                    localStorage.removeItem('Coding-Mate-Auth'); // 로컬 스토리지에서 인증 정보 제거
-                    alert('로그아웃 되었습니다.');
-                    window.location.href = '/'; // 홈페이지로 리다이렉트
-                });
+            const response = await fetch('/api/v1/auth/access-token', {
+                method: 'GET',
+                headers: {
+                    'Coding-Mate-Auth': accessToken
+                }
+            });
+
+            if (response.ok) {
+                update_navbar_authenticated(navLeft, navRight);
+                return true;
+            } else if (response.status === 401 && refreshToken) {
+                const refreshResult = await refresh_access_token();
+                if (refreshResult) {
+                    update_navbar_authenticated(navLeft, navRight);
+                    return true;
+                }
             }
         }
-    });
+    }
 
-    function checkAndRefreshAccessToken() {
-        console.log('checkAndRefreshAccessToken')
-        const accessToken = localStorage.getItem('Coding-Mate-Auth');
+    async function refresh_access_token() {
         const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
-
-        if (!accessToken) {
-            console.log('Access Token이 없습니다.');
-            // 필요하다면 로그인 페이지로 리다이렉트 또는 다른 처리
-            return;
+        if (!refreshToken) {
+            console.log('Refresh Token이 없습니다.');
+            return false;
         }
+        try {
+            const refreshResponse = await fetch('/api/v1/auth/refresh-token', {
+                method: 'GET',
+                headers: {
+                    'Coding-Mate-Auth-Ref': `${refreshToken}`
+                }
+            });
 
-        fetch('/api/v1/auth/access-token', {
-            method: 'GET',
-            headers: {
-                'Coding-Mate-Auth': accessToken // 기존 Access Token을 Authorization 헤더에 담아 보냅니다.
+            if (refreshResponse.ok) {
+                const newTokenData = await refreshResponse.json();
+                if (newTokenData && newTokenData.data && newTokenData.data.accessToken && newTokenData.data.refreshToken) {
+                    localStorage.setItem('Coding-Mate-Auth', newTokenData.data.accessToken);
+                    localStorage.setItem('Coding-Mate-Auth-Ref', newTokenData.data.refreshToken);
+                    console.log('토큰 갱신 성공:', newTokenData.data);
+                    return true;
+                } else {
+                    console.error('새로운 토큰 응답에 accessToken 또는 refreshToken 없음:', newTokenData);
+                    localStorage.removeItem('Coding-Mate-Auth');
+                    localStorage.removeItem('Coding-Mate-Auth-Ref');
+                    return false;
+                }
+            } else {
+                console.error('Refresh Token 요청 실패:', refreshResponse.status);
+                localStorage.removeItem('Coding-Mate-Auth');
+                localStorage.removeItem('Coding-Mate-Auth-Ref');
+                return false;
             }
+        } catch (error) {
+            console.error('Refresh Token 요청 중 오류:', error);
+            localStorage.removeItem('Coding-Mate-Auth');
+            localStorage.removeItem('Coding-Mate-Auth-Ref');
+            return false;
+        }
+    }
+
+    function update_navbar_authenticated(navLeft, navRight) {
+        navLeft.innerHTML = `
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    `;
+        navRight.innerHTML = `
+        <a href="/my-page">프로필</a>
+        <a href="#" id="logoutButton">로그아웃</a>
+    `;
+
+        const logoutButton = document.getElementById('logoutButton');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', function (event) {
+                event.preventDefault(); // <a> 태그의 기본 동작(페이지 이동) 방지
+                logout(); // 로그아웃 함수 호출 (이전에 정의한 함수)
+            });
+        }
+    }
+
+    function logout() {
+        fetch('/api/v1/auth/logout', { // 서버의 로그아웃 엔드포인트로 요청
+            method: 'POST',
+            headers: {
+                //'Content-Type': 'application/json' // 필요한 경우 Content-Type 설정
+                // 필요한 경우 인증 헤더 (Authorization 등)를 포함할 수 있습니다.
+                'Coding-Mate-Auth-Ref': localStorage.getItem('Coding-Mate-Auth-Ref')
+            }
+            // body는 일반적으로 필요하지 않습니다.
         })
             .then(response => {
                 if (response.ok) {
-                    console.log('Access Token이 유효합니다.');
-                    // Access Token이 유효한 경우 필요한 동작 수행 (예: 다음 페이지 로드)
-                    // 이 함수는 토큰 검사만 수행하므로, 실제 동작은 호출하는 곳에서 처리해야 합니다.
-                    return Promise.resolve(true); // Access Token이 유효함을 반환
-                } else if (response.status === 401) {
-                    console.log('Access Token이 만료되었습니다. Refresh Token으로 갱신을 시도합니다.');
-                    if (refreshToken) {
-                        return fetch('/api/v1/auth/refresh-token', {
-                            method: 'GET',
-                            headers: {
-                                'Coding-Mate-Auth-Ref': `${refreshToken}` // 서버에서 요구하는 헤더명으로 변경
-                            }
-                        })
-                            .then(refreshResponse => {
-                                if (refreshResponse.ok) {
-                                    return refreshResponse.json();
-                                } else {
-                                    console.error('Refresh Token 요청 실패:', refreshResponse.status);
-                                    localStorage.removeItem('Coding-Mate-Auth');
-                                    localStorage.removeItem('Coding-Mate-Auth-Ref');
-                                    // 필요하다면 로그인 페이지로 리다이렉트 또는 사용자에게 알림
-                                    return Promise.reject(false); // 토큰 갱신 실패
-                                }
-                            })
-                            .then(newTokenData => {
-                                console.log(newTokenData)
-                                const data = newTokenData.data;
-                                if (data.refreshToken && data.accessToken) {
-                                    localStorage.setItem('Coding-Mate-Auth', `${data.accessToken}`);
-                                    localStorage.setItem('Coding-Mate-Auth-Ref', `${data.refreshToken}`);
-                                    console.log('Token 갱신 성공:', data);
-                                    return Promise.resolve(true); // 토큰 갱신 성공
-                                } else {
-                                    console.error('새로운 Access Token이 응답에 없습니다.');
-                                    localStorage.removeItem('Coding-Mate-Auth');
-                                    localStorage.removeItem('Coding-Mate-Auth-Ref');
-                                    return Promise.reject(false); // 토큰 갱신 실패
-                                }
-                            })
-                            .catch(() => {
-                                return Promise.reject(false); // Refresh Token 요청 또는 처리 실패
-                            });
-                    } else {
-                        console.log('Refresh Token이 없습니다.');
-                        localStorage.removeItem('Coding-Mate-Auth');
-                        // 필요하다면 로그인 페이지로 리다이렉트 또는 다른 처리
-                        return Promise.reject(false); // Refresh Token 없음
-                    }
+                    localStorage.removeItem('Coding-Mate-Auth');
+                    localStorage.removeItem('Coding-Mate-Auth-Ref');
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/login'; // 로그인 페이지로 리다이렉트
                 } else {
-                    console.error('Access Token 검사 실패:', response.status);
-                    return Promise.reject(false); // Access Token 검사 실패 (401 외 다른 에러)
+                    console.error('로그아웃 실패:', response.status);
+                    alert('로그아웃에 실패했습니다.');
                 }
             })
-            .catch(() => {
-                return Promise.reject(false); // 전체적인 오류 발생
+            .catch(error => {
+                console.error('로그아웃 요청 실패:', error);
+                alert('로그아웃 요청에 실패했습니다.');
             });
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        const answerId = getAnswerIdFromUrl(); // URL에서 풀이 ID를 추출하는 함수
-        if (answerId) {
-            fetchAnswerDetail(answerId);
-        } else {
-            document.getElementById('error').textContent = '잘못된 풀이 ID입니다.';
-            document.getElementById('error').style.display = 'block';
-            document.getElementById('loading').style.display = 'none';
-        }
-    });
-
-    function getAnswerIdFromUrl() {
+    function get_answer_id_from_url() {
         // URL이 /answer/{answerId} 형태일 때 '{answerId}' 부분을 반환
         const pathSegments = window.location.pathname.split('/');
         if (pathSegments.length === 3 && pathSegments[1] === 'answer') {
@@ -248,10 +271,11 @@
         return null;
     }
 
-    function fetchAnswerDetail(answerId) {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
+
+    async function fetch_answer_detail(answerId) {
+        console.log('fetchAnswerDetail')
         fetch(`/api/v1/answer/${answerId}`, {
-            headers: createAuthHeaderFromLocalStorage()
+            headers: create_header()
         })
             .then(response => {
                 if (!response.ok) {
@@ -262,8 +286,9 @@
                 return response.json();
             })
             .then(responseData => {
+                console.log(responseData)
                 const answer = responseData.data;
-                displayAnswerDetail(answer);
+                display_answer_detail(answer);
             })
             .catch(error => {
                 console.error('풀이 정보를 불러오는 데 실패했습니다:', error);
@@ -275,7 +300,7 @@
             });
     }
 
-    function displayAnswerDetail(answer) {
+    function display_answer_detail(answer) {
         document.getElementById('backjoonId').textContent = answer.backjoonId;
         document.getElementById('code').textContent = answer.code;
         document.getElementById('explanation').textContent = answer.explanation;
@@ -293,66 +318,55 @@
         document.getElementById('answerDetailTable').style.display = 'table';
     }
 
-    function editAnswer() {
-        const answerId = getAnswerIdFromUrl();
+    function edit_answer() {
+        const answerId = get_answer_id_from_url();
         if (answerId) {
-            fetch(`/api/v1/answer/${answerId}`, {
-                method: 'GET',
-                headers: createAuthHeaderFromLocalStorage()
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errorData => {
-                            throw new Error(`풀이 정보를 불러오는 데 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(responseData => {
-                    const answer = responseData.data;
-
-                    if (answer.isRequesterIsOwner) {
-                        window.location.href = `/answer/edit/${answerId}`; // 수정 페이지 URL로 이동 (기존 방식 유지)
-                    } else {
-                        alert('본인이 작성한 풀이만 수정할 수 있습니다.');
-                    }
-                })
-                .catch(error => {
-                    console.error('풀이 정보를 불러오는 데 실패했습니다:', error);
-                    alert(error.message);
-                });
-        } else {
-            alert('수정할 풀이 ID를 찾을 수 없습니다.');
+            const editUrl = `/answer/edit/${answerId}`;
+            window.open(editUrl, '_blank');
         }
     }
 
-    function deleteAnswer() {
-        const answerId = getAnswerIdFromUrl();
+    async function delete_answer() {
+        const answerId = get_answer_id_from_url();
         if (confirm('정말로 이 풀이를 삭제하시겠습니까?')) {
-            fetch(`/api/v1/answer/${answerId}`, {
-                method: 'DELETE',
-                headers: createAuthHeaderFromLocalStorage()
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errorData => {
-                            throw new Error(`풀이 삭제에 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
-                        });
+            try {
+                const response = await fetch(`/api/v1/answer/${answerId}`, {
+                    method: 'DELETE',
+                    headers: create_header()
+                });
+
+                if (response.status === 401) {
+                    const tokenRefreshed = await refresh_access_token();
+                    if (tokenRefreshed) {
+                        // 토큰 갱신 성공 시 삭제 API 재시도
+                        await delete_answer();
+                    } else {
+                        alert('토큰 갱신에 실패하여 풀이를 삭제할 수 없습니다. 다시 로그인해 주세요.');
+                        // 필요하다면 로그인 페이지로 리디렉션
+                        window.location.href = '/login';
                     }
+                    return; // 401 처리 후 함수 종료
+                }
+
+                if (response.status === 200) {
                     alert('풀이가 성공적으로 삭제되었습니다.');
                     window.location.href = '/answer/list'; // 풀이 목록 페이지로 리디렉션
-                })
-                .catch(error => {
-                    console.error('풀이 삭제에 실패했습니다:', error);
-                    alert(error.message);
-                });
+                } else {
+                    const errorData = await response.json();
+                    console.error('풀이 삭제에 실패했습니다:', errorData);
+                    alert(errorData.message || '풀이 삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('풀이 삭제 요청 중 오류:', error);
+                alert(error.message || '풀이 삭제 요청 중 오류가 발생했습니다.');
+            }
         }
     }
 
-    function createAuthHeaderFromLocalStorage() {
+    function create_header() {
         const authToken = localStorage.getItem('Coding-Mate-Auth');
         const headers = {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json' // JSON 형식으로 보낼 때 Content-Type 설정
         };
 
         if (authToken) {
