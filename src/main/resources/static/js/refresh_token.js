@@ -1,4 +1,4 @@
-function checkAndRefreshAccessToken() {
+function refresh_token() {
     console.log('checkAndRefreshAccessToken')
     const accessToken = localStorage.getItem('Coding-Mate-Auth');
     const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
@@ -18,7 +18,7 @@ function checkAndRefreshAccessToken() {
         .then(response => {
             if (response.ok) {
                 console.log('Access Token이 유효합니다.');
-                // Access Token이 유효한 경우 필요한 동작 수행 (예: 다음 페이지 로드)
+                // Access Token이 유효한 경우 필요한 동작 수행 (예: 다음 페이지 로드)a
                 // 이 함수는 토큰 검사만 수행하므로, 실제 동작은 호출하는 곳에서 처리해야 합니다.
                 return Promise.resolve(true); // Access Token이 유효함을 반환
             } else if (response.status === 401) {
