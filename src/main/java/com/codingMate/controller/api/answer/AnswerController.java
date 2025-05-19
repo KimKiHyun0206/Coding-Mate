@@ -58,8 +58,7 @@ public class AnswerController {
         try {
             Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
             log.info("read({}, {})", id, idFromToken);
-            AnswerPageResponse answerPageDto = answerService.read(id).toAnswerPageDto();
-            if (idFromToken != null) answerPageDto.setIsRequesterIsOwner(Objects.equals(answerPageDto.getProgrammerId(), idFromToken));
+            AnswerPageResponse answerPageDto = answerService.read(id, idFromToken);
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageDto);
         } catch (NotFoundAnswerException notFoundAnswerException) {
             return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());

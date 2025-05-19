@@ -44,10 +44,11 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public AnswerResponse read(Long answerId) {
-        Answer readResult = answerRepository.read(answerId);
+    public AnswerPageResponse read(Long answerId, Long programmerId) {
+        AnswerPageResponse readResult = answerRepository.read(answerId).toAnswerPageDto();
         if (readResult == null) throw new AnswerNotCreateException("Answer를 조회하지 못했습니다. " + answerId);
-        return readResult.toDto();
+        readResult.setIsRequesterIsOwner(readResult.getProgrammerId().equals(programmerId));
+        return readResult;
     }
 
     @Transactional(readOnly = true)
@@ -61,10 +62,10 @@ public class AnswerService {
     }
 
     @Transactional
-    public AnswerResponse update(Long programmerId, Long answerId, AnswerUpdateRequest request) {
+    public AnswerPageResponse update(Long programmerId, Long answerId, AnswerUpdateRequest request) {
         long changedRowNumber = answerRepository.update(programmerId, answerId, request);
         if (changedRowNumber != 1) throw new NotFoundAnswerException(answerId);
-        return read(answerId);
+        return read(answerId, programmerId);
     }
 
     @Transactional
@@ -73,7 +74,6 @@ public class AnswerService {
         if (answer == null) throw new NotFoundAnswerException("삭제하기 위한 Answer를 조회할 수 없습니다. " + answerId);
         if (answer.getProgrammer().getId().equals(programmerId)) {
             defaultAnswerRepository.delete(answer);
-            answer.getProgrammer().removeAnswer();
         } else throw new AnswerAndProgrammerDoNotMatchException("요청한 Programmer가 작성한 Answer가 아닙니다. " + programmerId);
         return true;
     }

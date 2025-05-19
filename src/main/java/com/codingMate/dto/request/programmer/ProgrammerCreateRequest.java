@@ -21,7 +21,6 @@ public class ProgrammerCreateRequest {
                 .name(new Name(name))
                 .email(new Email(email))
                 .tip("팁이 있다면 공유해주세요")
-                .numberOfAnswer(0L)
                 .build();
     }
 }

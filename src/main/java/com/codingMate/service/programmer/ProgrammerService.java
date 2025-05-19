@@ -29,7 +29,8 @@ public class ProgrammerService {
 
     @Transactional
     public ProgrammerDto create(ProgrammerCreateRequest request) {
-        if(customProgrammerRepository.isExistLoginId(request.getLoginId())) throw new DuplicateProgrammerLoginIdException();
+        if (customProgrammerRepository.isExistLoginId(request.getLoginId()))
+            throw new DuplicateProgrammerLoginIdException();
 
         ProgrammerDto dto = customProgrammerRepository.create(request).toDto();
         if (dto == null) throw new ProgrammerNotCreateException("Programmer가 생성되지 않았습니다. " + request);
@@ -57,6 +58,7 @@ public class ProgrammerService {
     @Transactional(readOnly = true)
     public MyPageResponse myPage(Long id) {
         MyPageResponse myPateDto = customProgrammerRepository.read(id).toMyPateDto();
+        myPateDto.setNumberOfAnswer(customAnswerRepository.wroteAnswerByProgrammer(id));
         if (myPateDto == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
         return myPateDto;
     }
@@ -90,7 +92,7 @@ public class ProgrammerService {
         boolean isExist = defaultProgrammerRepository.existsById(id);
         if (isExist) {
             long delete = customAnswerRepository.deleteByProgrammerId(id);
-            log.info("deleted answer {}",delete);
+            log.info("deleted answer {}", delete);
             defaultProgrammerRepository.deleteById(id);
         } else throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + id);
 

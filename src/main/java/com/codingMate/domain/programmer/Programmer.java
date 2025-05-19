@@ -38,10 +38,6 @@ public class Programmer extends BaseEntity {
 
     @Column(name = "email")
     private Email email;
-
-    @Column(name = "number_of_answer")
-    private Long numberOfAnswer = 0L;
-
     @Column(name = "tip", length = 2000)
     private String tip;
 
@@ -49,13 +45,12 @@ public class Programmer extends BaseEntity {
     private Authority authority;
 
     @Builder
-    public Programmer(String loginId, String githubId, String password, Name name, Email email, Long numberOfAnswer, String tip, Authority authority) {
+    public Programmer(String loginId, String githubId, String password, Name name, Email email, String tip, Authority authority) {
         this.loginId = loginId;
         this.githubId = githubId;
         this.password = password;
         this.name = name;
         this.email = email;
-        this.numberOfAnswer = numberOfAnswer;
         this.tip = tip;
         this.authority = authority;
     }
@@ -83,17 +78,8 @@ public class Programmer extends BaseEntity {
                 .email(email.getEmail())
                 .githubId(githubId)
                 .name(name.getName())
-                .numberOfAnswer(numberOfAnswer)
+                .numberOfAnswer(0L)
                 .tip(tip)
                 .build();
-    }
-
-
-    public void addAnswer() {
-        this.numberOfAnswer++;
-    }
-
-    public void removeAnswer() {
-        this.numberOfAnswer--;
     }
 }

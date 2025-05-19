@@ -8,6 +8,7 @@ import com.codingMate.dto.request.answer.AnswerUpdateRequest;
 import com.codingMate.dto.response.answer.AnswerListResponse;
 import com.codingMate.dto.response.answer.QAnswerListResponse;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
+import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.NotNull;
@@ -31,7 +32,6 @@ public class CustomAnswerRepository {
     @Transactional
     public Answer create(Programmer programmer, AnswerCreateRequest answerCreateRequest) {
         log.info("create({}, {})", programmer.toString(), answerCreateRequest.getCode());
-        programmer.addAnswer();
 
         Answer entity = answerCreateRequest.toEntity();
         entity.setProgrammer(programmer);
@@ -48,6 +48,14 @@ public class CustomAnswerRepository {
                 .where(answer.id.eq(answerId))
                 .join(answer.programmer)
                 .fetchOne();
+    }
+
+    @Transactional(readOnly = true)
+    public long wroteAnswerByProgrammer(Long programmerId) {
+        return queryFactory.select(Wildcard.count)
+                .from(answer)
+                .where(answer.programmer.id.eq(programmerId))
+                .fetchCount();
     }
 
     @Transactional(readOnly = true)
@@ -98,7 +106,6 @@ public class CustomAnswerRepository {
         if (answer == null) return false;
 
         if (answer.getProgrammer().getId().equals(programmerId)) {
-            answer.getProgrammer().removeAnswer();
             answerRepository.delete(answer);
             return true;
         }
