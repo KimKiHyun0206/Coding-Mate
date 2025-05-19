@@ -70,11 +70,13 @@ public class CustomAnswerRepository {
     }
 
     @Transactional(readOnly = true)
-    public List<Answer> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
-        return queryFactory.selectFrom(answer)
+    public List<AnswerListResponse> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
+        return queryFactory.select(new QAnswerListResponse(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
+                .from(answer)
                 .where(answer.programmer.id.eq(programmerId))
                 .where(language != null ? answer.languageType.eq(language) : null)
                 .where(backjoonId != null ? answer.backJoonId.eq(backjoonId) : null)
+                .join(answer.programmer)
                 .fetch();
     }
 

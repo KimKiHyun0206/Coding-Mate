@@ -45,10 +45,13 @@ public class AnswerService {
 
     @Transactional(readOnly = true)
     public AnswerPageResponse read(Long answerId, Long programmerId) {
-        AnswerPageResponse readResult = answerRepository.read(answerId).toAnswerPageDto();
-        if (readResult == null) throw new AnswerNotCreateException("Answer를 조회하지 못했습니다. " + answerId);
-        readResult.setIsRequesterIsOwner(readResult.getProgrammerId().equals(programmerId));
-        return readResult;
+        var answer = answerRepository.read(answerId);
+        if (answer == null) throw new AnswerNotCreateException("Answer를 조회하지 못했습니다. " + answerId);
+
+        var response = AnswerPageResponse.from(answer);
+        response.setIsRequesterIsOwner(programmerId);
+
+        return response;
     }
 
     @Transactional(readOnly = true)
@@ -57,8 +60,8 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerPageResponse> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
-        return answerRepository.readAllByProgrammerId(language, backjoonId, programmerId).stream().map(Answer::toAnswerPageDto).toList();
+    public List<AnswerListResponse> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
+        return answerRepository.readAllByProgrammerId(language, backjoonId, programmerId);
     }
 
     @Transactional

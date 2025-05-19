@@ -305,6 +305,7 @@
 
         if (problemList && Array.isArray(problemList) && problemList.length > 0) {
             problemList.forEach(problem => {
+                console.log(problem)
                 const row = problemListBody.insertRow();
                 const backjoonIdCell = row.insertCell();
                 const titleCell = row.insertCell();
@@ -315,7 +316,7 @@
 
                 // 제목에 링크 걸기
                 const titleLink = document.createElement('a');
-                titleLink.href = `/answer/${problem.id}`;
+                titleLink.href = `/answer/${problem.answerId}`;
                 titleLink.textContent = problem.title;
                 titleLink.classList.add('answer-link');
                 titleCell.appendChild(titleLink);
