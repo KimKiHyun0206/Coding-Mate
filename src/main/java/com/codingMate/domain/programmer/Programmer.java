@@ -6,8 +6,7 @@ import com.codingMate.domain.authority.Authority;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
 import com.codingMate.dto.response.programmer.MyPageResponse;
-import com.codingMate.dto.response.programmer.ProgrammerDto;
-import com.codingMate.dto.response.programmer.SimpleProgrammerDto;
+import com.codingMate.dto.response.programmer.ProgrammerResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -56,8 +55,8 @@ public class Programmer extends BaseEntity {
     }
 
 
-    public ProgrammerDto toDto() {
-        return new ProgrammerDto(
+    public ProgrammerResponse toDto() {
+        return new ProgrammerResponse(
                 id,
                 loginId,
                 githubId,
@@ -67,10 +66,6 @@ public class Programmer extends BaseEntity {
                 tip,
                 authority.getAuthorityName()
         );
-    }
-
-    public SimpleProgrammerDto toSimpleDto() {
-        return new SimpleProgrammerDto(id, name.getName());
     }
 
     public MyPageResponse toMyPateDto() {

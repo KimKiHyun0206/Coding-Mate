@@ -4,7 +4,9 @@ import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
 import com.codingMate.dto.response.programmer.MyPageResponse;
-import com.codingMate.dto.response.programmer.ProgrammerDto;
+import com.codingMate.dto.response.programmer.ProgrammerCreateResponse;
+import com.codingMate.dto.response.programmer.ProgrammerResponse;
+import com.codingMate.dto.response.programmer.ProgrammerUpdateResponse;
 import com.codingMate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.exception.exception.programmer.ProgrammerNotCreateException;
@@ -28,15 +30,13 @@ public class ProgrammerService {
     private final CustomAnswerRepository customAnswerRepository;
 
     @Transactional
-    public ProgrammerDto create(ProgrammerCreateRequest request) {
+    public ProgrammerCreateResponse create(ProgrammerCreateRequest request) {
         if (customProgrammerRepository.isExistLoginId(request.getLoginId()))
             throw new DuplicateProgrammerLoginIdException();
 
-        ProgrammerDto dto = customProgrammerRepository.create(request).toDto();
+        var dto = customProgrammerRepository.create(request);
         if (dto == null) throw new ProgrammerNotCreateException("Programmer가 생성되지 않았습니다. " + request);
-        dto.setLoginId(null);
-        dto.setPassword(null);
-        return dto;
+        return ProgrammerCreateResponse.from(dto);
     }
 
     @Transactional(readOnly = true)
@@ -47,44 +47,26 @@ public class ProgrammerService {
     }
 
     @Transactional(readOnly = true)
-    public ProgrammerDto read(Long id) {
-        ProgrammerDto dto = customProgrammerRepository.read(id).toDto();
-        if (dto == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
-        dto.setLoginId(null);
-        dto.setPassword(null);
-        return dto;
-    }
-
-    @Transactional(readOnly = true)
     public MyPageResponse myPage(Long id) {
-        MyPageResponse myPateDto = customProgrammerRepository.read(id).toMyPateDto();
-        myPateDto.setNumberOfAnswer(customAnswerRepository.wroteAnswerByProgrammer(id));
+        var myPateDto = customProgrammerRepository.read(id).toMyPateDto();
         if (myPateDto == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
+        myPateDto.setNumberOfAnswer(customAnswerRepository.wroteAnswerByProgrammer(id));
         return myPateDto;
     }
 
     @Transactional(readOnly = true)
-    public List<ProgrammerDto> readAll() {
-        List<ProgrammerDto> list = customProgrammerRepository.readAll().stream().map(Programmer::toDto).toList();
+    public List<ProgrammerResponse> readAll() {
+        List<ProgrammerResponse> list = customProgrammerRepository.readAll().stream().map(Programmer::toDto).toList();
         if (list.isEmpty()) throw new NotFoundProgrammerException("전체 Programmer를 조회할 수 없습니다.");
         return list;
     }
 
     @Transactional
-    public Long readIdByLoginId(Long id) {
-        Long result = customProgrammerRepository.read(id).getId();
-        if (result == null) throw new NotFoundProgrammerException("요청한 loginId로 Programmer를 조회할 수 없습니다." + id);
-        return result;
-    }
-
-    @Transactional
-    public ProgrammerDto update(Long programmerId, ProgrammerUpdateRequest request) {
-        ProgrammerDto dto = customProgrammerRepository.update(programmerId, request).toDto();
+    public ProgrammerUpdateResponse update(Long programmerId, ProgrammerUpdateRequest request) {
+        var dto = customProgrammerRepository.update(programmerId, request);
         if (dto == null)
             throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Update또한 이루어지지 않았습니다" + programmerId);
-        dto.setLoginId(null);
-        dto.setPassword(null);
-        return dto;
+        return ProgrammerUpdateResponse.from(dto);
     }
 
     @Transactional

@@ -4,7 +4,7 @@ import com.codingMate.common.response.ResponseDto;
 import com.codingMate.common.response.ResponseMessage;
 import com.codingMate.dto.request.programmer.LoginRequest;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
-import com.codingMate.dto.response.programmer.ProgrammerDto;
+import com.codingMate.dto.response.programmer.ProgrammerResponse;
 import com.codingMate.dto.response.token.TokenDto;
 import com.codingMate.exception.BusinessException;
 import com.codingMate.exception.exception.jwt.ExpiredTokenException;
@@ -21,11 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -56,11 +51,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         log.info("login({}, {})", loginRequest.getLoginId(), loginRequest.getPassword());
-        ProgrammerDto programmerDto = loginService.login(loginRequest.getLoginId(), loginRequest.getPassword());
-        String accessToken = tokenProvider.createAccessToken(programmerDto.getId(), programmerDto.getAuthority());
-        String refreshToken = tokenProvider.createRefreshToken(programmerDto.getId());
+        ProgrammerResponse programmerResponse = loginService.login(loginRequest.getLoginId(), loginRequest.getPassword());
+        String accessToken = tokenProvider.createAccessToken(programmerResponse.getId(), programmerResponse.getAuthority());
+        String refreshToken = tokenProvider.createRefreshToken(programmerResponse.getId());
 
-        refreshTokenService.saveToken(refreshToken, programmerDto.getId(), programmerDto.getAuthority());
+        refreshTokenService.saveToken(refreshToken, programmerResponse.getId(), programmerResponse.getAuthority());
         response.setHeader(header, accessToken);
         response.setHeader(refreshHeader, refreshToken);
         log.info("TOKEN {} ", accessToken);
@@ -76,7 +71,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody ProgrammerCreateRequest programmerCreateRequest) throws IOException {
         log.info("register()");
-        ProgrammerDto programmerDto = programmerService.create(programmerCreateRequest);
+        var programmerDto = programmerService.create(programmerCreateRequest);
         log.info("programmerDto {}", programmerDto.toString());
 
         return ResponseEntity.ok(ResponseMessage.SUCCESS);
