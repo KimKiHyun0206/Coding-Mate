@@ -25,18 +25,20 @@ import static com.codingMate.domain.answer.QAnswer.answer;
 @RequiredArgsConstructor
 public class CustomAnswerRepository {
     private final DefaultAnswerRepository answerRepository;
-    private final DefaultProgrammerRepository programmerRepository;
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
 
     @Transactional
     public Answer create(Programmer programmer, AnswerCreateRequest answerCreateRequest) {
-        log.info("create({}, {})", programmer, answerCreateRequest.getCode());
+        log.info("create({}, {})", programmer.toString(), answerCreateRequest.getCode());
         programmer.addAnswer();
 
         Answer entity = answerCreateRequest.toEntity();
         entity.setProgrammer(programmer);
-        return answerRepository.save(entity);
+        log.info(entity.toString());
+        Answer saved = answerRepository.save(entity);
+        log.info(saved.toString());
+        return saved;
     }
 
     @Transactional(readOnly = true)
@@ -104,7 +106,7 @@ public class CustomAnswerRepository {
     }
 
     @Transactional
-    public long deleteByProgrammerId(Long id){
+    public long deleteByProgrammerId(Long id) {
         return queryFactory.delete(answer)
                 .where(answer.programmer.id.eq(id))
                 .execute();

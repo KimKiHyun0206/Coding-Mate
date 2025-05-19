@@ -5,6 +5,7 @@ import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.request.answer.AnswerCreateRequest;
 import com.codingMate.dto.request.answer.AnswerUpdateRequest;
+import com.codingMate.dto.response.answer.AnswerCreateResponse;
 import com.codingMate.dto.response.answer.AnswerListResponse;
 import com.codingMate.dto.response.answer.AnswerPageResponse;
 import com.codingMate.dto.response.answer.AnswerResponse;
@@ -33,13 +34,13 @@ public class AnswerService {
     private final DefaultProgrammerRepository defaultProgrammerRepository;
 
     @Transactional
-    public AnswerResponse create(Long programmerId, AnswerCreateRequest request) {
+    public AnswerCreateResponse create(Long programmerId, AnswerCreateRequest request) {
         Programmer writer = defaultProgrammerRepository.findById(programmerId).orElseThrow(() -> new NotFoundProgrammerException("Answer를 생성하던 중 Programmer를 조회하지 못했습니다. " + programmerId));
 
-        Answer createdResult = answerRepository.create(writer, request);
-        if (createdResult == null) throw new AnswerNotCreateException("요청한 Answer를 생성하지 못했습니다. " + request);
+        Answer createdResult = defaultAnswerRepository.save(request.toEntity());
+        createdResult.setProgrammer(writer);
 
-        return createdResult.toDto();
+        return new AnswerCreateResponse(createdResult.getId());
     }
 
     @Transactional(readOnly = true)
@@ -73,8 +74,7 @@ public class AnswerService {
         if (answer.getProgrammer().getId().equals(programmerId)) {
             defaultAnswerRepository.delete(answer);
             answer.getProgrammer().removeAnswer();
-        }
-        else throw new AnswerAndProgrammerDoNotMatchException("요청한 Programmer가 작성한 Answer가 아닙니다. " + programmerId);
+        } else throw new AnswerAndProgrammerDoNotMatchException("요청한 Programmer가 작성한 Answer가 아닙니다. " + programmerId);
         return true;
     }
 }
