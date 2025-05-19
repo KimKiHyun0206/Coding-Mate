@@ -48,15 +48,16 @@ public class ProgrammerService {
 
     @Transactional(readOnly = true)
     public MyPageResponse myPage(Long id) {
-        var myPateDto = customProgrammerRepository.read(id).toMyPateDto();
-        if (myPateDto == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
-        myPateDto.setNumberOfAnswer(customAnswerRepository.wroteAnswerByProgrammer(id));
-        return myPateDto;
+        var programmer = customProgrammerRepository.read(id);
+        if (programmer == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
+        var myPageResponse = MyPageResponse.from(programmer);
+        myPageResponse.setNumberOfAnswer(customAnswerRepository.wroteAnswerByProgrammer(id));
+        return myPageResponse;
     }
 
     @Transactional(readOnly = true)
     public List<ProgrammerResponse> readAll() {
-        List<ProgrammerResponse> list = customProgrammerRepository.readAll().stream().map(Programmer::toDto).toList();
+        List<ProgrammerResponse> list = customProgrammerRepository.readAll().stream().map(ProgrammerResponse::from).toList();
         if (list.isEmpty()) throw new NotFoundProgrammerException("전체 Programmer를 조회할 수 없습니다.");
         return list;
     }

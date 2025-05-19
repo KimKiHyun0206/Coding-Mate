@@ -1,11 +1,11 @@
 package com.codingMate.dto.response.programmer;
 
+import com.codingMate.domain.programmer.Programmer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 @Builder
 public class MyPageResponse {
     public String githubId;
@@ -23,5 +23,14 @@ public class MyPageResponse {
                 ", numberOfAnswer=" + numberOfAnswer +
                 ", tip='" + tip + '\'' +
                 '}';
+    }
+
+    public static MyPageResponse from(Programmer programmer) {
+        return MyPageResponse.builder()
+                .githubId(programmer.getGithubId())
+                .email(programmer.getEmail().getEmail())
+                .name(programmer.getName().getName())
+                .tip(programmer.getTip())
+                .build();
     }
 }

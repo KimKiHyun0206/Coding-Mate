@@ -5,8 +5,6 @@ import com.codingMate.domain.programmer.converter.PasswordEncodeConverter;
 import com.codingMate.domain.authority.Authority;
 import com.codingMate.domain.programmer.vo.Email;
 import com.codingMate.domain.programmer.vo.Name;
-import com.codingMate.dto.response.programmer.MyPageResponse;
-import com.codingMate.dto.response.programmer.ProgrammerResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -52,29 +50,5 @@ public class Programmer extends BaseEntity {
         this.email = email;
         this.tip = tip;
         this.authority = authority;
-    }
-
-
-    public ProgrammerResponse toDto() {
-        return new ProgrammerResponse(
-                id,
-                loginId,
-                githubId,
-                password,
-                name.getName(),
-                email.getEmail(),
-                tip,
-                authority.getAuthorityName()
-        );
-    }
-
-    public MyPageResponse toMyPateDto() {
-        return MyPageResponse.builder()
-                .email(email.getEmail())
-                .githubId(githubId)
-                .name(name.getName())
-                .numberOfAnswer(0L)
-                .tip(tip)
-                .build();
     }
 }

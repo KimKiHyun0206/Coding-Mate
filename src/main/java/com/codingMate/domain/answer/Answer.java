@@ -5,6 +5,7 @@ import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
 import com.codingMate.dto.response.answer.AnswerPageResponse;
 import com.codingMate.dto.response.answer.AnswerResponse;
+import com.codingMate.dto.response.programmer.ProgrammerResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -57,7 +58,7 @@ public class Answer extends BaseEntity {
                 .explanation(this.explanation)
                 .languageType(this.languageType)
                 .backjoonId(this.backJoonId)
-                .programmer(this.programmer.toDto())
+                .programmer(ProgrammerResponse.from(this.programmer))
                 .build();
     }
 
