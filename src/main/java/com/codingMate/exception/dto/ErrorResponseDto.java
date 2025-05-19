@@ -18,6 +18,6 @@ public class ErrorResponseDto {
     public static ResponseEntity<ErrorResponseDto> of(ErrorMessage message) {
         return ResponseEntity
                 .status(message.getStatus())
-                .body(new ErrorResponseDto(message.name()));
+                .body(new ErrorResponseDto(message.getMessage()));
     }
 }
