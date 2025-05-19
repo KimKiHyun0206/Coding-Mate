@@ -28,7 +28,7 @@ public class AnswerResponse {
                 .programmerName(programmer.getName())
                 .languageType(languageType)
                 .isRequesterIsOwner(false)
-                .programmerId(programmer.getLoginId())
+                .programmerId(programmer.getId())
                 .build();
     }
 }

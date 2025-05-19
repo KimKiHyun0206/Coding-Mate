@@ -71,7 +71,7 @@ public class Answer extends BaseEntity {
                 .programmerName(programmer.getName().getName())
                 .languageType(languageType)
                 .isRequesterIsOwner(false)
-                .programmerId(programmer.getLoginId())
+                .programmerId(programmer.getId())
                 .build();
     }
 }
