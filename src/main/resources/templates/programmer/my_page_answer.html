@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="/css/nav_bar.css">
     <link rel="stylesheet" href="/css/table.css">
     <link rel="stylesheet" href="/css/basic.css">
-    <link rel="stylesheet" href="/css/modal.css">
     <style>
         .container {
             background-color: #fff;
@@ -15,20 +14,20 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             width: 80%;
-            max-width: 960px;
+            max-width: 960px; /* 최대 너비 증가 */
             margin-top: 30px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* 검색창 중앙 정렬 */
         }
 
         .search-container {
             display: flex;
             margin-bottom: 20px;
             width: 100%;
-            max-width: 600px;
-            justify-content: center;
-            gap: 10px;
+            max-width: 600px; /* 검색 컨테이너 너비 증가 */
+            justify-content: center; /* 검색창 내부 요소 중앙 정렬 */
+            gap: 10px; /* 검색 입력 필드와 버튼 사이 간격 */
         }
 
         .search-container input[type="number"],
@@ -41,11 +40,11 @@
 
         .search-container input[type="number"] {
             flex-grow: 1;
-            max-width: 200px;
+            max-width: 200px; /* 백준 ID 입력 필드 최대 너비 */
         }
 
         .search-container select {
-            width: 150px;
+            width: 150px; /* 언어 선택 드롭다운 너비 */
         }
 
         .search-container button {
@@ -87,12 +86,14 @@
             background-color: gray;
         }
 
+        /* 링크 스타일 */
         .answer-link {
-            color: inherit;
+            color: inherit; /* 링크 색상을 부모 요소의 색상으로 상속 */
             text-decoration: none;
         }
 
         .answer-link:hover {
+            /* 호버 시에도 밑줄 없음 */
         }
     </style>
 </head>
@@ -109,7 +110,7 @@
 </nav>
 
 <div class="container">
-    <h1>내가 작성한 풀이 목록</h1>
+    <h1>내가 작성한 풀이</h1>
     <div class="search-container">
         <input type="number" id="searchBackjoonId" placeholder="백준 ID로 검색">
         <select id="searchLanguage">
@@ -120,7 +121,7 @@
             <option value="PYTHON">Python</option>
             <option value="JAVASCRIPT">JavaScript</option>
         </select>
-        <button onclick="searchProblems()">검색</button>
+        <button onclick="search_problem()">검색</button>
     </div>
     <table>
         <thead>
@@ -139,103 +140,23 @@
 
 <button class="create-problem-button" onclick="location.href='/answer/write'">문제 생성</button>
 
-<div id="solutionModalOverlay" class="modal-overlay">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2 id="modalProblemTitle">풀이 상세 정보</h2>
-            <button id="modalCloseButton" class="modal-close-button">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div id="loading" style="display: none;">로딩 중...</div>
-            <div id="error" style="display: none;"></div>
-            <table>
-                <tbody>
-                <tr>
-                    <th>백준 ID</th>
-                    <td id="modalBackjoonId"></td>
-                </tr>
-                <tr>
-                    <th>작성자</th>
-                    <td id="modalProgrammerName"></td>
-                </tr>
-                <tr>
-                    <th>언어</th>
-                    <td id="modalLanguageType"></td>
-                </tr>
-                <tr>
-                    <th>코드</th>
-                    <td>
-                        <pre id="modalCode"></pre>
-                    </td>
-                </tr>
-                <tr>
-                    <th>설명</th>
-                    <td>
-                        <pre id="modalExplanation"></pre>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-            <div id="actionButtons" style="display: none;">
-                <button>수정</button>
-                <button onclick="deleteAnswer()" id="deleteButton">삭제</button>
-            </div>
-        </div>
-        <div class="modal-navigation">
-            <button id="modalPrevButton" disabled>이전</button>
-            <button id="modalNextButton" disabled>다음</button>
-        </div>
-    </div>
-</div>
 <script>
-    document.addEventListener("DOMContentLoaded", async function () {
-        console.log('DOMContentLoaded 시작');
-        const isAuthenticated = await checkAndRefreshAccessToken();
-        console.log('checkAndRefreshAccessToken 완료:', isAuthenticated);
+    //로그인 여부에 따라 navbar가 바뀌도록 함
+    document.addEventListener('DOMContentLoaded', async function () {
+        await check_and_refresh_token_for_nav_bar();
+        await fetch_problem_list();
+    });
 
+    async function check_and_refresh_token_for_nav_bar() {
+        console.log('checkAndRefreshAccessTokenForNavbar');
+        const accessToken = localStorage.getItem('Coding-Mate-Auth');
+        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
         const navElement = document.getElementById('mainNav');
         const navLeft = navElement.querySelector('.nav-left');
         const navRight = navElement.querySelector('.nav-right');
 
-        if (isAuthenticated) {
-            navLeft.innerHTML = `
-            <a href="/">홈</a>
-            <a href="/answer/list">풀이 목록</a>
-            `;
-            navRight.innerHTML = `
-            <a href="/my-page">프로필</a>
-            <a href="#" id="logoutButton">로그아웃</a>
-            `;
+        if (accessToken) {
 
-            const logoutButton = document.getElementById('logoutButton');
-            if (logoutButton) {
-                logoutButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    localStorage.removeItem('Coding-Mate-Auth');
-                    alert('로그아웃 되었습니다.');
-                    window.location.href = '/';
-                });
-            }
-            await fetchProblemList(); // 토큰 확인 후 풀이 목록 가져오기
-            registerModalEventListeners(); // 모달 관련 이벤트 리스너 등록 (이동)
-        } else {
-            console.log('인증 실패 또는 토큰 없음. 로그인 페이지로 이동.');
-            window.location.href = '/login';
-        }
-        console.log('DOMContentLoaded 종료');
-    });
-
-    async function checkAndRefreshAccessToken() {
-        console.log('checkAndRefreshAccessToken');
-        const accessToken = localStorage.getItem('Coding-Mate-Auth');
-        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
-
-        if (!accessToken) {
-            console.log('Access Token이 없습니다.');
-            return false;
-        }
-
-        try {
             const response = await fetch('/api/v1/auth/access-token', {
                 method: 'GET',
                 headers: {
@@ -244,59 +165,107 @@
             });
 
             if (response.ok) {
-                console.log('Access Token이 유효합니다.');
+                update_navbar_authenticated(navLeft, navRight);
                 return true;
-            } else if (response.status === 401) {
-                console.log('Access Token이 만료되었습니다. Refresh Token으로 갱신 시도.');
-                if (refreshToken) {
-                    const refreshResponse = await fetch('/api/v1/auth/refresh-token', {
-                        method: 'GET',
-                        headers: {
-                            'Coding-Mate-Auth-Ref': `${refreshToken}`
-                        }
-                    });
-
-                    if (refreshResponse.ok) {
-                        const newTokenData = await refreshResponse.json();
-                        console.log(newTokenData);
-                        if (newTokenData && newTokenData.data && newTokenData.data.accessToken && newTokenData.data.refreshToken) {
-                            localStorage.setItem('Coding-Mate-Auth', newTokenData.data.accessToken);
-                            localStorage.setItem('Coding-Mate-Auth-Ref', newTokenData.data.refreshToken);
-                            console.log('토큰 갱신 성공:', newTokenData.data);
-                            return true;
-                        } else {
-                            console.error('새로운 토큰 응답에 accessToken 또는 refreshToken 없음:', newTokenData);
-                            localStorage.removeItem('Coding-Mate-Auth');
-                            localStorage.removeItem('Coding-Mate-Auth-Ref');
-                            return false;
-                        }
-                    } else {
-                        console.error('Refresh Token 요청 실패:', refreshResponse.status);
-                        localStorage.removeItem('Coding-Mate-Auth');
-                        localStorage.removeItem('Coding-Mate-Auth-Ref');
-                        return false;
-                    }
-                } else {
-                    console.log('Refresh Token이 없습니다.');
-                    localStorage.removeItem('Coding-Mate-Auth');
-                    return false;
+            } else if (response.status === 401 && refreshToken) {
+                const refreshResult = await refresh_access_token();
+                if (refreshResult) {
+                    update_navbar_authenticated(navLeft, navRight);
+                    return true;
                 }
-            } else {
-                console.error('Access Token 검사 실패:', response.status);
-                return false;
             }
-        } catch (error) {
-            console.error('토큰 확인/갱신 중 오류:', error);
-            localStorage.removeItem('Coding-Mate-Auth');
-            localStorage.removeItem('Coding-Mate-Auth-Ref');
-            return false;
-        } finally {
-            console.log('checkAndRefreshAccessToken 종료');
         }
     }
 
-    async function fetchProblemList(searchId, searchLanguage) {
-        let url = '/api/v1/answer/programmer';
+    async function refresh_access_token() {
+        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
+        if (!refreshToken) {
+            console.log('Refresh Token이 없습니다.');
+            return false;
+        }
+        try {
+            const refreshResponse = await fetch('/api/v1/auth/refresh-token', {
+                method: 'GET',
+                headers: {
+                    'Coding-Mate-Auth-Ref': `${refreshToken}`
+                }
+            });
+
+            if (refreshResponse.ok) {
+                const newTokenData = await refreshResponse.json();
+                if (newTokenData && newTokenData.data && newTokenData.data.accessToken && newTokenData.data.refreshToken) {
+                    localStorage.setItem('Coding-Mate-Auth', newTokenData.data.accessToken);
+                    localStorage.setItem('Coding-Mate-Auth-Ref', newTokenData.data.refreshToken);
+                    console.log('토큰 갱신 성공:', newTokenData.data);
+                    return true;
+                } else {
+                    console.error('새로운 토큰 응답에 accessToken 또는 refreshToken 없음:', newTokenData);
+                    localStorage.removeItem('Coding-Mate-Auth');
+                    localStorage.removeItem('Coding-Mate-Auth-Ref');
+                    return false;
+                }
+            } else {
+                console.error('Refresh Token 요청 실패:', refreshResponse.status);
+                localStorage.removeItem('Coding-Mate-Auth');
+                localStorage.removeItem('Coding-Mate-Auth-Ref');
+                return false;
+            }
+        } catch (error) {
+            console.error('Refresh Token 요청 중 오류:', error);
+            localStorage.removeItem('Coding-Mate-Auth');
+            localStorage.removeItem('Coding-Mate-Auth-Ref');
+            return false;
+        }
+    }
+
+    function update_navbar_authenticated(navLeft, navRight) {
+        navLeft.innerHTML = `
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    `;
+        navRight.innerHTML = `
+        <a href="/my-page">프로필</a>
+        <a href="#" id="logoutButton">로그아웃</a>
+    `;
+
+        const logoutButton = document.getElementById('logoutButton');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', function (event) {
+                event.preventDefault(); // <a> 태그의 기본 동작(페이지 이동) 방지
+                logout(); // 로그아웃 함수 호출 (이전에 정의한 함수)
+            });
+        }
+    }
+
+    function logout() {
+        fetch('/api/v1/auth/logout', { // 서버의 로그아웃 엔드포인트로 요청
+            method: 'POST',
+            headers: {
+                //'Content-Type': 'application/json' // 필요한 경우 Content-Type 설정
+                // 필요한 경우 인증 헤더 (Authorization 등)를 포함할 수 있습니다.
+                'Coding-Mate-Auth-Ref': localStorage.getItem('Coding-Mate-Auth-Ref')
+            }
+            // body는 일반적으로 필요하지 않습니다.
+        })
+            .then(response => {
+                if (response.ok) {
+                    localStorage.removeItem('Coding-Mate-Auth');
+                    localStorage.removeItem('Coding-Mate-Auth-Ref');
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+                } else {
+                    console.error('로그아웃 실패:', response.status);
+                    alert('로그아웃에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('로그아웃 요청 실패:', error);
+                alert('로그아웃 요청에 실패했습니다.');
+            });
+    }
+
+    function fetch_problem_list(searchId, searchLanguage) {
+        let url = '/api/v1/answer/programmer'; // 실제 문제 목록 API 엔드포인트
         const queryParams = [];
         if (searchId) {
             queryParams.push(`backjoonId=${searchId}`);
@@ -309,210 +278,77 @@
             url += `?${queryParams.join('&')}`;
         }
 
-        try {
-            const response = await fetch(url, {
-                headers: createAuthHeaderFromLocalStorage()
-            });
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`풀이 목록을 불러오는 데 실패했습니다: ${response.status}: ${errorData.message || '알 수 없는 오류'}`);
-            }
-            const responseData = await response.json();
-            currentProblemList = responseData.data;
-            displayAnswerList(currentProblemList);
-        } catch (error) {
-            console.error('풀이 목록을 불러오는 데 실패했습니다:', error);
-            alert('풀이 목록을 불러오는 데 실패했습니다.');
-        }
-    }
-
-    // 나머지 함수 (displayAnswerList, openSolutionModal, displayAnswerDetailInModal,
-    // registerModalEventListeners, showPreviousProblem, showNextProblem,
-    // updateNavigationButtons, searchProblems, deleteAnswer, createAuthHeaderFromLocalStorage)는 그대로 유지
-    const solutionModalOverlay = document.getElementById('solutionModalOverlay');
-    const modalCloseButton = document.getElementById('modalCloseButton');
-    const modalProblemTitle = document.getElementById('modalProblemTitle');
-    const modalBackjoonIdElement = document.getElementById('modalBackjoonId');
-    const modalProgrammerNameElement = document.getElementById('modalProgrammerName');
-    const modalLanguageTypeElement = document.getElementById('modalLanguageType');
-    const modalCodeElement = document.getElementById('modalCode');
-    const modalExplanationElement = document.getElementById('modalExplanation');
-    const loadingElement = document.getElementById('loading');
-    const errorElement = document.getElementById('error');
-    const answerDetailTableElement = document.querySelector('#solutionModalOverlay .modal-body table');
-    const actionButtonsElement = document.getElementById('actionButtons');
-    const modalPrevButton = document.getElementById('modalPrevButton');
-    const modalNextButton = document.getElementById('modalNextButton');
-
-    let currentProblemList = [];
-    let currentIndex = 0;
-    let currentAnswerId = null; // 현재 모달에 표시된 answerId 저장
-    const editButton = document.querySelector('#actionButtons button:first-child');
-
-    function registerModalEventListeners() {
-        if (modalCloseButton) {
-            modalCloseButton.addEventListener('click', () => {
-                solutionModalOverlay.style.display = 'none';
-                currentAnswerId = null;
-            });
-        }
-
-        if (editButton) {
-            editButton.addEventListener('click', function () {
-                if (currentAnswerId !== null) {
-                    window.location.href = `/answer/edit/${currentAnswerId}`;
-                } else {
-                    console.error('수정할 answerId가 없습니다.');
-                    alert('수정할 정보를 찾을 수 없습니다.');
+        fetch(url, {
+            headers: create_header()
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+                return response.json();
+            })
+            .then(responseData => {
+                const problemList = responseData.data;
+                display_problem_list(problemList);
+            })
+            .catch(error => {
+                console.error('문제 목록을 불러오는 데 실패했습니다:', error);
+                alert('문제 목록을 불러오는 데 실패했습니다.');
             });
-        }
-
-        if (modalPrevButton) {
-            modalPrevButton.addEventListener('click', showPreviousProblem);
-        }
-
-        if (modalNextButton) {
-            modalNextButton.addEventListener('click', showNextProblem);
-        }
     }
 
-    function displayAnswerList(answerList) {
+    function display_problem_list(problemList) {
         const problemListBody = document.getElementById('problemListBody');
         const noProblemsElement = document.getElementById('noProblems');
         problemListBody.innerHTML = '';
         noProblemsElement.style.display = 'none';
 
-        if (answerList && Array.isArray(answerList) && answerList.length > 0) {
-            answerList.forEach(answer => {
+        if (problemList && Array.isArray(problemList) && problemList.length > 0) {
+            problemList.forEach(problem => {
                 const row = problemListBody.insertRow();
                 const backjoonIdCell = row.insertCell();
                 const titleCell = row.insertCell();
                 const languageCell = row.insertCell();
                 const programmerNameCell = row.insertCell();
 
-                backjoonIdCell.textContent = answer.backjoonId;
+                backjoonIdCell.textContent = problem.backjoonId;
 
+                // 제목에 링크 걸기
                 const titleLink = document.createElement('a');
-                titleLink.href = `/answer/${answer.id}`;
-                titleLink.textContent = answer.title;
+                titleLink.href = `/answer/${problem.id}`;
+                titleLink.textContent = problem.title;
                 titleLink.classList.add('answer-link');
                 titleCell.appendChild(titleLink);
-                titleLink.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    openSolutionModal(answer.id, answer.title);
-                });
+                titleLink.target = '_blank';    //클릭했을 때 새로운 창이 열리도록 함
 
-                languageCell.textContent = answer.languageType || '알 수 없음';
-                programmerNameCell.textContent = answer.programmerName || '알 수 없음';
+                languageCell.textContent = problem.languageType || '알 수 없음'; // LanguageType 표시
+                programmerNameCell.textContent = problem.programmerName || '알 수 없음';
             });
         } else {
             noProblemsElement.style.display = 'block';
         }
     }
 
-    function openSolutionModal(answerId, problemTitle) {
-        currentAnswerId = answerId;
-        loadingElement.style.display = 'block';
-        errorElement.style.display = 'none';
-        answerDetailTableElement.style.display = 'none';
-        actionButtonsElement.style.display = 'none';
-        solutionModalOverlay.style.display = 'flex';
-        modalProblemTitle.textContent = problemTitle;
-
-        fetch(`/api/v1/answer/${answerId}`, {
-            headers: createAuthHeaderFromLocalStorage()
-        })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(`풀이 정보를 불러오는 데 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
-                    })
-                    return response.json();
-                }
-            })
-            .then(responseData => {
-                const answer = responseData.data;
-                displayAnswerDetailInModal(answer);
-
-                currentIndex = currentProblemList.findIndex(item => item.id === answerId);
-                updateNavigationButtons();
-            })
-            .catch(error => {
-                console.error('풀이 정보를 불러오는 데 실패했습니다:', error);
-                errorElement.textContent = error.message;
-                errorElement.style.display = 'block';
-            })
-            .finally(() => {
-                loadingElement.style.display = 'none';
-            });
-    }
-
-    function displayAnswerDetailInModal(answer) {
-        modalBackjoonIdElement.textContent = answer.backjoonId;
-        modalCodeElement.textContent = answer.code;
-        modalExplanationElement.textContent = answer.explanation;
-        modalLanguageTypeElement.textContent = answer.languageType;
-        modalProgrammerNameElement.textContent = answer.programmerName || '알 수 없음';
-
-        if (answer.isRequesterIsOwner === true) {
-            actionButtonsElement.style.display = 'flex';
-        } else {
-            actionButtonsElement.style.display = 'none';
-        }
-        answerDetailTableElement.style.display = 'table';
-    }
-
-    function updateNavigationButtons() {
-        if (modalPrevButton) {
-            modalPrevButton.disabled = currentIndex === 0;
-        }
-        if (modalNextButton) {
-            modalNextButton.disabled = currentIndex === currentProblemList.length - 1;
-        }
-    }
-
-    function searchProblems() {
+    function search_problem() {
         const searchBackjoonIdInput = document.getElementById('searchBackjoonId');
         const searchLanguageSelect = document.getElementById('searchLanguage');
         const searchId = searchBackjoonIdInput.value.trim();
         const searchLanguage = searchLanguageSelect.value;
-        fetchProblemList(searchId, searchLanguage);
+        fetch_problem_list(searchId, searchLanguage);
     }
 
-    function deleteAnswer() {
-        if (confirm('정말로 이 풀이를 삭제하시겠습니까?')) {
-            fetch(`/api/v1/answer/${currentAnswerId}`, {
-                method: 'DELETE',
-                headers: createAuthHeaderFromLocalStorage()
-            })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.json().then(errorData => {
-                            throw new Error(`풀이 삭제에 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
-                        });
-                    }
-                    alert('풀이가 성공적으로 삭제되었습니다.');
-                    window.location.href = '/my-page/answer'; // 풀이 목록 페이지로 리디렉션
-                })
-                .catch(error => {
-                    console.error('풀이 삭제에 실패했습니다:', error);
-                    alert(error.message);
-                });
-        }
-    }
-
-    function createAuthHeaderFromLocalStorage() {
+    function create_header() {
         const authToken = localStorage.getItem('Coding-Mate-Auth');
-        const headers = {};
+        const headers = {
+            'Content-Type': 'application/json',
+        };
 
         if (authToken) {
-            headers['Coding-Mate-Auth'] = authToken;
+            headers['Coding-Mate-Auth'] = `${authToken}`;
         }
 
         return headers
     }
-
 </script>
 </body>
 </html>

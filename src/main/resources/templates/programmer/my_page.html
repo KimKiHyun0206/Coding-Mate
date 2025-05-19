@@ -196,76 +196,42 @@
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
         console.log('DOMContentLoaded 시작');
-        const isAuthenticated = await checkAndRefreshAccessToken();
-        console.log('checkAndRefreshAccessToken 완료:', isAuthenticated);
+        await check_and_refresh_token_for_nav_bar();
+        try {
+            const responseData = await fetchDataWithAuth('/api/v1/programmer/my-page');
+            console.log('받아온 데이터:', responseData);
+            const data = responseData.data;
+            console.log(data);
 
+            document.getElementById('name').textContent = data.name || '정보 없음';
+            const githubLinkElement = document.getElementById('githubLink');
+            githubLinkElement.href = 'https://github.com/' + data.githubId || '#';
+            githubLinkElement.textContent = data.githubId || '없음';
+            document.getElementById('email').textContent = data.email || '정보 없음';
+            document.getElementById('numberOfAnswer').textContent = data.numberOfAnswer !== null ? data.numberOfAnswer : '0';
+
+            if (data.tip) {
+                document.getElementById('tip').textContent = data.tip;
+                document.getElementById('tipSection').style.display = 'block';
+            } else {
+                document.getElementById('tipSection').style.display = 'none';
+            }
+        } catch (error) {
+            console.error('마이페이지 정보 로딩 실패:', error);
+            alert(`마이페이지 정보를 불러오는 데 실패했습니다: ${error.message}`);
+        }
+    });
+
+    async function check_and_refresh_token_for_nav_bar() {
+        console.log('checkAndRefreshAccessTokenForNavbar');
+        const accessToken = localStorage.getItem('Coding-Mate-Auth');
+        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
         const navElement = document.getElementById('mainNav');
         const navLeft = navElement.querySelector('.nav-left');
         const navRight = navElement.querySelector('.nav-right');
 
-        if (isAuthenticated) { // 토큰이 유효하거나 갱신에 성공했을 경우
-            navLeft.innerHTML = `
-            <a href="/">홈</a>
-            <a href="/answer/list">풀이 목록</a>
-            `;
-            navRight.innerHTML = `
-            <a href="/my-page">프로필</a>
-            <a href="#" id="logoutButton">로그아웃</a>
-            `;
+        if (accessToken) {
 
-            const logoutButton = document.getElementById('logoutButton');
-            if (logoutButton) {
-                logoutButton.addEventListener('click', function (event) {
-                    event.preventDefault();
-                    localStorage.removeItem('Coding-Mate-Auth');
-                    localStorage.removeItem('Coding-Mate-Auth-Ref');
-                    alert('로그아웃 되었습니다.');
-                    window.location.href = '/';
-                });
-            }
-
-            try {
-                const responseData = await fetchDataWithAuth('/api/v1/programmer/my-page');
-                console.log('받아온 데이터:', responseData);
-                const data = responseData.data;
-                console.log(data);
-
-                document.getElementById('name').textContent = data.name || '정보 없음';
-                const githubLinkElement = document.getElementById('githubLink');
-                githubLinkElement.href = 'https://github.com/' + data.githubId || '#';
-                githubLinkElement.textContent = data.githubId || '없음';
-                document.getElementById('email').textContent = data.email || '정보 없음';
-                document.getElementById('numberOfAnswer').textContent = data.numberOfAnswer !== null ? data.numberOfAnswer : '0';
-
-                if (data.tip) {
-                    document.getElementById('tip').textContent = data.tip;
-                    document.getElementById('tipSection').style.display = 'block';
-                } else {
-                    document.getElementById('tipSection').style.display = 'none';
-                }
-            } catch (error) {
-                console.error('마이페이지 정보 로딩 실패:', error);
-                alert(`마이페이지 정보를 불러오는 데 실패했습니다: ${error.message}`);
-            }
-        } else {
-            // 토큰이 없거나 갱신에 실패했을 경우 처리 (예: 로그인 페이지로 리다이렉트)
-            console.log('인증 실패 또는 토큰 없음. 로그인 페이지로 이동.');
-            window.location.href = '/login'; // 예시: 로그인 페이지로 리다이렉트
-        }
-        console.log('DOMContentLoaded 종료');
-    });
-
-    async function checkAndRefreshAccessToken() {
-        console.log('checkAndRefreshAccessToken 시작');
-        const accessToken = localStorage.getItem('Coding-Mate-Auth');
-        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
-
-        if (!accessToken) {
-            console.log('Access Token이 없습니다.');
-            return false; // 명시적으로 false 반환 (Promise가 resolve 됨)
-        }
-
-        try {
             const response = await fetch('/api/v1/auth/access-token', {
                 method: 'GET',
                 headers: {
@@ -274,53 +240,125 @@
             });
 
             if (response.ok) {
-                console.log('Access Token이 유효합니다.');
-                return true; // 유효하면 true 반환
-            } else if (response.status === 401) {
-                console.log('Access Token이 만료되었습니다. Refresh Token으로 갱신을 시도합니다.');
-                if (refreshToken) {
-                    const refreshResponse = await fetch('/api/v1/auth/refresh-token', {
-                        method: 'GET',
-                        headers: {
-                            'Coding-Mate-Auth-Ref': `${refreshToken}`
-                        }
-                    });
+                update_navbar_authenticated(navLeft, navRight);
+                return true;
+            } else if (response.status === 401 && refreshToken) {
+                const refreshResult = await refresh_access_token();
+                if (refreshResult) {
+                    update_navbar_authenticated(navLeft, navRight);
+                    return true;
+                }
+            }
+        }
+    }
 
-                    if (refreshResponse.ok) {
-                        const newTokenData = await refreshResponse.json();
-                        const data = newTokenData.data;
-                        if (data.refreshToken && data.accessToken) {
-                            localStorage.setItem('Coding-Mate-Auth', `${data.accessToken}`);
-                            localStorage.setItem('Coding-Mate-Auth-Ref', `${data.refreshToken}`);
-                            console.log('Token 갱신 성공:', data);
-                            return true; // 갱신 성공하면 true 반환
-                        } else {
-                            console.error('새로운 Access Token이 응답에 없습니다.');
-                            localStorage.removeItem('Coding-Mate-Auth');
-                            localStorage.removeItem('Coding-Mate-Auth-Ref');
-                            return false; // 갱신 실패하면 false 반환
-                        }
-                    } else {
-                        console.error('Refresh Token 요청 실패:', refreshResponse.status);
-                        localStorage.removeItem('Coding-Mate-Auth');
-                        localStorage.removeItem('Coding-Mate-Auth-Ref');
-                        return false; // 갱신 실패하면 false 반환
-                    }
+    async function refresh_access_token() {
+        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
+        if (!refreshToken) {
+            console.log('Refresh Token이 없습니다.');
+            return false;
+        }
+        try {
+            const refreshResponse = await fetch('/api/v1/auth/refresh-token', {
+                method: 'GET',
+                headers: {
+                    'Coding-Mate-Auth-Ref': `${refreshToken}`
+                }
+            });
+
+            if (refreshResponse.ok) {
+                const newTokenData = await refreshResponse.json();
+                if (newTokenData && newTokenData.data && newTokenData.data.accessToken && newTokenData.data.refreshToken) {
+                    localStorage.setItem('Coding-Mate-Auth', newTokenData.data.accessToken);
+                    localStorage.setItem('Coding-Mate-Auth-Ref', newTokenData.data.refreshToken);
+                    console.log('토큰 갱신 성공:', newTokenData.data);
+                    return true;
                 } else {
-                    console.log('Refresh Token이 없습니다.');
+                    console.error('새로운 토큰 응답에 accessToken 또는 refreshToken 없음:', newTokenData);
                     localStorage.removeItem('Coding-Mate-Auth');
-                    return false; // Refresh Token 없으면 false 반환
+                    localStorage.removeItem('Coding-Mate-Auth-Ref');
+                    return false;
                 }
             } else {
-                console.error('Access Token 검사 실패:', response.status);
-                return false; // 검사 실패하면 false 반환
+                console.error('Refresh Token 요청 실패:', refreshResponse.status);
+                localStorage.removeItem('Coding-Mate-Auth');
+                localStorage.removeItem('Coding-Mate-Auth-Ref');
+                return false;
             }
         } catch (error) {
-            console.error('토큰 확인/갱신 중 오류 발생:', error);
-            return false; // 오류 발생 시 false 반환
-        } finally {
-            console.log('checkAndRefreshAccessToken 종료');
+            console.error('Refresh Token 요청 중 오류:', error);
+            localStorage.removeItem('Coding-Mate-Auth');
+            localStorage.removeItem('Coding-Mate-Auth-Ref');
+            return false;
         }
+    }
+
+    function update_navbar_authenticated(navLeft, navRight) {
+        navLeft.innerHTML = `
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    `;
+        navRight.innerHTML = `
+        <a href="/my-page">프로필</a>
+        <a href="#" id="logoutButton">로그아웃</a>
+    `;
+
+        const logoutButton = document.getElementById('logoutButton');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', function (event) {
+                event.preventDefault(); // <a> 태그의 기본 동작(페이지 이동) 방지
+                logout(); // 로그아웃 함수 호출 (이전에 정의한 함수)
+            });
+        }
+    }
+
+    function logout() {
+        fetch('/api/v1/auth/logout', { // 서버의 로그아웃 엔드포인트로 요청
+            method: 'POST',
+            headers: {
+                //'Content-Type': 'application/json' // 필요한 경우 Content-Type 설정
+                // 필요한 경우 인증 헤더 (Authorization 등)를 포함할 수 있습니다.
+                'Coding-Mate-Auth-Ref': localStorage.getItem('Coding-Mate-Auth-Ref')
+            }
+            // body는 일반적으로 필요하지 않습니다.
+        })
+            .then(response => {
+                if (response.ok) {
+                    localStorage.removeItem('Coding-Mate-Auth');
+                    localStorage.removeItem('Coding-Mate-Auth-Ref');
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+                } else {
+                    console.error('로그아웃 실패:', response.status);
+                    alert('로그아웃에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('로그아웃 요청 실패:', error);
+                alert('로그아웃 요청에 실패했습니다.');
+            });
+    }
+
+    async function fetch_profile() {
+        fetch('/api/v1/programmer/my-page', { // 실제 마이페이지 정보 API 엔드포인트
+            headers: create_header()
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(`프로필 정보를 불러오는 데 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                populate_profile_form(data.data);
+            })
+            .catch(error => {
+                console.error('프로필 정보 불러오기 오류:', error);
+                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+            });
     }
 
     async function fetchDataWithAuth(url, options = {}) {
