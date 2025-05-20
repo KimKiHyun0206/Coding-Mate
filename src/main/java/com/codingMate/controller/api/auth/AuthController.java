@@ -12,6 +12,7 @@ import com.codingMate.service.redis.RefreshTokenService;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,8 +23,8 @@ import java.io.IOException;
 
 @Slf4j
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private final TokenProvider tokenProvider;
     private final ProgrammerService programmerService;

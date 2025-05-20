@@ -1,13 +1,10 @@
 package com.codingMate.controller.ui.programmer;
 
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping()
-@RequiredArgsConstructor
 public class MyPageController {
     @RequestMapping("/my-page")
     public String myPage() {

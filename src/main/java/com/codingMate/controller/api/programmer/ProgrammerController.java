@@ -9,6 +9,7 @@ import com.codingMate.dto.response.programmer.ProgrammerCreateResponse;
 import com.codingMate.service.programmer.ProgrammerService;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
