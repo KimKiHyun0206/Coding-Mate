@@ -4,7 +4,15 @@ import com.codingMate.exception.BusinessException;
 import com.codingMate.exception.dto.ErrorMessage;
 
 public class DuplicateProgrammerLoginIdException extends BusinessException {
-    public DuplicateProgrammerLoginIdException() {
-        super(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION);
+    public DuplicateProgrammerLoginIdException(ErrorMessage message) {
+        super(message);
+    }
+
+    public DuplicateProgrammerLoginIdException(ErrorMessage message, String reason) {
+        super(message, reason);
+    }
+
+    public DuplicateProgrammerLoginIdException(String reason) {
+        super(reason);
     }
 }
