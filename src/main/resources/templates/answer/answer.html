@@ -348,7 +348,7 @@
                     return; // 401 처리 후 함수 종료
                 }
 
-                if (response.status === 200) {
+                if (response.status === 204) {
                     alert('풀이가 성공적으로 삭제되었습니다.');
                     window.location.href = '/answer/list'; // 풀이 목록 페이지로 리디렉션
                 } else {

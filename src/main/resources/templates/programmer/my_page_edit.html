@@ -302,7 +302,6 @@
                 throw new Error(`프로필 정보 수정에 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
             }
 
-            const data = await response.json();
             alert('프로필 정보가 성공적으로 수정되었습니다.');
             // 필요에 따라 페이지 리로드 또는 다른 동작 수행
             window.location.href = '/my-page';
