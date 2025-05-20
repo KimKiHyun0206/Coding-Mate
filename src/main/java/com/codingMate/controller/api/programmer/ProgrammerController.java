@@ -9,7 +9,6 @@ import com.codingMate.dto.response.programmer.ProgrammerCreateResponse;
 import com.codingMate.service.programmer.ProgrammerService;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -36,7 +35,7 @@ public class ProgrammerController {
     /**
      * @apiNote 회원 생성 전에 아이디 중복 확인 버튼으로 아이디가 중복되는지 검사할 API
      * */
-    @GetMapping("/login-id-exist")
+    @GetMapping("/check-id")
     public ResponseEntity<?> isExistLoginId(@RequestParam("loginId") String loginId) {
         programmerService.isExistLoginId(loginId);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
