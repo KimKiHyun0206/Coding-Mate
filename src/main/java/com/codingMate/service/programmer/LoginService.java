@@ -1,9 +1,7 @@
 package com.codingMate.service.programmer;
 
-import com.codingMate.domain.authority.Authority;
 import com.codingMate.domain.programmer.Programmer;
-import com.codingMate.dto.response.programmer.ProgrammerDto;
-import com.codingMate.dto.response.token.TokenDto;
+import com.codingMate.dto.response.programmer.ProgrammerResponse;
 import com.codingMate.exception.dto.ErrorMessage;
 import com.codingMate.exception.exception.programmer.LoginIdNotMatchException;
 import com.codingMate.exception.exception.programmer.PasswordNotMatchException;
@@ -15,8 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -36,19 +32,19 @@ public class LoginService {
     }
 
     @Transactional(readOnly = true)
-    public ProgrammerDto login(String loginId, String password) {
+    public ProgrammerResponse login(String loginId, String password) {
         log.info("login({}, {})", loginId, password);
         Programmer programmer = programmerRepository.readByLoginId(loginId);
         if (programmer == null) throw new LoginIdNotMatchException(ErrorMessage.WRONG_ID, "요청한 ID가 일치하지 않습니다");
         if (!passwordEncoder.matches(password, programmer.getPassword())) {
             throw new PasswordNotMatchException(ErrorMessage.WRONG_PASSWORD, "요청한 비밀번호가 일치하지 않습니다");
         }
-        return programmer.toDto();
+        return ProgrammerResponse.from(programmer);
     }
 
     @Transactional(readOnly = true)
-    public ProgrammerDto getMyUserWithAuthorities() {
+    public ProgrammerResponse getMyUserWithAuthorities() {
         String currentUsername = String.valueOf(SecurityUtil.getCurrentUsername());
-        return getUserWithAuthorities(currentUsername).toDto();
+        return ProgrammerResponse.from(getUserWithAuthorities(currentUsername));
     }
 }
