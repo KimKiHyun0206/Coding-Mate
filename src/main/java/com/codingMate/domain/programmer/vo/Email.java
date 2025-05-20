@@ -1,5 +1,7 @@
 package com.codingMate.domain.programmer.vo;
 
+import com.codingMate.exception.dto.ErrorMessage;
+import com.codingMate.exception.exception.programmer.InvalidEmailException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,8 +21,8 @@ public class Email {
     }
 
     private void validateEmail(String email) {
-        if(!Pattern.matches(EMAIL_REGEX, email)){
-            //TODO 예외 발생시키기
+        if (!Pattern.matches(EMAIL_REGEX, email)) {
+            throw new InvalidEmailException(ErrorMessage.INVALID_EMAIL_REGEX, "유효한 Email 형식이 아닙니다");
         }
         this.email = email;
     }
