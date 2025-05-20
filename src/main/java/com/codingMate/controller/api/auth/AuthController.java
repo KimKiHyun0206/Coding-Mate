@@ -4,12 +4,7 @@ import com.codingMate.common.response.ResponseDto;
 import com.codingMate.common.response.ResponseMessage;
 import com.codingMate.dto.request.programmer.LoginRequest;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
-import com.codingMate.dto.response.programmer.ProgrammerResponse;
 import com.codingMate.dto.response.token.TokenDto;
-import com.codingMate.exception.BusinessException;
-import com.codingMate.exception.exception.jwt.ExpiredTokenException;
-import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
-import com.codingMate.exception.exception.redis.InvalidRefreshTokenException;
 import com.codingMate.jwt.TokenProvider;
 import com.codingMate.service.programmer.LoginService;
 import com.codingMate.service.programmer.ProgrammerService;
@@ -58,7 +53,7 @@ public class AuthController {
         response.setHeader(header, accessToken);
         response.setHeader(refreshHeader, refreshToken);
 
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, accessToken);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
     /**
@@ -67,42 +62,31 @@ public class AuthController {
      * */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody ProgrammerCreateRequest programmerCreateRequest) throws IOException {
-        var programmerDto = programmerService.create(programmerCreateRequest);
-
-        return ResponseEntity.ok(ResponseMessage.SUCCESS);
+        programmerService.create(programmerCreateRequest);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         refreshTokenService.deleteRefreshToken(JwtUtil.getRefreshTokenFromHttpServletRequest(request));
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, "로그아웃 성공했습니다");
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
     @DeleteMapping("/withdrawal")
     public ResponseEntity<?> withdrawal(HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        boolean isDeleted = programmerService.delete(idFromToken);
-        if (isDeleted) return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT, "요청한 계정을 삭제했습니다");
-        return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "요청한 계정을 삭제하지 못했습니다");
-
+        programmerService.delete(JwtUtil.getIdFromHttpServletRequest(request));
+        return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT);
     }
 
     @GetMapping("/access-token")
     public ResponseEntity<?> validateAccessToken(HttpServletRequest request) {
-        String accessToken = JwtUtil.getAccessTokenFromHttpServletRequest(request);
-        if (tokenProvider.validateToken(accessToken)) {
-            return ResponseEntity.ok(ResponseMessage.SUCCESS);
-        }
-        return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, null);
+        tokenProvider.validateToken(JwtUtil.getAccessTokenFromHttpServletRequest(request));
+        return ResponseDto.toResponseEntity(ResponseMessage.AUTHORIZED);
     }
 
     @GetMapping("/refresh-token")
-    public ResponseEntity<?> newRefreshToken(HttpServletRequest request) {
-        String refreshToken = JwtUtil.getRefreshTokenFromHttpServletRequest(request);
-        if (refreshToken != null) {
-            TokenDto tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(refreshToken);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
-        }
-        return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, null);
+    public ResponseEntity<ResponseDto<TokenDto>> newRefreshToken(HttpServletRequest request) {
+        var tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(JwtUtil.getRefreshTokenFromHttpServletRequest(request));
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
     }
 }

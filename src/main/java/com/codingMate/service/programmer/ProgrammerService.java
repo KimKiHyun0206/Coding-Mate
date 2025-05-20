@@ -7,6 +7,7 @@ import com.codingMate.dto.response.programmer.MyPageResponse;
 import com.codingMate.dto.response.programmer.ProgrammerCreateResponse;
 import com.codingMate.dto.response.programmer.ProgrammerResponse;
 import com.codingMate.dto.response.programmer.ProgrammerUpdateResponse;
+import com.codingMate.exception.dto.ErrorMessage;
 import com.codingMate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.exception.exception.programmer.ProgrammerNotCreateException;
@@ -32,7 +33,7 @@ public class ProgrammerService {
     @Transactional
     public ProgrammerCreateResponse create(ProgrammerCreateRequest request) {
         if (customProgrammerRepository.isExistLoginId(request.getLoginId()))
-            throw new DuplicateProgrammerLoginIdException();
+            throw new DuplicateProgrammerLoginIdException(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION, "요청한 Id는 이미 존재하는 Id입니다");
 
         var dto = customProgrammerRepository.create(request);
         if (dto == null) throw new ProgrammerNotCreateException("Programmer가 생성되지 않았습니다. " + request);
@@ -40,10 +41,8 @@ public class ProgrammerService {
     }
 
     @Transactional(readOnly = true)
-    public boolean isExistLoginId(String loginId) {
-        boolean isExistLoginId = customProgrammerRepository.isExistLoginId(loginId);
-        if (isExistLoginId) throw new DuplicateRequestException("요청한 ID는 중복된 ID입니다. " + loginId);
-        return false;
+    public void isExistLoginId(String loginId) {
+        if (customProgrammerRepository.isExistLoginId(loginId)) throw new DuplicateProgrammerLoginIdException(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION, "요청한 ID는 중복된 ID입니다. " + loginId);
     }
 
     @Transactional(readOnly = true)
@@ -71,7 +70,7 @@ public class ProgrammerService {
     }
 
     @Transactional
-    public boolean delete(Long id) {
+    public void delete(Long id) {
         boolean isExist = defaultProgrammerRepository.existsById(id);
         if (isExist) {
             long delete = customAnswerRepository.deleteByProgrammerId(id);
@@ -79,6 +78,5 @@ public class ProgrammerService {
             defaultProgrammerRepository.deleteById(id);
         } else throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + id);
 
-        return true;
     }
 }

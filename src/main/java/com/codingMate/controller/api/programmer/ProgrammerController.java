@@ -2,11 +2,10 @@ package com.codingMate.controller.api.programmer;
 
 import com.codingMate.common.response.ResponseDto;
 import com.codingMate.common.response.ResponseMessage;
-import com.codingMate.dto.response.programmer.MyPageResponse;
 import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
 import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
-import com.codingMate.exception.exception.jwt.UnMatchedAuthException;
-import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
+import com.codingMate.dto.response.programmer.MyPageResponse;
+import com.codingMate.dto.response.programmer.ProgrammerCreateResponse;
 import com.codingMate.service.programmer.ProgrammerService;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,8 +25,11 @@ public class ProgrammerController {
      * @apiNote 회원 생성 API
      * */
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody ProgrammerCreateRequest dto) {
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.create(dto));
+    public ResponseEntity<ResponseDto<ProgrammerCreateResponse>> create(@RequestBody ProgrammerCreateRequest dto) {
+        return ResponseDto.toResponseEntity(
+                ResponseMessage.SUCCESS,
+                programmerService.create(dto)
+        );
     }
 
     /**
@@ -35,11 +37,8 @@ public class ProgrammerController {
      * */
     @GetMapping("/login-id-exist")
     public ResponseEntity<?> isExistLoginId(@RequestParam("loginId") String loginId) {
-        boolean isExistLoginId = programmerService.isExistLoginId(loginId);
-        if (!isExistLoginId) {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, "존재하지 않는 ID입니다");
-        }
-        return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "존재하는 ID입니다");
+        programmerService.isExistLoginId(loginId);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
     /**
@@ -47,11 +46,11 @@ public class ProgrammerController {
      * @implSpec request에서 토큰을 가져와 마이페이지의 정보를 볼 수 있게 한다
      * */
     @GetMapping("/my-page")
-    public ResponseEntity<?> myPage(HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        var myPageResponse = programmerService.myPage(idFromToken);
-        log.info("myPage {}", myPageResponse.toString());
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPageResponse);
+    public ResponseEntity<ResponseDto<MyPageResponse>> myPage(HttpServletRequest request) {
+        return ResponseDto.toResponseEntity(
+                ResponseMessage.SUCCESS,
+                programmerService.myPage(JwtUtil.getIdFromHttpServletRequest(request))
+        );
     }
 
     /*@GetMapping("/{id}")
@@ -82,9 +81,10 @@ public class ProgrammerController {
      * */
     @PatchMapping
     public ResponseEntity<?> update(@RequestBody ProgrammerUpdateRequest programmerUpdateRequest, HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        log.info("update({}, {})", idFromToken, programmerUpdateRequest.toString());
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(idFromToken, programmerUpdateRequest));
+        return ResponseDto.toResponseEntity(
+                ResponseMessage.SUCCESS,
+                programmerService.update(JwtUtil.getIdFromHttpServletRequest(request), programmerUpdateRequest)
+        );
     }
 
     /**
@@ -94,8 +94,7 @@ public class ProgrammerController {
      * */
     @DeleteMapping
     public ResponseEntity<?> delete(HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        log.info("delete({})", idFromToken);
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(idFromToken));
+        programmerService.delete(JwtUtil.getIdFromHttpServletRequest(request));
+        return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT);
     }
 }
