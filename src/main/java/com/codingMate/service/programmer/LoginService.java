@@ -7,7 +7,6 @@ import com.codingMate.exception.exception.programmer.LoginIdNotMatchException;
 import com.codingMate.exception.exception.programmer.PasswordNotMatchException;
 import com.codingMate.jwt.TokenProvider;
 import com.codingMate.repository.programmer.CustomProgrammerRepository;
-import com.codingMate.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,11 +39,5 @@ public class LoginService {
             throw new PasswordNotMatchException(ErrorMessage.WRONG_PASSWORD, "요청한 비밀번호가 일치하지 않습니다");
         }
         return ProgrammerResponse.from(programmer);
-    }
-
-    @Transactional(readOnly = true)
-    public ProgrammerResponse getMyUserWithAuthorities() {
-        String currentUsername = String.valueOf(SecurityUtil.getCurrentUsername());
-        return ProgrammerResponse.from(getUserWithAuthorities(currentUsername));
     }
 }
