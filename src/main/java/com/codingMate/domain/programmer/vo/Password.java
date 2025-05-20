@@ -1,5 +1,7 @@
 package com.codingMate.domain.programmer.vo;
 
+import com.codingMate.exception.dto.ErrorMessage;
+import com.codingMate.exception.exception.programmer.InvalidPasswordException;
 import lombok.Getter;
 
 import java.util.regex.Pattern;
@@ -15,8 +17,8 @@ public class Password {
     }
 
     private void validatePassword(String password) {
-        if(!Pattern.matches(PASSWORD_REGEX, password)){
-            //throw new InvalidPasswordException();
+        if (!Pattern.matches(PASSWORD_REGEX, password)) {
+            throw new InvalidPasswordException(ErrorMessage.INVALID_PASSWORD_REGEX, "요청한 비밀번호 " + password + "가 알맞지 않습니다");
         }
         this.password = password;
     }
