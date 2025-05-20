@@ -11,9 +11,8 @@ import lombok.*;
 
 //TODO follow 기능 추가 염두해둘 것
 @Entity
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-@Setter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Programmer extends BaseEntity {
     @Id
     @GeneratedValue
@@ -35,6 +34,7 @@ public class Programmer extends BaseEntity {
 
     @Column(name = "email")
     private Email email;
+
     @Column(name = "tip", length = 2000)
     private String tip;
 

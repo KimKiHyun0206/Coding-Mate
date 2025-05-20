@@ -37,8 +37,16 @@ public class CustomProgrammerRepository {
                 .authorityName("ROLE_USER")
                 .build();
 
-        Programmer entity = dto.toEntity();
-        entity.setAuthority(authority);
+        Programmer entity = Programmer.builder()
+                .email(new Email(dto.getEmail()))
+                .name(new Name(dto.getName()))
+                .githubId(dto.getGithubId())
+                .password(dto.getPassword())
+                .authority(authority)
+                .loginId(dto.getLoginId())
+                .tip("팁이 있다면 공유해주세요")
+                .build();
+
         return programmerRepository.save(entity);
     }
 

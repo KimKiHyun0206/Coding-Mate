@@ -8,11 +8,10 @@ import lombok.*;
 
 @Entity
 @Table(name = "authority")
-@Getter
-@Setter
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Authority {
 
    @Id
