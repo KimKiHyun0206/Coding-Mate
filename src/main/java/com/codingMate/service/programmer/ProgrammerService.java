@@ -62,11 +62,9 @@ public class ProgrammerService {
     }
 
     @Transactional
-    public ProgrammerUpdateResponse update(Long programmerId, ProgrammerUpdateRequest request) {
-        var dto = customProgrammerRepository.update(programmerId, request);
-        if (dto == null)
-            throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Update또한 이루어지지 않았습니다" + programmerId);
-        return ProgrammerUpdateResponse.from(dto);
+    public void update(Long programmerId, ProgrammerUpdateRequest request) {
+        long changedRow = customProgrammerRepository.update(programmerId, request);
+        if (changedRow != 1) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Update또한 이루어지지 않았습니다" + programmerId);
     }
 
     @Transactional

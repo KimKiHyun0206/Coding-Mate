@@ -90,15 +90,14 @@ public class CustomProgrammerRepository {
     }
 
     @Transactional
-    public Programmer update(Long programmerId, ProgrammerUpdateRequest dto) {
-        Programmer findById = programmerRepository.findById(programmerId).orElse(null);
-        if (findById == null) return null;
-
-        findById.setName(dto.getName() == null ? findById.getName() : new Name(dto.getName()));
-        findById.setEmail(dto.getEmail() == null ? findById.getEmail() : new Email(dto.getEmail()));
-        findById.setTip(dto.getTip() == null ? findById.getTip() : dto.getTip());
-        findById.setGithubId(dto.getGithubId() == null ? findById.getGithubId() : dto.getGithubId());
-        return findById;
+    public long update(Long programmerId, ProgrammerUpdateRequest dto) {
+        return queryFactory.update(programmer)
+                .where(programmer.id.eq(programmerId))
+                .set(programmer.name.name, dto.getName() == null ? null : dto.getName())
+                .set(programmer.email.email, dto.getEmail() == null ? null : dto.getEmail())
+                .set(programmer.githubId, dto.getGithubId() == null ? null : dto.getGithubId())
+                .set(programmer.tip, dto.getTip() == null ? null : dto.getTip())
+                .execute();
     }
 
     @Transactional

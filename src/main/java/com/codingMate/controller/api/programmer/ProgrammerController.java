@@ -81,9 +81,10 @@ public class ProgrammerController {
      * */
     @PatchMapping
     public ResponseEntity<?> update(@RequestBody ProgrammerUpdateRequest programmerUpdateRequest, HttpServletRequest request) {
+        programmerService.update(JwtUtil.getId(request), programmerUpdateRequest);
+
         return ResponseDto.toResponseEntity(
-                ResponseMessage.SUCCESS,
-                programmerService.update(JwtUtil.getId(request), programmerUpdateRequest)
+                ResponseMessage.SUCCESS
         );
     }
 
