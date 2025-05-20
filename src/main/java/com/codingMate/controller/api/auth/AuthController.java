@@ -68,25 +68,25 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest request) {
-        refreshTokenService.deleteRefreshToken(JwtUtil.getRefreshTokenFromHttpServletRequest(request));
+        refreshTokenService.deleteRefreshToken(JwtUtil.getRefreshToken(request));
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
     @DeleteMapping("/withdrawal")
     public ResponseEntity<?> withdrawal(HttpServletRequest request) {
-        programmerService.delete(JwtUtil.getIdFromHttpServletRequest(request));
+        programmerService.delete(JwtUtil.getId(request));
         return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT);
     }
 
     @GetMapping("/access-token")
     public ResponseEntity<?> validateAccessToken(HttpServletRequest request) {
-        tokenProvider.validateToken(JwtUtil.getAccessTokenFromHttpServletRequest(request));
+        tokenProvider.validateToken(JwtUtil.getAccessToken(request));
         return ResponseDto.toResponseEntity(ResponseMessage.AUTHORIZED);
     }
 
     @GetMapping("/refresh-token")
     public ResponseEntity<ResponseDto<TokenDto>> newRefreshToken(HttpServletRequest request) {
-        var tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(JwtUtil.getRefreshTokenFromHttpServletRequest(request));
+        var tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(JwtUtil.getRefreshToken(request));
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
     }
 }

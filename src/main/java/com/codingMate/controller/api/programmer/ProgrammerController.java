@@ -49,7 +49,7 @@ public class ProgrammerController {
     public ResponseEntity<ResponseDto<MyPageResponse>> myPage(HttpServletRequest request) {
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
-                programmerService.myPage(JwtUtil.getIdFromHttpServletRequest(request))
+                programmerService.myPage(JwtUtil.getId(request))
         );
     }
 
@@ -83,7 +83,7 @@ public class ProgrammerController {
     public ResponseEntity<?> update(@RequestBody ProgrammerUpdateRequest programmerUpdateRequest, HttpServletRequest request) {
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
-                programmerService.update(JwtUtil.getIdFromHttpServletRequest(request), programmerUpdateRequest)
+                programmerService.update(JwtUtil.getId(request), programmerUpdateRequest)
         );
     }
 
@@ -94,7 +94,7 @@ public class ProgrammerController {
      * */
     @DeleteMapping
     public ResponseEntity<?> delete(HttpServletRequest request) {
-        programmerService.delete(JwtUtil.getIdFromHttpServletRequest(request));
+        programmerService.delete(JwtUtil.getId(request));
         return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT);
     }
 }

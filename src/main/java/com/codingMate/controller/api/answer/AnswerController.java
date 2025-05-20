@@ -36,7 +36,7 @@ public class AnswerController {
             @RequestBody AnswerCreateRequest answerCreateRequest,
             HttpServletRequest request
     ) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        Long idFromToken = JwtUtil.getId(request);
 
         return ResponseDto.toResponseEntity(
                 ResponseMessage.CREATED,
@@ -52,7 +52,7 @@ public class AnswerController {
      * */
     @GetMapping("/{answerId}")
     public ResponseEntity<ResponseDto<AnswerPageResponse>> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        Long idFromToken = JwtUtil.getId(request);
         var answerPageDto = answerService.read(id, idFromToken);
 
         return ResponseDto.toResponseEntity(
@@ -90,7 +90,7 @@ public class AnswerController {
             @RequestParam(name = "backjoonId", required = false) Long backjoonId,
             HttpServletRequest request
     ) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        Long idFromToken = JwtUtil.getId(request);
 
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
@@ -111,7 +111,7 @@ public class AnswerController {
             @RequestBody AnswerUpdateRequest answerUpdateRequest,
             @PathVariable(name = "answerId") Long answerId
     ) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        Long idFromToken = JwtUtil.getId(request);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, answerUpdateRequest));
     }
 
@@ -122,7 +122,7 @@ public class AnswerController {
      * */
     @DeleteMapping("/{answerId}")
     public ResponseEntity<?> delete(@PathVariable(name = "answerId") Long answerId, HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        Long idFromToken = JwtUtil.getId(request);
         answerService.delete(idFromToken, answerId);
 
         return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT);

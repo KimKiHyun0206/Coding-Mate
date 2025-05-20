@@ -24,25 +24,19 @@ public class JwtUtil {
         JwtUtil.refresh = refresh;
     }
 
-    public static String getLoginIdFromToken(HttpServletRequest request) {
-        String token =  request.getHeader(header);
-        if (token == null || token.equals("null")) return null;
-        return getLoginIdFromString(token);
-    }
-
-    public static Long getIdFromHttpServletRequest(HttpServletRequest request) {
+    public static Long getId(HttpServletRequest request) {
         String token = request.getHeader(header);
         if (token == null || token.equals("null")) return null;
         return getIdFromString(token);
     }
 
-    public static String getRefreshTokenFromHttpServletRequest(HttpServletRequest request) {
+    public static String getRefreshToken(HttpServletRequest request) {
         String token = request.getHeader(refresh);
         if (token == null || token.equals("null")) return null;
         return token;
     }
 
-    public static String getAccessTokenFromHttpServletRequest(HttpServletRequest request) {
+    public static String getAccessToken(HttpServletRequest request) {
         String token = request.getHeader(header);
         if (token == null || token.equals("null")) return null;
         return token;
@@ -66,11 +60,5 @@ public class JwtUtil {
         String id = String.valueOf(getAllClaims(token).get("id"));
         log.info("getUsernameFromToken id = {}", id);
         return Long.valueOf(id);
-    }
-
-    private static String getLoginIdFromString(String token) {
-        String loginId = getAllClaims(token).getSubject();
-        log.info("getUsernameFromToken loginId = {}", loginId);
-        return loginId;
     }
 }
