@@ -3,6 +3,7 @@ package com.codingMate.service.redis;
 import com.codingMate.dto.response.token.TokenDto;
 import com.codingMate.exception.dto.ErrorMessage;
 import com.codingMate.exception.exception.redis.InvalidRefreshTokenException;
+import com.codingMate.exception.exception.redis.RefreshTokenIsNullException;
 import com.codingMate.jwt.TokenProvider;
 import com.codingMate.redis.RedisCacheInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -41,12 +42,12 @@ public class RefreshTokenService {
         return info;
     }
 
-    public boolean deleteRefreshToken(String token) {
-        return Boolean.TRUE.equals(redisTemplate.delete(token));
+    public void deleteRefreshToken(String token) {
+        redisTemplate.delete(token);
     }
 
-    public TokenDto createAccessTokenFromRefreshToken(String refreshToken) throws InvalidRefreshTokenException {
-        log.info("createAccessTokenFromRefreshToken({})", refreshToken);
+    public TokenDto createAccessTokenFromRefreshToken(String refreshToken){
+        if(refreshToken == null) throw new RefreshTokenIsNullException(ErrorMessage.REFRESH_TOKEN_IS_NULL,"갱신할  Refresh Token이 없습니다");
         RedisCacheInfo redisCacheInfo = valueOperations.get(refreshToken);
         if (redisCacheInfo == null)
             throw new InvalidRefreshTokenException(ErrorMessage.INVALID_JWT, "요청한 refresh token이 유효하지 않습니다");
@@ -56,7 +57,6 @@ public class RefreshTokenService {
         String role = redisCacheInfo.getAuthority();
         String newAccessToken = tokenProvider.createAccessToken(id, role);
         String newRefreshToken = tokenProvider.createRefreshToken(id);
-        log.info("new Tokens \n {} \n {}", newAccessToken, newRefreshToken);
 
         //기존 토큰을 제거하고 새로운 refreshToken을 저장함 그리고
         Boolean delete = redisTemplate.delete(refreshToken);
