@@ -31,9 +31,8 @@
         const navRight = navElement.querySelector('.nav-right');
 
         if (accessToken) {
-
             const response = await fetch('/api/v1/auth/access-token', {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Coding-Mate-Auth': accessToken
                 }
@@ -60,7 +59,7 @@
         }
         try {
             const refreshResponse = await fetch('/api/v1/auth/refresh-token', {
-                method: 'GET',
+                method: 'POST',
                 headers: {
                     'Coding-Mate-Auth-Ref': `${refreshToken}`
                 }

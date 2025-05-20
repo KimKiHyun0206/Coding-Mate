@@ -220,7 +220,7 @@
         }
 
         fetch('/api/v1/auth/access-token', {
-            method: 'GET',
+            method: 'POST',
             headers: {
                 'Coding-Mate-Auth': accessToken // 기존 Access Token을 Authorization 헤더에 담아 보냅니다.
             }
@@ -235,7 +235,7 @@
                     console.log('Access Token이 만료되었습니다. Refresh Token으로 갱신을 시도합니다.');
                     if (refreshToken) {
                         return fetch('/api/v1/auth/refresh-token', {
-                            method: 'GET',
+                            method: 'POST',
                             headers: {
                                 'Coding-Mate-Auth-Ref': `${refreshToken}` // 서버에서 요구하는 헤더명으로 변경
                             }

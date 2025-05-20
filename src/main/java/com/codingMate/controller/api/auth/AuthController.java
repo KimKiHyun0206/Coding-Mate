@@ -79,13 +79,13 @@ public class AuthController {
         return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT);
     }
 
-    @GetMapping("/access-token")
+    @PostMapping("/access-token")
     public ResponseEntity<?> validateAccessToken(HttpServletRequest request) {
         tokenProvider.validateToken(JwtUtil.getAccessToken(request));
         return ResponseDto.toResponseEntity(ResponseMessage.AUTHORIZED);
     }
 
-    @GetMapping("/refresh-token")
+    @PostMapping("/refresh-token")
     public ResponseEntity<ResponseDto<TokenDto>> newRefreshToken(HttpServletRequest request) {
         var tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(JwtUtil.getRefreshToken(request));
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
