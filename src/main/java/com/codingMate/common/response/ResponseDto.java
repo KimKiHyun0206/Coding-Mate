@@ -1,6 +1,7 @@
 package com.codingMate.common.response;
 
 import lombok.Data;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
@@ -18,10 +19,15 @@ public class ResponseDto<T> {
         this.data = data;
     }
 
-    public static  <T> ResponseEntity<ResponseDto<T>> toResponseEntity(ResponseMessage message, T data) {
+    public static <T> ResponseEntity<ResponseDto<T>> toResponseEntity(ResponseMessage message, T data) {
         return ResponseEntity
                 .status(message.getStatus())
                 .body(new ResponseDto<>(message, data));
     }
 
+    public static <T> ResponseEntity<ResponseDto<?>> toResponseEntity(ResponseMessage message) {
+        return ResponseEntity
+                .status(message.getStatus())
+                .body(null);
+    }
 }
