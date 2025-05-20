@@ -53,7 +53,7 @@ public class AuthController {
         response.setHeader(header, accessToken);
         response.setHeader(refreshHeader, refreshToken);
 
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
+        return ResponseDto.toResponseEntity(ResponseMessage.CREATED);
     }
 
     /**
@@ -63,7 +63,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody ProgrammerCreateRequest programmerCreateRequest) throws IOException {
         programmerService.create(programmerCreateRequest);
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
+        return ResponseDto.toResponseEntity(ResponseMessage.CREATED);
     }
 
     @PostMapping("/logout")

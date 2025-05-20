@@ -27,7 +27,7 @@ public class ProgrammerController {
     @PostMapping
     public ResponseEntity<ResponseDto<ProgrammerCreateResponse>> create(@RequestBody ProgrammerCreateRequest dto) {
         return ResponseDto.toResponseEntity(
-                ResponseMessage.SUCCESS,
+                ResponseMessage.CREATED,
                 programmerService.create(dto)
         );
     }
