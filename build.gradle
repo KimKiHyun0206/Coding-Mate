@@ -50,8 +50,9 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     //Database
+    //implementation 'com.mysql:mysql-connector-j:8.0.33'  // MySQL 커넥터/J 버전을 최신으로 변경
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     runtimeOnly 'com.h2database:h2'
-
 
     //Test tool
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
