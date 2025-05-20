@@ -5,12 +5,7 @@ import com.codingMate.common.response.ResponseMessage;
 import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.dto.request.answer.AnswerCreateRequest;
 import com.codingMate.dto.request.answer.AnswerUpdateRequest;
-import com.codingMate.dto.response.answer.AnswerResponse;
 import com.codingMate.dto.response.answer.AnswerPageResponse;
-import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
-import com.codingMate.exception.exception.answer.NotFoundAnswerException;
-import com.codingMate.exception.exception.jwt.NoTokenInHeaderException;
-import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.service.answer.AnswerService;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Objects;
 
 
 @Slf4j
@@ -36,15 +29,8 @@ public class AnswerController {
      * */
     @PostMapping
     public ResponseEntity<?> create(@RequestBody AnswerCreateRequest answerCreateRequest, HttpServletRequest request) {
-        try {
-            log.info("create({}, {})", request.toString(), answerCreateRequest.toString());
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(idFromToken, answerCreateRequest));
-        } catch (NotFoundProgrammerException notFoundProgrammerException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
-        } catch (Exception e) {
-            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.create(idFromToken, answerCreateRequest));
     }
 
     /**
@@ -55,16 +41,9 @@ public class AnswerController {
      * */
     @GetMapping("/{answerId}")
     public ResponseEntity<?> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
-        try {
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            log.info("read({}, {})", id, idFromToken);
-            AnswerPageResponse answerPageDto = answerService.read(id, idFromToken);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageDto);
-        } catch (NotFoundAnswerException notFoundAnswerException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
-        } catch (Exception e) {
-            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        AnswerPageResponse answerPageDto = answerService.read(id, idFromToken);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerPageDto);
     }
 
     /**
@@ -75,10 +54,10 @@ public class AnswerController {
      * @param language 읽어올 문제의 languageType
      * */
     @GetMapping("/all")
-    public ResponseEntity<?> readAll(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId) {
-        log.info("readAll()");
-        log.info("language {}", language);
-        log.info("backjoonId {}", backjoonId);
+    public ResponseEntity<?> readAll(
+            @RequestParam(name = "language", required = false) LanguageType language,
+            @RequestParam(name = "backjoonId", required = false) Long backjoonId
+    ) {
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllToListResponse(language, backjoonId));
     }
 
@@ -88,9 +67,12 @@ public class AnswerController {
      * @implSpec 현재 페이징 기능이 없음
      * */
     @GetMapping("/programmer")
-    public ResponseEntity<?> readByProgrammer(@RequestParam(name = "language", required = false) LanguageType language, @RequestParam(name = "backjoonId", required = false) Long backjoonId, HttpServletRequest request) {
+    public ResponseEntity<?> readByProgrammer(
+            @RequestParam(name = "language", required = false) LanguageType language,
+            @RequestParam(name = "backjoonId", required = false) Long backjoonId,
+            HttpServletRequest request
+    ) {
         Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        log.info("readByProgrammer({})", idFromToken);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.readAllByProgrammerId(language, backjoonId, idFromToken));
     }
 
@@ -102,19 +84,14 @@ public class AnswerController {
      * @param request 토큰을 받아오기 위한 매개변수
      * */
     @PatchMapping("/{answerId}")
-    public ResponseEntity<?> update(HttpServletRequest request, @RequestBody AnswerUpdateRequest answerUpdateRequest, @PathVariable(name = "answerId") Long answerId) {
-        try {
-            log.info(answerUpdateRequest.toString());
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, answerUpdateRequest));
-        } catch (AnswerAndProgrammerDoNotMatchException notFoundAnswerException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundAnswerException.getMessage());
-
-        } catch (NoTokenInHeaderException noTokenInHeaderException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, noTokenInHeaderException.getMessage());
-        } catch (Exception e) {
-            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+    public ResponseEntity<?> update(
+            HttpServletRequest request,
+            @RequestBody AnswerUpdateRequest answerUpdateRequest,
+            @PathVariable(name = "answerId") Long answerId
+    ) {
+        log.info(answerUpdateRequest.toString());
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, answerUpdateRequest));
     }
 
     /**
@@ -124,14 +101,8 @@ public class AnswerController {
      * */
     @DeleteMapping("/{answerId}")
     public ResponseEntity<?> delete(@PathVariable(name = "answerId") Long answerId, HttpServletRequest request) {
-        try {
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            boolean isDeleted = answerService.delete(idFromToken, answerId);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, isDeleted);
-        } catch (NotFoundProgrammerException notFoundProgrammerException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
-        } catch (Exception e) {
-            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        boolean isDeleted = answerService.delete(idFromToken, answerId);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, isDeleted);
     }
 }

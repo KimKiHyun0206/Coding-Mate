@@ -27,7 +27,6 @@ public class ProgrammerController {
      * */
     @PostMapping
     public ResponseEntity<?> create(@RequestBody ProgrammerCreateRequest dto) {
-        log.info("create {}", dto.getLoginId());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.create(dto));
     }
 
@@ -36,7 +35,6 @@ public class ProgrammerController {
      * */
     @GetMapping("/login-id-exist")
     public ResponseEntity<?> isExistLoginId(@RequestParam("loginId") String loginId) {
-        log.info("isExistLoginId {}", loginId);
         boolean isExistLoginId = programmerService.isExistLoginId(loginId);
         if (!isExistLoginId) {
             return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, "존재하지 않는 ID입니다");
@@ -50,8 +48,8 @@ public class ProgrammerController {
      * */
     @GetMapping("/my-page")
     public ResponseEntity<?> myPage(HttpServletRequest request) {
-        Long loginIdFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-        MyPageResponse myPageResponse = programmerService.myPage(loginIdFromToken);
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        var myPageResponse = programmerService.myPage(idFromToken);
         log.info("myPage {}", myPageResponse.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, myPageResponse);
     }
@@ -73,12 +71,7 @@ public class ProgrammerController {
      * */
     //@GetMapping
     public ResponseEntity<?> readAll() {
-        log.info("readAll()");
-        try {
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.readAll());
-        } catch (Exception e) {
-            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.readAll());
     }
 
     /**
@@ -89,17 +82,9 @@ public class ProgrammerController {
      * */
     @PatchMapping
     public ResponseEntity<?> update(@RequestBody ProgrammerUpdateRequest programmerUpdateRequest, HttpServletRequest request) {
-        try {
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            log.info("update({}, {})", idFromToken, programmerUpdateRequest.toString());
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(idFromToken, programmerUpdateRequest));
-        } catch (UnMatchedAuthException unMatchedAuthException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, unMatchedAuthException.getMessage());
-        } catch (NotFoundProgrammerException notFoundProgrammerException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
-        } catch (Exception e) {
-            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        log.info("update({}, {})", idFromToken, programmerUpdateRequest.toString());
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.update(idFromToken, programmerUpdateRequest));
     }
 
     /**
@@ -109,14 +94,8 @@ public class ProgrammerController {
      * */
     @DeleteMapping
     public ResponseEntity<?> delete(HttpServletRequest request) {
-        try {
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            log.info("delete({})", idFromToken);
-            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(idFromToken));
-        } catch (NotFoundProgrammerException notFoundProgrammerException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
-        } catch (Exception e) {
-            return ResponseDto.toResponseEntity(ResponseMessage.INTERNAL_SERVER_ERROR, e.getMessage());
-        }
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        log.info("delete({})", idFromToken);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, programmerService.delete(idFromToken));
     }
 }

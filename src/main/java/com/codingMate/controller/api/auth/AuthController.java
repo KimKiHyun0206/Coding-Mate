@@ -50,16 +50,13 @@ public class AuthController {
      * */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        log.info("login({}, {})", loginRequest.getLoginId(), loginRequest.getPassword());
-        ProgrammerResponse programmerResponse = loginService.login(loginRequest.getLoginId(), loginRequest.getPassword());
+        var programmerResponse = loginService.login(loginRequest.getLoginId(), loginRequest.getPassword());
         String accessToken = tokenProvider.createAccessToken(programmerResponse.getId(), programmerResponse.getAuthority());
         String refreshToken = tokenProvider.createRefreshToken(programmerResponse.getId());
 
         refreshTokenService.saveToken(refreshToken, programmerResponse.getId(), programmerResponse.getAuthority());
         response.setHeader(header, accessToken);
         response.setHeader(refreshHeader, refreshToken);
-        log.info("TOKEN {} ", accessToken);
-        log.info("REFRESH TOKEN {}", refreshToken);
 
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, accessToken);
     }
@@ -70,62 +67,42 @@ public class AuthController {
      * */
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody ProgrammerCreateRequest programmerCreateRequest) throws IOException {
-        log.info("register()");
         var programmerDto = programmerService.create(programmerCreateRequest);
-        log.info("programmerDto {}", programmerDto.toString());
 
         return ResponseEntity.ok(ResponseMessage.SUCCESS);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> logout(HttpServletRequest request) {
         refreshTokenService.deleteRefreshToken(JwtUtil.getRefreshTokenFromHttpServletRequest(request));
-
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, "로그아웃 성공했습니다");
     }
 
     @DeleteMapping("/withdrawal")
     public ResponseEntity<?> withdrawal(HttpServletRequest request) {
-        try {
-            Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
-            boolean isDeleted = programmerService.delete(idFromToken);
-            if (isDeleted) return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT, "요청한 계정을 삭제했습니다");
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "요청한 계정을 삭제하지 못했습니다");
-        } catch (NotFoundProgrammerException notFoundProgrammerException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, notFoundProgrammerException.getMessage());
-        }
+        Long idFromToken = JwtUtil.getIdFromHttpServletRequest(request);
+        boolean isDeleted = programmerService.delete(idFromToken);
+        if (isDeleted) return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT, "요청한 계정을 삭제했습니다");
+        return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, "요청한 계정을 삭제하지 못했습니다");
+
     }
 
     @GetMapping("/access-token")
     public ResponseEntity<?> validateAccessToken(HttpServletRequest request) {
         String accessToken = JwtUtil.getAccessTokenFromHttpServletRequest(request);
-        log.info("validateAccessToken({})", accessToken);
-        try {
-            if (accessToken != null) {
-                if (tokenProvider.validateToken(accessToken)) {
-                    return ResponseEntity.ok(ResponseMessage.SUCCESS);
-                }
-            }
-            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, null);
-        } catch (ExpiredTokenException businessException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, businessException.getMessage());
+        if (tokenProvider.validateToken(accessToken)) {
+            return ResponseEntity.ok(ResponseMessage.SUCCESS);
         }
+        return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, null);
     }
 
     @GetMapping("/refresh-token")
     public ResponseEntity<?> newRefreshToken(HttpServletRequest request) {
-        try {
-            String refreshToken = JwtUtil.getRefreshTokenFromHttpServletRequest(request);
-            log.info("newRefreshToken({})", refreshToken);
-            if (refreshToken != null) {
-                TokenDto tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(refreshToken);
-                return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
-            }
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, null);
-        } catch (InvalidRefreshTokenException invalidRefreshTokenException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, invalidRefreshTokenException.getMessage());
-        } catch (BusinessException businessException) {
-            return ResponseDto.toResponseEntity(ResponseMessage.UNAUTHORIZED, businessException.getMessage());
+        String refreshToken = JwtUtil.getRefreshTokenFromHttpServletRequest(request);
+        if (refreshToken != null) {
+            TokenDto tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(refreshToken);
+            return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
         }
+        return ResponseDto.toResponseEntity(ResponseMessage.BAD_REQUEST, null);
     }
 }
