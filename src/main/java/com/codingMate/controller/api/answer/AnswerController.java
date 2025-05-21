@@ -51,13 +51,17 @@ public class AnswerController {
         );
     }
 
+
     @Operation(summary = "풀이 읽기", description = "작성된 풀이를 id값으로 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
             @ApiResponse(responseCode = "404", description = "유효한 풀이 ID가 아닙니다.")
     })
     @GetMapping("/{answerId}")
-    public ResponseEntity<ResponseDto<AnswerPageResponse>> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
+    public ResponseEntity<ResponseDto<AnswerPageResponse>> read(
+            @PathVariable(name = "answerId") Long id,
+            HttpServletRequest request
+    ) {
         Long idFromToken = JwtUtil.getId(request);
         var answerPageDto = answerService.read(id, idFromToken);
 
@@ -66,6 +70,7 @@ public class AnswerController {
                 answerPageDto
         );
     }
+
 
     @Operation(summary = "전체 풀이 읽기", description = "전체 풀이를 조회합니다.")
     @ApiResponses(value = {
@@ -82,6 +87,7 @@ public class AnswerController {
                 answerService.readAllToListResponse(language, backjoonId, pageable)
         );
     }
+
 
     @Operation(summary = "요청한 유저가 작성한 풀이 조회", description = "자신이 작성한 풀이만 조회합니다.")
     @ApiResponses(value = {
@@ -102,6 +108,7 @@ public class AnswerController {
         );
     }
 
+
     @Operation(summary = "풀이 수정", description = "작성된 풀이를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "풀이 수정 성공."),
@@ -116,6 +123,7 @@ public class AnswerController {
         Long idFromToken = JwtUtil.getId(request);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, answerUpdateRequest));
     }
+
 
     @Operation(summary = "풀이 삭제", description = "작성된 풀이를 id값으로 풀이 삭제")
     @ApiResponses(value = {
