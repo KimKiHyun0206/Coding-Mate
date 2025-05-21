@@ -1,6 +1,7 @@
 package com.codingMate.programmer.service;
 
 import com.codingMate.answer.repository.AnswerReadRepository;
+import com.codingMate.answer.repository.AnswerWriteRepository;
 import com.codingMate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingMate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingMate.programmer.dto.response.MyPageResponse;
@@ -29,6 +30,7 @@ public class ProgrammerService {
     private final ProgrammerWriteRepository writeRepository;
     private final ProgrammerReadRepository readRepository;
     private final AnswerReadRepository answerReadRepository;
+    private final AnswerWriteRepository answerWriteRepository;
 
     @Transactional
     public ProgrammerCreateResponse create(ProgrammerCreateRequest request) {
@@ -77,7 +79,7 @@ public class ProgrammerService {
     public void delete(Long id) {
         boolean isExist = defaultProgrammerRepository.existsById(id);
         if (isExist) {
-            long delete = customAnswerRepository.deleteByProgrammerId(id);
+            long delete = answerWriteRepository.deleteByProgrammerId(id);
             log.info("deleted answer {}", delete);
             defaultProgrammerRepository.deleteById(id);
         } else throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Delete또한 이루어지지 않았습니다" + id);
