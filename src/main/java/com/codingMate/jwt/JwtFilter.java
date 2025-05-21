@@ -3,6 +3,7 @@ package com.codingMate.jwt;
 import com.codingMate.exception.exception.jwt.ExpiredTokenException;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,7 +22,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 @Slf4j
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public class JwtFilter extends GenericFilterBean {
 
     @Value("${jwt.header}")
