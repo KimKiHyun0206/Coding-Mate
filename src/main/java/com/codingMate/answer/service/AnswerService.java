@@ -2,6 +2,8 @@ package com.codingMate.answer.service;
 
 import com.codingMate.answer.domain.Answer;
 import com.codingMate.answer.domain.vo.LanguageType;
+import com.codingMate.answer.repository.AnswerReadRepository;
+import com.codingMate.answer.repository.AnswerWriteRepository;
 import com.codingMate.programmer.domain.Programmer;
 import com.codingMate.answer.dto.request.AnswerCreateRequest;
 import com.codingMate.answer.dto.request.AnswerUpdateRequest;
@@ -12,7 +14,6 @@ import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchEx
 import com.codingMate.exception.exception.answer.AnswerNotCreateException;
 import com.codingMate.exception.exception.answer.NotFoundAnswerException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
-import com.codingMate.answer.repository.CustomAnswerRepository;
 import com.codingMate.answer.repository.DefaultAnswerRepository;
 import com.codingMate.programmer.repository.DefaultProgrammerRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AnswerService {
-    private final CustomAnswerRepository answerRepository;
+    private final AnswerReadRepository readRepository;
+    private final AnswerWriteRepository writeRepository;
     private final DefaultAnswerRepository defaultAnswerRepository;
     private final DefaultProgrammerRepository defaultProgrammerRepository;
 
@@ -42,7 +44,7 @@ public class AnswerService {
 
     @Transactional(readOnly = true)
     public AnswerPageResponse read(Long answerId, Long programmerId) {
-        var answer = answerRepository.read(answerId);
+        var answer = readRepository.read(answerId);
         if (answer == null) throw new AnswerNotCreateException("Answer를 조회하지 못했습니다. " + answerId);
 
         var response = AnswerPageResponse.from(answer);
@@ -53,24 +55,24 @@ public class AnswerService {
 
     @Transactional(readOnly = true)
     public List<AnswerListResponse> readAllToListResponse(LanguageType languageType, Long backjoonId) {
-        return answerRepository.readAll(languageType, backjoonId);
+        return readRepository.readAll(languageType, backjoonId);
     }
 
     @Transactional(readOnly = true)
     public List<AnswerListResponse> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
-        return answerRepository.readAllByProgrammerId(language, backjoonId, programmerId);
+        return readRepository.readAllByProgrammerId(language, backjoonId, programmerId);
     }
 
     @Transactional
     public AnswerPageResponse update(Long programmerId, Long answerId, AnswerUpdateRequest request) {
-        long changedRowNumber = answerRepository.update(programmerId, answerId, request);
+        long changedRowNumber = writeRepository.update(programmerId, answerId, request);
         if (changedRowNumber != 1) throw new NotFoundAnswerException(answerId);
         return read(answerId, programmerId);
     }
 
     @Transactional
     public void delete(Long programmerId, Long answerId) {
-        Answer answer = answerRepository.read(answerId);
+        Answer answer = readRepository.read(answerId);
         if (answer == null) throw new NotFoundAnswerException("삭제하기 위한 Answer를 조회할 수 없습니다. " + answerId);
         if (answer.getProgrammer().getId().equals(programmerId)) {
             defaultAnswerRepository.delete(answer);

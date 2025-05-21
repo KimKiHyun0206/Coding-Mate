@@ -1,5 +1,6 @@
 package com.codingMate.programmer.service;
 
+import com.codingMate.answer.repository.AnswerReadRepository;
 import com.codingMate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingMate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingMate.programmer.dto.response.MyPageResponse;
@@ -9,9 +10,10 @@ import com.codingMate.exception.dto.ErrorMessage;
 import com.codingMate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.exception.exception.programmer.ProgrammerNotCreateException;
-import com.codingMate.answer.repository.CustomAnswerRepository;
-import com.codingMate.programmer.repository.CustomProgrammerRepository;
 import com.codingMate.programmer.repository.DefaultProgrammerRepository;
+import com.codingMate.programmer.repository.ProgrammerReadRepository;
+import com.codingMate.programmer.repository.ProgrammerWriteRepository;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,36 +23,37 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProgrammerService {
     private final DefaultProgrammerRepository defaultProgrammerRepository;
-    private final CustomProgrammerRepository customProgrammerRepository;
-    private final CustomAnswerRepository customAnswerRepository;
+    private final ProgrammerWriteRepository writeRepository;
+    private final ProgrammerReadRepository readRepository;
+    private final AnswerReadRepository answerReadRepository;
 
     @Transactional
     public ProgrammerCreateResponse create(ProgrammerCreateRequest request) {
-        if (customProgrammerRepository.isExistLoginId(request.loginId()))
+        if (readRepository.isExistLoginId(request.loginId()))
             throw new DuplicateProgrammerLoginIdException(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION, "요청한 Id는 이미 존재하는 Id입니다");
 
-        var dto = customProgrammerRepository.create(request);
+        var dto = writeRepository.create(request);
         if (dto == null) throw new ProgrammerNotCreateException("Programmer가 생성되지 않았습니다. " + request);
         return ProgrammerCreateResponse.from(dto);
     }
 
     @Transactional(readOnly = true)
     public void isExistLoginId(String loginId) {
-        if (customProgrammerRepository.isExistLoginId(loginId))
+        if (readRepository.isExistLoginId(loginId))
             throw new DuplicateProgrammerLoginIdException(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION, "요청한 ID는 중복된 ID입니다. " + loginId);
     }
 
     @Transactional(readOnly = true)
     public MyPageResponse myPage(Long id) {
-        var programmer = customProgrammerRepository.read(id);
+        var programmer = readRepository.read(id);
         if (programmer == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
         return MyPageResponse.builder()
                 .name(programmer.getName().getName())
                 .tip(programmer.getTip())
-                .numberOfAnswer(customAnswerRepository.wroteAnswerByProgrammer(id))
+                .numberOfAnswer(answerReadRepository.countProgrammerWroteAnswer(id))
                 .email(programmer.getEmail().getEmail())
                 .githubId(programmer.getGithubId())
                 .build();
@@ -58,14 +61,14 @@ public class ProgrammerService {
 
     @Transactional(readOnly = true)
     public List<ProgrammerResponse> readAll() {
-        List<ProgrammerResponse> list = customProgrammerRepository.readAll().stream().map(ProgrammerResponse::from).toList();
+        List<ProgrammerResponse> list = readRepository.readAll().stream().map(ProgrammerResponse::from).toList();
         if (list.isEmpty()) throw new NotFoundProgrammerException("전체 Programmer를 조회할 수 없습니다.");
         return list;
     }
 
     @Transactional
     public void update(Long programmerId, ProgrammerUpdateRequest request) {
-        long changedRow = customProgrammerRepository.update(programmerId, request);
+        long changedRow = writeRepository.update(programmerId, request);
         if (changedRow != 1)
             throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Update또한 이루어지지 않았습니다" + programmerId);
     }
