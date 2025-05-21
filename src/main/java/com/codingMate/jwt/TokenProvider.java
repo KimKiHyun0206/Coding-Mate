@@ -5,7 +5,6 @@ import com.codingMate.exception.exception.jwt.ExpiredTokenException;
 import com.codingMate.exception.exception.jwt.IllegalTokenException;
 import com.codingMate.exception.exception.jwt.TokenSecutiryException;
 import com.codingMate.exception.exception.jwt.UnsupportedTokenException;
-import com.codingMate.service.redis.RefreshTokenService;
 import com.codingMate.util.DateUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -13,7 +12,6 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -23,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Slf4j

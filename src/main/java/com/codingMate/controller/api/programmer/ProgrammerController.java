@@ -2,11 +2,11 @@ package com.codingMate.controller.api.programmer;
 
 import com.codingMate.common.response.ResponseDto;
 import com.codingMate.common.response.ResponseMessage;
-import com.codingMate.dto.request.programmer.ProgrammerCreateRequest;
-import com.codingMate.dto.request.programmer.ProgrammerUpdateRequest;
-import com.codingMate.dto.response.programmer.MyPageResponse;
-import com.codingMate.dto.response.programmer.ProgrammerCreateResponse;
-import com.codingMate.service.programmer.ProgrammerService;
+import com.codingMate.programmer.dto.request.ProgrammerCreateRequest;
+import com.codingMate.programmer.dto.request.ProgrammerUpdateRequest;
+import com.codingMate.programmer.dto.response.MyPageResponse;
+import com.codingMate.programmer.dto.response.ProgrammerCreateResponse;
+import com.codingMate.programmer.service.ProgrammerService;
 import com.codingMate.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
