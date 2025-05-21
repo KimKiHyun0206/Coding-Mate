@@ -3,12 +3,11 @@ package com.codingMate.dto.response.answer;
 import com.codingMate.domain.answer.Answer;
 import com.codingMate.domain.answer.vo.LanguageType;
 import lombok.Builder;
-import lombok.Data;
-import lombok.Setter;
+import lombok.Getter;
 
 import java.util.Objects;
 
-@Data
+@Getter
 @Builder
 public class AnswerPageResponse {
     private Long id;

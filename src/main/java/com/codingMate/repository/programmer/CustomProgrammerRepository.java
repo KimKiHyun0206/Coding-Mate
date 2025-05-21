@@ -38,12 +38,12 @@ public class CustomProgrammerRepository {
                 .build();
 
         Programmer entity = Programmer.builder()
-                .email(new Email(dto.getEmail()))
-                .name(new Name(dto.getName()))
-                .githubId(dto.getGithubId())
-                .password(dto.getPassword())
+                .email(new Email(dto.email()))
+                .name(new Name(dto.name()))
+                .githubId(dto.githubId())
+                .password(dto.password())
                 .authority(authority)
-                .loginId(dto.getLoginId())
+                .loginId(dto.loginId())
                 .tip("팁이 있다면 공유해주세요")
                 .build();
 
@@ -101,10 +101,10 @@ public class CustomProgrammerRepository {
     public long update(Long programmerId, ProgrammerUpdateRequest dto) {
         return queryFactory.update(programmer)
                 .where(programmer.id.eq(programmerId))
-                .set(programmer.name.name, dto.getName() == null ? null : dto.getName())
-                .set(programmer.email.email, dto.getEmail() == null ? null : dto.getEmail())
-                .set(programmer.githubId, dto.getGithubId() == null ? null : dto.getGithubId())
-                .set(programmer.tip, dto.getTip() == null ? null : dto.getTip())
+                .set(programmer.name.name, dto.name() == null ? null : dto.name())
+                .set(programmer.email.email, dto.email() == null ? null : dto.email())
+                .set(programmer.githubId, dto.githubId() == null ? null : dto.githubId())
+                .set(programmer.tip, dto.tip() == null ? null : dto.tip())
                 .execute();
     }
 

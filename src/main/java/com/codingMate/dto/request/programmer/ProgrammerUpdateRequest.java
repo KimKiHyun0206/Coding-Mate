@@ -1,11 +1,4 @@
 package com.codingMate.dto.request.programmer;
 
-import lombok.Data;
-
-@Data
-public class ProgrammerUpdateRequest {
-    private String githubId;
-    private String name;
-    private String email;
-    private String tip;
+public record ProgrammerUpdateRequest(String githubId, String name, String email, String tip) {
 }

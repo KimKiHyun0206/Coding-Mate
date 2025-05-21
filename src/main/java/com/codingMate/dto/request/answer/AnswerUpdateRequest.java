@@ -3,11 +3,11 @@ package com.codingMate.dto.request.answer;
 import com.codingMate.domain.answer.vo.LanguageType;
 import lombok.Data;
 
-@Data
-public class AnswerUpdateRequest {
-    private Long backjoonId;
-    private String code;
-    private String title;
-    private String explanation;
-    private LanguageType languageType;
-}
+
+public record AnswerUpdateRequest(
+        Long backjoonId,
+        String code,
+        String title,
+        String explanation,
+        LanguageType languageType)
+{}

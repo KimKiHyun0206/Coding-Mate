@@ -2,16 +2,8 @@ package com.codingMate.dto.request.answer;
 
 import com.codingMate.domain.answer.Answer;
 import com.codingMate.domain.answer.vo.LanguageType;
-import lombok.Data;
 
-@Data
-public class AnswerCreateRequest {
-    private String code;
-    private String title;
-    private String explanation;
-    private LanguageType languageType;
-    private Long backjoonId;
-
+public record AnswerCreateRequest(String code, String title, String explanation, LanguageType languageType, Long backjoonId) {
     public Answer toEntity(){
         return Answer.builder()
                 .code(code)

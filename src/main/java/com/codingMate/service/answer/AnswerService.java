@@ -8,20 +8,17 @@ import com.codingMate.dto.request.answer.AnswerUpdateRequest;
 import com.codingMate.dto.response.answer.AnswerCreateResponse;
 import com.codingMate.dto.response.answer.AnswerListResponse;
 import com.codingMate.dto.response.answer.AnswerPageResponse;
-import com.codingMate.dto.response.answer.AnswerResponse;
 import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
 import com.codingMate.exception.exception.answer.AnswerNotCreateException;
 import com.codingMate.exception.exception.answer.NotFoundAnswerException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.repository.answer.CustomAnswerRepository;
 import com.codingMate.repository.answer.DefaultAnswerRepository;
-import com.codingMate.repository.programmer.CustomProgrammerRepository;
 import com.codingMate.repository.programmer.DefaultProgrammerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 

@@ -46,11 +46,11 @@ public class AuthController {
      * */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
-        var programmerResponse = loginService.login(loginRequest.getLoginId(), loginRequest.getPassword());
-        String accessToken = tokenProvider.createAccessToken(programmerResponse.getId(), programmerResponse.getAuthority());
-        String refreshToken = tokenProvider.createRefreshToken(programmerResponse.getId());
+        var programmerResponse = loginService.login(loginRequest.loginId(), loginRequest.password());
+        String accessToken = tokenProvider.createAccessToken(programmerResponse.id(), programmerResponse.authority());
+        String refreshToken = tokenProvider.createRefreshToken(programmerResponse.id());
 
-        refreshTokenService.saveToken(refreshToken, programmerResponse.getId(), programmerResponse.getAuthority());
+        refreshTokenService.saveToken(refreshToken, programmerResponse.id(), programmerResponse.authority());
         response.setHeader(header, accessToken);
         response.setHeader(refreshHeader, refreshToken);
 

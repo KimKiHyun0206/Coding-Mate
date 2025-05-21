@@ -32,7 +32,7 @@ public class ProgrammerService {
 
     @Transactional
     public ProgrammerCreateResponse create(ProgrammerCreateRequest request) {
-        if (customProgrammerRepository.isExistLoginId(request.getLoginId()))
+        if (customProgrammerRepository.isExistLoginId(request.loginId()))
             throw new DuplicateProgrammerLoginIdException(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION, "요청한 Id는 이미 존재하는 Id입니다");
 
         var dto = customProgrammerRepository.create(request);
@@ -42,16 +42,21 @@ public class ProgrammerService {
 
     @Transactional(readOnly = true)
     public void isExistLoginId(String loginId) {
-        if (customProgrammerRepository.isExistLoginId(loginId)) throw new DuplicateProgrammerLoginIdException(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION, "요청한 ID는 중복된 ID입니다. " + loginId);
+        if (customProgrammerRepository.isExistLoginId(loginId))
+            throw new DuplicateProgrammerLoginIdException(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION, "요청한 ID는 중복된 ID입니다. " + loginId);
     }
 
     @Transactional(readOnly = true)
     public MyPageResponse myPage(Long id) {
         var programmer = customProgrammerRepository.read(id);
         if (programmer == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
-        var myPageResponse = MyPageResponse.from(programmer);
-        myPageResponse.setNumberOfAnswer(customAnswerRepository.wroteAnswerByProgrammer(id));
-        return myPageResponse;
+        return MyPageResponse.builder()
+                .name(programmer.getName().getName())
+                .tip(programmer.getTip())
+                .numberOfAnswer(customAnswerRepository.wroteAnswerByProgrammer(id))
+                .email(programmer.getEmail().getEmail())
+                .githubId(programmer.getGithubId())
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -64,7 +69,8 @@ public class ProgrammerService {
     @Transactional
     public void update(Long programmerId, ProgrammerUpdateRequest request) {
         long changedRow = customProgrammerRepository.update(programmerId, request);
-        if (changedRow != 1) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Update또한 이루어지지 않았습니다" + programmerId);
+        if (changedRow != 1)
+            throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. 따라서 Update또한 이루어지지 않았습니다" + programmerId);
     }
 
     @Transactional

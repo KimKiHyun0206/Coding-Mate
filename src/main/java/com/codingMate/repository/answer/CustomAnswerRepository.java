@@ -31,14 +31,10 @@ public class CustomAnswerRepository {
 
     @Transactional
     public Answer create(Programmer programmer, AnswerCreateRequest answerCreateRequest) {
-        log.info("create({}, {})", programmer.toString(), answerCreateRequest.getCode());
-
         Answer entity = answerCreateRequest.toEntity();
         entity.setProgrammer(programmer);
-        log.info(entity.toString());
-        Answer saved = answerRepository.save(entity);
-        log.info(saved.toString());
-        return saved;
+
+        return answerRepository.save(entity);
     }
 
     @Transactional(readOnly = true)
@@ -85,10 +81,10 @@ public class CustomAnswerRepository {
         return queryFactory.update(answer)
                 .where(answer.id.eq(answerId))
                 .where(answer.programmer.id.eq(programmerId))
-                .set(answer.code, dto.getCode() == null ? null : dto.getCode())
-                .set(answer.languageType, dto.getLanguageType() == null ? null : dto.getLanguageType())
-                .set(answer.explanation, dto.getExplanation() == null ? null : dto.getExplanation())
-                .set(answer.title, dto.getTitle() == null ? null : dto.getTitle())
+                .set(answer.code, dto.code() == null ? null : dto.code())
+                .set(answer.languageType, dto.languageType() == null ? null : dto.languageType())
+                .set(answer.explanation, dto.explanation() == null ? null : dto.explanation())
+                .set(answer.title, dto.title() == null ? null : dto.title())
                 .execute();
     }
 

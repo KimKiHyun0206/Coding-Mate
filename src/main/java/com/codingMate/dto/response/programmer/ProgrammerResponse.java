@@ -1,22 +1,18 @@
 package com.codingMate.dto.response.programmer;
 
 import com.codingMate.domain.programmer.Programmer;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 
-@Data
 @Builder
-public class ProgrammerResponse {
-    private Long id;
-    private String loginId;
-    private String githubLink;
-    private String password;
-    private String name;
-    private String email;
-    private String tip;
-    private String authority;
-
+public record ProgrammerResponse(
+        Long id,
+        String loginId,
+        String githubLink,
+        String password,
+        String name,
+        String email,
+        String tip,
+        String authority) {
     public static ProgrammerResponse from(Programmer programmer) {
         return ProgrammerResponse.builder()
                 .id(programmer.getId())

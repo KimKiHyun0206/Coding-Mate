@@ -3,9 +3,6 @@ package com.codingMate.domain.answer;
 import com.codingMate.common.BaseEntity;
 import com.codingMate.domain.answer.vo.LanguageType;
 import com.codingMate.domain.programmer.Programmer;
-import com.codingMate.dto.response.answer.AnswerPageResponse;
-import com.codingMate.dto.response.answer.AnswerResponse;
-import com.codingMate.dto.response.programmer.ProgrammerResponse;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,31 +45,5 @@ public class Answer extends BaseEntity {
         this.explanation = explanation;
         this.languageType = languageType;
         this.programmer = programmer;
-    }
-
-    public AnswerResponse toDto(){
-        return AnswerResponse.builder()
-                .id(this.id)
-                .title(this.title)
-                .code(this.code)
-                .explanation(this.explanation)
-                .languageType(this.languageType)
-                .backjoonId(this.backJoonId)
-                .programmer(ProgrammerResponse.from(this.programmer))
-                .build();
-    }
-
-    public AnswerPageResponse toAnswerPageDto(){
-        return AnswerPageResponse.builder()
-                .id(id)
-                .backjoonId(backJoonId)
-                .title(title)
-                .code(code)
-                .explanation(explanation)
-                .programmerName(programmer.getName().getName())
-                .languageType(languageType)
-                .isRequesterIsOwner(false)
-                .programmerId(programmer.getId())
-                .build();
     }
 }
