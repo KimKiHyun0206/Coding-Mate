@@ -55,6 +55,7 @@ public class AnswerController {
     @Operation(summary = "풀이 읽기", description = "작성된 풀이를 id값으로 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
+            @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다."),
             @ApiResponse(responseCode = "404", description = "유효한 풀이 ID가 아닙니다.")
     })
     @GetMapping("/{answerId}")
@@ -75,6 +76,7 @@ public class AnswerController {
     @Operation(summary = "전체 풀이 읽기", description = "전체 풀이를 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
+            @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다.")
     })
     @GetMapping("/all")
     public ResponseEntity<ResponseDto<Page<AnswerListResponse>>> readAll(
@@ -92,6 +94,7 @@ public class AnswerController {
     @Operation(summary = "요청한 유저가 작성한 풀이 조회", description = "자신이 작성한 풀이만 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
+            @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다.")
     })
     @GetMapping("/programmer")
     public ResponseEntity<ResponseDto<Page<AnswerListResponse>>> readByProgrammer(
@@ -112,6 +115,7 @@ public class AnswerController {
     @Operation(summary = "풀이 수정", description = "작성된 풀이를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "풀이 수정 성공."),
+            @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다."),
             @ApiResponse(responseCode = "404", description = "유효한 풀이 ID가 아닙니다.")
     })
     @PatchMapping("/{answerId}")
@@ -129,6 +133,7 @@ public class AnswerController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "풀이 삭제 성공."),
             @ApiResponse(responseCode = "400", description = "요청자가 작성한 풀이가 아닙니다."),
+            @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다."),
             @ApiResponse(responseCode = "404", description = "유효한 풀이 ID가 아닙니다.")
     })
     @DeleteMapping("/{answerId}")
