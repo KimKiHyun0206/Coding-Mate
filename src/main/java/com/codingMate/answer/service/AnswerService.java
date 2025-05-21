@@ -16,6 +16,7 @@ import com.codingMate.exception.exception.answer.NotFoundAnswerException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.answer.repository.DefaultAnswerRepository;
 import com.codingMate.programmer.repository.DefaultProgrammerRepository;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AnswerService {
     private final AnswerReadRepository readRepository;
     private final AnswerWriteRepository writeRepository;

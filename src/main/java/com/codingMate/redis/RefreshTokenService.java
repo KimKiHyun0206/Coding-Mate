@@ -27,7 +27,7 @@ public class RefreshTokenService {
         this.tokenProvider = tokenProvider;
     }
 
-    public RedisCacheInfo saveToken(String token, Long id, String authority) {
+    public void saveToken(String token, Long id, String authority) {
         LocalDateTime now = LocalDateTime.now();
         RedisCacheInfo info = RedisCacheInfo.builder()
                 .authority(authority)
@@ -37,8 +37,6 @@ public class RefreshTokenService {
                 .build();
         log.info("save({}, {})", token, info);
         valueOperations.set(token, info);
-
-        return info;
     }
 
     public void deleteRefreshToken(String token) {

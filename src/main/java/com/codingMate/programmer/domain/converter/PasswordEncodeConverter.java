@@ -3,11 +3,12 @@ package com.codingMate.programmer.domain.converter;
 import com.codingMate.programmer.domain.vo.Password;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Converter
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class PasswordEncodeConverter implements AttributeConverter<String, String> {
     private final PasswordEncoder passwordEncoder;
 

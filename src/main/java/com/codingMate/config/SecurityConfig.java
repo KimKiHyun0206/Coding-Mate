@@ -3,6 +3,7 @@ package com.codingMate.config;
 import com.codingMate.jwt.JwtAccessDeniedHandler;
 import com.codingMate.jwt.JwtAuthenticationEntryPoint;
 import com.codingMate.jwt.TokenProvider;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -17,13 +18,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
-@RequiredArgsConstructor
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class SecurityConfig {
-    private final TokenProvider tokenProvider;
     private final CorsFilter corsFilter;
+    private final TokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 

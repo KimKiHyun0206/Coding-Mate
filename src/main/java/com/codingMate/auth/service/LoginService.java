@@ -6,6 +6,7 @@ import com.codingMate.exception.dto.ErrorMessage;
 import com.codingMate.exception.exception.programmer.LoginIdNotMatchException;
 import com.codingMate.exception.exception.programmer.PasswordNotMatchException;
 import com.codingMate.programmer.repository.ProgrammerReadRepository;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class LoginService {
     private final ProgrammerReadRepository programmerReadRepository;
     private final PasswordEncoder passwordEncoder;

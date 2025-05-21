@@ -1,7 +1,6 @@
 package com.codingMate.common.response;
 
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;

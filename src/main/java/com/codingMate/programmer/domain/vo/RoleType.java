@@ -1,10 +1,11 @@
 package com.codingMate.programmer.domain.vo;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public enum RoleType {
 
     USER("USER", "유저"),

@@ -1,5 +1,6 @@
 package com.codingMate.common.response;
 
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -8,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 @Data
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class PageDto<T> {
     private final List<T> data;
     private final int page;
