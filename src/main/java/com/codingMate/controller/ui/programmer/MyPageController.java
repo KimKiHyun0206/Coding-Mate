@@ -18,6 +18,6 @@ public class MyPageController {
 
     @RequestMapping("/my-page/answer")
     public String myAnswer(){
-        return "programmer/my_page_answer";
+        return "programmer/answer_list_paging";
     }
 }

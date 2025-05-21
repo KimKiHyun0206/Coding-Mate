@@ -362,7 +362,7 @@
     }
 
     async function fetchDataWithAuth(url, options = {}) {
-        const createdHeader = createAuthHeaderFromLocalStorage();
+        const createdHeader = create_header();
         const newOptions = {...options, headers: createdHeader};
         const response = await fetch(url, newOptions);
 
@@ -379,7 +379,7 @@
         return response.json();
     }
 
-    function createAuthHeaderFromLocalStorage() {
+    function create_header() {
         const authToken = localStorage.getItem('Coding-Mate-Auth');
         const headers = {};
         if (authToken) {
@@ -400,7 +400,7 @@
         if (confirm('정말로 계정을 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
             fetch('/api/v1/auth/withdrawal', { // 실제 계정 탈퇴 API 엔드포인트로 변경해야 합니다.
                 method: 'DELETE',
-                headers: createAuthHeaderFromLocalStorage()
+                headers: create_header()
             })
                 .then(response => {
                     if (response.status === 204) {

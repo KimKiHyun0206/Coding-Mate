@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문제 목록</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/table.css">
+    <link rel="stylesheet" href="/css/basic.css">
+    <style>
+        /* 기존 CSS 유지 */
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 960px; /* 최대 너비 증가 */
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* 검색창 중앙 정렬 */
+        }
+
+        .search-container {
+            display: flex;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px; /* 검색 컨테이너 너비 증가 */
+            justify-content: center; /* 검색창 내부 요소 중앙 정렬 */
+            gap: 10px; /* 검색 입력 필드와 버튼 사이 간격 */
+        }
+
+        .search-container input[type="number"],
+        .search-container select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+
+        .search-container input[type="number"] {
+            flex-grow: 1;
+            max-width: 200px; /* 백준 ID 입력 필드 최대 너비 */
+        }
+
+        .search-container select {
+            width: 150px; /* 언어 선택 드롭다운 너비 */
+        }
+
+        .search-container button {
+            background-color: #333333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+
+        .search-container button:hover {
+            background-color: gray;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+
+        .create-problem-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 1em;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+        }
+
+        .create-problem-button:hover {
+            background-color: gray;
+        }
+
+        /* 링크 스타일 */
+        .answer-link {
+            color: inherit; /* 링크 색상을 부모 요소의 색상으로 상속 */
+            text-decoration: none;
+        }
+
+        .answer-link:hover {
+            /* 호버 시에도 밑줄 없음 */
+        }
+
+        /* Pagination CSS */
+        .pagination-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .pagination-container button {
+            background-color: #333;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .pagination-container button:hover:not(:disabled) {
+            background-color: gray;
+        }
+
+        .pagination-container button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .pagination-info {
+            font-size: 0.9em;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>문제 목록</h1>
+    <div class="search-container">
+        <input type="number" id="searchBackjoonId" placeholder="백준 ID로 검색">
+        <select id="searchLanguage">
+            <option value="">전체 언어</option>
+            <option value="JAVA">Java</option>
+            <option value="C">C</option>
+            <option value="CPP">C++</option>
+            <option value="PYTHON">Python</option>
+            <option value="JAVASCRIPT">JavaScript</option>
+        </select>
+        <button onclick="search_problems()">검색</button>
+    </div>
+    <table>
+        <thead>
+        <tr>
+            <th>백준 ID</th>
+            <th>제목</th>
+            <th>언어</th>
+            <th>작성자</th>
+        </tr>
+        </thead>
+        <tbody id="problemListBody">
+        </tbody>
+    </table>
+    <p id="noProblems" class="no-results" style="display: none;">등록된 문제가 없습니다.</p>
+
+    <div class="pagination-container">
+        <button id="prevPageBtn" onclick="change_page(-1)" disabled>이전</button>
+        <span id="pageInfo" class="pagination-info"></span>
+        <button id="nextPageBtn" onclick="change_page(1)" disabled>다음</button>
+    </div>
+</div>
+
+<button class="create-problem-button" onclick="location.href='/answer/write'">문제 생성</button>
+
+<script>
+    // 전역 변수로 현재 페이지 정보와 페이지 크기 설정
+    let currentPage = 0; // Spring Data JPA는 페이지 번호를 0부터 시작
+    const pageSize = 20; // 한 페이지에 표시할 항목 수
+
+    // 서버 응답에서 받아올 페이징 정보 (초기화)
+    let totalPages = 0;
+    let totalElements = 0;
+
+    //로그인 여부에 따라 navbar가 바뀌도록 함
+    document.addEventListener('DOMContentLoaded', function () {
+        check_and_refresh_access_token_for_navbar();
+        // 페이지 로드 시 첫 페이지 문제 목록 불러오기
+        fetch_problem_list(currentPage, pageSize);
+    });
+
+    async function check_and_refresh_access_token_for_navbar() {
+        console.log('checkAndRefreshAccessTokenForNavbar');
+        const accessToken = localStorage.getItem('Coding-Mate-Auth');
+        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
+        const navElement = document.getElementById('mainNav');
+        const navLeft = navElement.querySelector('.nav-left');
+        const navRight = navElement.querySelector('.nav-right');
+
+        if (accessToken) {
+
+            const response = await fetch('/api/v1/auth/access-token', {
+                method: 'POST',
+                headers: {
+                    'Coding-Mate-Auth': accessToken
+                }
+            });
+
+            if (response.ok) {
+                update_navbar_authenticated(navLeft, navRight);
+                return true;
+            } else if (response.status === 401 && refreshToken) {
+                const refreshResult = await refresh_access_token();
+                if (refreshResult) {
+                    update_navbar_authenticated(navLeft, navRight);
+                    return true;
+                }
+            }
+        }
+    }
+
+    async function refresh_access_token() {
+        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
+        if (!refreshToken) {
+            console.log('Refresh Token이 없습니다.');
+            return false;
+        }
+        try {
+            const refreshResponse = await fetch('/api/v1/auth/refresh-token', {
+                method: 'POST',
+                headers: {
+                    'Coding-Mate-Auth-Ref': `${refreshToken}`
+                }
+            });
+
+            if (refreshResponse.ok) {
+                const newTokenData = await refreshResponse.json();
+                if (newTokenData && newTokenData.data && newTokenData.data.accessToken && newTokenData.data.refreshToken) {
+                    localStorage.setItem('Coding-Mate-Auth', newTokenData.data.accessToken);
+                    localStorage.setItem('Coding-Mate-Auth-Ref', newTokenData.data.refreshToken);
+                    console.log('토큰 갱신 성공:', newTokenData.data);
+                    return true;
+                } else {
+                    console.error('새로운 토큰 응답에 accessToken 또는 refreshToken 없음:', newTokenData);
+                    localStorage.removeItem('Coding-Mate-Auth');
+                    localStorage.removeItem('Coding-Mate-Auth-Ref');
+                    return false;
+                }
+            } else {
+                console.error('Refresh Token 요청 실패:', refreshResponse.status);
+                localStorage.removeItem('Coding-Mate-Auth');
+                localStorage.removeItem('Coding-Mate-Auth-Ref');
+                return false;
+            }
+        } catch (error) {
+            console.error('Refresh Token 요청 중 오류:', error);
+            localStorage.removeItem('Coding-Mate-Auth');
+            localStorage.removeItem('Coding-Mate-Auth-Ref');
+            return false;
+        }
+    }
+
+    function update_navbar_authenticated(navLeft, navRight) {
+        navLeft.innerHTML = `
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    `;
+        navRight.innerHTML = `
+        <a href="/my-page">프로필</a>
+        <a href="#" id="logoutButton">로그아웃</a>
+    `;
+
+        const logoutButton = document.getElementById('logoutButton');
+        if (logoutButton) {
+            logoutButton.addEventListener('click', function (event) {
+                event.preventDefault(); // <a> 태그의 기본 동작(페이지 이동) 방지
+                logout(); // 로그아웃 함수 호출 (이전에 정의한 함수)
+            });
+        }
+    }
+
+    function logout() {
+        fetch('/api/v1/auth/logout', { // 서버의 로그아웃 엔드포인트로 요청
+            method: 'POST',
+            headers: {
+                'Coding-Mate-Auth-Ref': localStorage.getItem('Coding-Mate-Auth-Ref')
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    localStorage.removeItem('Coding-Mate-Auth');
+                    localStorage.removeItem('Coding-Mate-Auth-Ref');
+                    alert('로그아웃 되었습니다.');
+                    window.location.href = '/login'; // 로그인 페이지로 리다이렉트
+                } else {
+                    console.error('로그아웃 실패:', response.status);
+                    alert('로그아웃에 실패했습니다.');
+                }
+            })
+            .catch(error => {
+                console.error('로그아웃 요청 실패:', error);
+                alert('로그아웃 요청에 실패했습니다.');
+            });
+    }
+
+    // `page`와 `size` 파라미터 추가
+    function fetch_problem_list(page, size, searchId, searchLanguage) {
+        console.log(`[fetch_problem_list] API 호출 시작: page=${page}, size=${size}, searchId=${searchId}, searchLanguage=${searchLanguage}`);
+        let url = `/api/v1/answer/programmer?page=${page}&size=${size}`; // 페이징 파라미터 추가
+        const queryParams = [];
+
+        // 검색 조건이 있을 경우에만 쿼리 파라미터에 추가
+        if (searchId) {
+            queryParams.push(`backjoonId=${searchId}`);
+        }
+        if (searchLanguage) {
+            queryParams.push(`language=${searchLanguage}`);
+        }
+
+        if (queryParams.length > 0) {
+            url += `&${queryParams.join('&')}`; // 기존 페이징 파라미터에 추가
+        }
+
+        console.log(`[fetch_problem_list] 요청 URL: ${url}`);
+
+        fetch(url, {
+            headers: create_header()
+        })
+            .then(response => {
+                if (!response.ok) {
+                    console.error(`[fetch_problem_list] HTTP 에러: ${response.status}`);
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                console.log("[fetch_problem_list] 서버 응답 전체:", responseData);
+
+                // 서버 응답에서 'data' 필드 안에 Page 객체가 있는지 확인
+                if (responseData && responseData.data) {
+                    const problemPage = responseData.data; // 서버로부터 Page 객체를 받음
+                    const problemList = problemPage.content; // 실제 문제 목록
+
+                    console.log("[fetch_problem_list] 추출된 Page 객체:", problemPage);
+                    console.log("[fetch_problem_list] 추출된 content (문제 목록):", problemList);
+
+                    // 전역 변수 업데이트
+                    totalPages = problemPage.totalPages;
+                    totalElements = problemPage.totalElements;
+                    currentPage = problemPage.number;
+
+                    display_problem_list(problemList); // 문제 목록을 화면에 표시
+                    update_pagination_buttons(); // 페이징 버튼 상태 업데이트
+                } else {
+                    console.warn("[fetch_problem_list] 응답 데이터에 'data' 필드 또는 Page 객체가 없습니다.", responseData);
+                    display_problem_list([]); // 데이터 없으면 빈 목록으로 표시
+                    update_pagination_buttons(); // 버튼 비활성화
+                }
+            })
+            .catch(error => {
+                console.error('[fetch_problem_list] 문제 목록을 불러오는 데 실패했습니다:', error);
+                alert('문제 목록을 불러오는 데 실패했습니다.');
+                display_problem_list([]); // 오류 시 목록 비우고 "없음" 표시
+                update_pagination_buttons(); // 오류 시 버튼 비활성화
+            });
+    }
+
+    function display_problem_list(problemList) {
+        console.log('--- [display_problem_list] 함수 시작 ---');
+        console.log('[display_problem_list] 전달된 problemList:', problemList);
+
+        const problemListBody = document.getElementById('problemListBody');
+        const noProblemsElement = document.getElementById('noProblems');
+
+        if (!problemListBody) {
+            console.error("[display_problem_list] Error: 'problemListBody' element not found! HTML ID를 확인하세요.");
+            return;
+        }
+
+        problemListBody.innerHTML = ''; // 기존 목록 초기화
+
+        if (problemList && Array.isArray(problemList) && problemList.length > 0) {
+            console.log('[display_problem_list] 문제 목록 존재. 테이블 렌더링 시작...');
+            problemList.forEach(problem => {
+                // 각 문제 객체의 모든 필드를 콘솔에 출력하여 확인
+                console.log('[display_problem_list] 현재 처리 중인 문제 객체:', problem);
+                console.log('  - answerId:', problem.answerId);
+                console.log('  - backjoonId:', problem.backjoonId);
+                console.log('  - title:', problem.title);
+                console.log('  - programmerName:', problem.programmerName);
+                console.log('  - languageType:', problem.languageType);
+
+
+                const row = problemListBody.insertRow();
+                const backjoonIdCell = row.insertCell();
+                const titleCell = row.insertCell();
+                const languageCell = row.insertCell();
+                const programmerNameCell = row.insertCell();
+
+                // 필드명은 서버 응답의 JSON 키와 정확히 일치해야 합니다.
+                // 만약 'backjoonId' 대신 'backJoonId'였다면 problem.backJoonId 로 접근해야 합니다.
+                backjoonIdCell.textContent = problem.backjoonId;
+
+                const titleLink = document.createElement('a');
+                titleLink.href = `/answer/${problem.answerId}`;
+                titleLink.textContent = problem.title;
+                titleLink.classList.add('answer-link');
+                titleCell.appendChild(titleLink);
+                titleLink.target = '_blank'; // 새 탭에서 열기
+
+                languageCell.textContent = problem.languageType || '알 수 없음';
+                programmerNameCell.textContent = problem.programmerName || '알 수 없음';
+            });
+            noProblemsElement.style.display = 'none';
+            console.log('[display_problem_list] 테이블 렌더링 완료.');
+        } else {
+            console.log('[display_problem_list] 문제 목록이 비어 있거나 유효하지 않아 "등록된 문제가 없습니다."를 표시합니다.');
+            noProblemsElement.style.display = 'block';
+        }
+        console.log('--- [display_problem_list] 함수 종료 ---');
+    }
+
+    // 검색 버튼 클릭 시 호출될 함수
+    function search_problems() {
+        // 검색 시에는 항상 첫 페이지(0)부터 조회하도록 설정
+        currentPage = 0;
+        const searchBackjoonIdInput = document.getElementById('searchBackjoonId');
+        const searchLanguageSelect = document.getElementById('searchLanguage');
+        const searchId = searchBackjoonIdInput.value.trim();
+        const searchLanguage = searchLanguageSelect.value;
+        fetch_problem_list(currentPage, pageSize, searchId, searchLanguage);
+    }
+
+    // 페이지 변경 함수
+    function change_page(direction) {
+        const newPage = currentPage + direction;
+        // totalPages가 0인 경우를 대비하여 totalPages || 1 로 처리하여 나누기 0 오류 방지
+        if (newPage >= 0 && newPage < totalPages) { // totalPages가 0이면 이 조건은 false가 됨
+            currentPage = newPage;
+            // 검색 파라미터도 함께 전달하여 현재 검색 상태 유지
+            const searchId = document.getElementById('searchBackjoonId').value.trim();
+            const searchLanguage = document.getElementById('searchLanguage').value;
+            fetch_problem_list(currentPage, pageSize, searchId, searchLanguage);
+        } else {
+            console.log(`[change_page] 페이지 이동 불가: 현재 페이지 ${currentPage + 1}, 요청 페이지 ${newPage + 1}, 전체 페이지 ${totalPages}`);
+        }
+    }
+
+    // 페이징 버튼 상태 업데이트
+    function update_pagination_buttons() {
+        const prevBtn = document.getElementById('prevPageBtn');
+        const nextBtn = document.getElementById('nextPageBtn');
+        const pageInfoSpan = document.getElementById('pageInfo');
+
+        // totalPages가 0이면 페이지 정보에 1/1로 표시 (또는 0/0으로 표시하고 싶다면 조건 변경)
+        const displayTotalPages = totalPages === 0 ? 1 : totalPages;
+        pageInfoSpan.textContent = `페이지 ${currentPage + 1} / ${displayTotalPages} (총 ${totalElements}개)`;
+
+        // 이전 버튼 활성화/비활성화
+        prevBtn.disabled = (currentPage === 0);
+
+        // 다음 버튼 활성화/비활성화
+        nextBtn.disabled = (currentPage >= totalPages - 1 || totalPages === 0);
+        console.log(`[update_pagination_buttons] prevBtn.disabled: ${prevBtn.disabled}, nextBtn.disabled: ${nextBtn.disabled}`);
+        console.log(`[update_pagination_buttons] 현재 페이지: ${currentPage}, 전체 페이지: ${totalPages}, 전체 항목: ${totalElements}`);
+    }
+
+    function create_header() {
+        const authToken = localStorage.getItem('Coding-Mate-Auth');
+        const headers = {};
+        if (authToken) {
+            headers['Coding-Mate-Auth'] = `${authToken}`;
+        }
+        return headers;
+    }
+</script>
+</body>
+</html>

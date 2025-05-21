@@ -19,6 +19,8 @@ import com.codingMate.programmer.repository.DefaultProgrammerRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,13 +57,13 @@ public class AnswerService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerListResponse> readAllToListResponse(LanguageType languageType, Long backjoonId) {
-        return readRepository.readAll(languageType, backjoonId);
+    public Page<AnswerListResponse> readAllToListResponse(LanguageType languageType, Long backjoonId, Pageable pageable) {
+        return readRepository.readAll(languageType, backjoonId, pageable);
     }
 
     @Transactional(readOnly = true)
-    public List<AnswerListResponse> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId) {
-        return readRepository.readAllByProgrammerId(language, backjoonId, programmerId);
+    public Page<AnswerListResponse> readAllByProgrammerId(LanguageType language, Long backjoonId, Long programmerId, Pageable pageable) {
+        return readRepository.readAllByProgrammerId(language, backjoonId, programmerId, pageable);
     }
 
     @Transactional

@@ -10,10 +10,16 @@ import com.codingMate.answer.dto.response.AnswerListResponse;
 import com.codingMate.answer.dto.response.AnswerPageResponse;
 import com.codingMate.answer.service.AnswerService;
 import com.codingMate.util.JwtUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,11 +33,11 @@ import java.util.List;
 public class AnswerController {
     private final AnswerService answerService;
 
-    /**
-     * @apiNote 풀이 생성 API
-     * @param request 토큰을 받아오기 위한 매개변수
-     * @param answerCreateRequest 생성할 문제의 정보를 가져옴
-     * */
+    @Operation(summary = "풀이 생성", description = "새로운 풀이를 생성한다")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "풀이 생성 성공."),
+            @ApiResponse(responseCode = "404", description = "풀이 생성 전 인증에 실패했습니다.")
+    })
     @PostMapping
     public ResponseEntity<ResponseDto<AnswerCreateResponse>> create(
             @RequestBody AnswerCreateRequest answerCreateRequest,
@@ -45,12 +51,11 @@ public class AnswerController {
         );
     }
 
-    /**
-     * @apiNote 풀이 읽기 API
-     * @implSpec 읽는 것은 토큰을 필수로 필요로하지 않지만 토큰을 가지고 있을 경우 수정할 권한을 가질 수 있도록 함
-     * @param id 읽을 Answer 의  ID
-     * @param request 토큰을 받아오기 위한 매개변수
-     * */
+    @Operation(summary = "풀이 읽기", description = "작성된 풀이를 id값으로 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
+            @ApiResponse(responseCode = "404", description = "유효한 풀이 ID가 아닙니다.")
+    })
     @GetMapping("/{answerId}")
     public ResponseEntity<ResponseDto<AnswerPageResponse>> read(@PathVariable(name = "answerId") Long id, HttpServletRequest request) {
         Long idFromToken = JwtUtil.getId(request);
@@ -62,50 +67,46 @@ public class AnswerController {
         );
     }
 
-    /**
-     * @apiNote 모든 풀이 읽기 API
-     * @implNote 추후 풀이의 수가 많아진다면 페이징 기능을 추가해야함
-     * @implSpec 현재 페이징 기능이 없음
-     * @param backjoonId 읽어올 문제의 backjoonId
-     * @param language 읽어올 문제의 languageType
-     * */
+    @Operation(summary = "전체 풀이 읽기", description = "전체 풀이를 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
+    })
     @GetMapping("/all")
-    public ResponseEntity<ResponseDto<List<AnswerListResponse>>> readAll(
+    public ResponseEntity<ResponseDto<Page<AnswerListResponse>>> readAll(
             @RequestParam(name = "language", required = false) LanguageType language,
-            @RequestParam(name = "backjoonId", required = false) Long backjoonId
+            @RequestParam(name = "backjoonId", required = false) Long backjoonId,
+            @PageableDefault(size = 20) Pageable pageable
     ) {
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
-                answerService.readAllToListResponse(language, backjoonId)
+                answerService.readAllToListResponse(language, backjoonId, pageable)
         );
     }
 
-    /**
-     * @apiNote 특정 프로그래머가 작성한 풀이를 읽어오는 API, 프로그래머가 작성한 문제들을 읽어오기 위한 API 현재 사용되지 않지만 추후 기능 추가를 통해 사용할 것임
-     * @implNote 이 기능은 헤더에서 ID 값을 받아오는 것으로 변경해야 할 필요가 있음
-     * @implSpec 현재 페이징 기능이 없음
-     * */
+    @Operation(summary = "요청한 유저가 작성한 풀이 조회", description = "자신이 작성한 풀이만 조회합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
+    })
     @GetMapping("/programmer")
-    public ResponseEntity<ResponseDto<List<AnswerListResponse>>> readByProgrammer(
+    public ResponseEntity<ResponseDto<Page<AnswerListResponse>>> readByProgrammer(
             @RequestParam(name = "language", required = false) LanguageType language,
             @RequestParam(name = "backjoonId", required = false) Long backjoonId,
-            HttpServletRequest request
+            HttpServletRequest request,
+            @PageableDefault(size = 20) Pageable pageable
     ) {
         Long idFromToken = JwtUtil.getId(request);
 
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
-                answerService.readAllByProgrammerId(language, backjoonId, idFromToken)
+                answerService.readAllByProgrammerId(language, backjoonId, idFromToken, pageable)
         );
     }
 
-    /**
-     * @apiNote 풀이 수정 API
-     * @implSpec request    에서 인증 정보를 가져오고 이를 바탕으로 업데이트 로직을 처리함
-     * @param answerId 수정할 풀이의 ID
-     * @param answerUpdateRequest 수정할 풀이의 정보
-     * @param request 토큰을 받아오기 위한 매개변수
-     * */
+    @Operation(summary = "풀이 수정", description = "작성된 풀이를 수정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "풀이 수정 성공."),
+            @ApiResponse(responseCode = "404", description = "유효한 풀이 ID가 아닙니다.")
+    })
     @PatchMapping("/{answerId}")
     public ResponseEntity<ResponseDto<AnswerPageResponse>> update(
             HttpServletRequest request,
@@ -116,11 +117,12 @@ public class AnswerController {
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, answerUpdateRequest));
     }
 
-    /**
-     * @apiNote 풀이 삭제 API
-     * @param request 토큰을 받아오기 위한 매개변수
-     * @param answerId 삭제할 풀이의 ID
-     * */
+    @Operation(summary = "풀이 삭제", description = "작성된 풀이를 id값으로 풀이 삭제")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "풀이 삭제 성공."),
+            @ApiResponse(responseCode = "400", description = "요청자가 작성한 풀이가 아닙니다."),
+            @ApiResponse(responseCode = "404", description = "유효한 풀이 ID가 아닙니다.")
+    })
     @DeleteMapping("/{answerId}")
     public ResponseEntity<?> delete(@PathVariable(name = "answerId") Long answerId, HttpServletRequest request) {
         Long idFromToken = JwtUtil.getId(request);
