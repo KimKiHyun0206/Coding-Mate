@@ -33,13 +33,11 @@ public class ProgrammerService {
     private final AnswerWriteRepository answerWriteRepository;
 
     @Transactional
-    public ProgrammerCreateResponse create(ProgrammerCreateRequest request) {
+    public void create(ProgrammerCreateRequest request) {
         if (readRepository.isExistLoginId(request.loginId()))
             throw new DuplicateProgrammerLoginIdException(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION, "요청한 Id는 이미 존재하는 Id입니다");
 
-        var dto = writeRepository.create(request);
-        if (dto == null) throw new ProgrammerNotCreateException("Programmer가 생성되지 않았습니다. " + request);
-        return ProgrammerCreateResponse.from(dto);
+        writeRepository.create(request);
     }
 
     @Transactional(readOnly = true)

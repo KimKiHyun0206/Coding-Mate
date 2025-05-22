@@ -21,11 +21,12 @@ public class ProgrammerWriteRepository {
     private final DefaultProgrammerRepository programmerRepository;
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
+
     /**
      * @implSpec loginId가 중복되는지 여부 확인 + Programmer 등록으로 쿼리가 두 번 나감
      * */
     @Transactional
-    public Programmer create(ProgrammerCreateRequest dto) {
+    public void create(ProgrammerCreateRequest dto) {
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
                 .build();
@@ -40,7 +41,7 @@ public class ProgrammerWriteRepository {
                 .tip("팁이 있다면 공유해주세요")
                 .build();
 
-        return programmerRepository.save(entity);
+        programmerRepository.save(entity);
     }
 
     @Transactional
@@ -52,14 +53,5 @@ public class ProgrammerWriteRepository {
                 .set(programmer.githubId, dto.githubId() == null ? null : dto.githubId())
                 .set(programmer.tip, dto.tip() == null ? null : dto.tip())
                 .execute();
-    }
-
-    @Transactional
-    public boolean delete(Long id) {
-        if (programmerRepository.existsById(id)) {
-            programmerRepository.deleteById(id);
-            return true;
-        }
-        return false;
     }
 }
