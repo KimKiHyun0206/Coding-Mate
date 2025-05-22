@@ -119,13 +119,14 @@ public class AnswerController {
             @ApiResponse(responseCode = "404", description = "유효한 풀이 ID가 아닙니다.")
     })
     @PatchMapping("/{answerId}")
-    public ResponseEntity<ResponseDto<AnswerPageResponse>> update(
+    public ResponseEntity<?> update(
             HttpServletRequest request,
             @RequestBody AnswerUpdateRequest answerUpdateRequest,
             @PathVariable(name = "answerId") Long answerId
     ) {
         Long idFromToken = JwtUtil.getId(request);
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, answerService.update(idFromToken, answerId, answerUpdateRequest));
+        answerService.update(idFromToken, answerId, answerUpdateRequest);
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
 

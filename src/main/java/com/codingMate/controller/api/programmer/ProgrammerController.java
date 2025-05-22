@@ -32,7 +32,7 @@ public class ProgrammerController {
     })
     @GetMapping("/login-id/exists")
     public ResponseEntity<?> isExistLoginId(@RequestParam("loginId") String loginId) {
-        programmerService.isExistLoginId(loginId);
+        programmerService.checkLoginIdAvailability(loginId);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
@@ -47,7 +47,7 @@ public class ProgrammerController {
     public ResponseEntity<ResponseDto<MyPageResponse>> myPage(HttpServletRequest request) {
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
-                programmerService.myPage(JwtUtil.getId(request))
+                programmerService.getProgrammerMyPageInfo(JwtUtil.getId(request))
         );
     }
 

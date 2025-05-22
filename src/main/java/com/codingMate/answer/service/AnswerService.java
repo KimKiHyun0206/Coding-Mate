@@ -4,6 +4,7 @@ import com.codingMate.answer.domain.Answer;
 import com.codingMate.answer.domain.vo.LanguageType;
 import com.codingMate.answer.repository.AnswerReadRepository;
 import com.codingMate.answer.repository.AnswerWriteRepository;
+import com.codingMate.exception.dto.ErrorMessage;
 import com.codingMate.programmer.domain.Programmer;
 import com.codingMate.answer.dto.request.AnswerCreateRequest;
 import com.codingMate.answer.dto.request.AnswerUpdateRequest;
@@ -38,17 +39,23 @@ public class AnswerService {
     @Transactional
     public AnswerCreateResponse create(Long programmerId, AnswerCreateRequest request) {
         Programmer writer = defaultProgrammerRepository.findById(programmerId)
-                .orElseThrow(() -> new NotFoundProgrammerException("Answer를 생성하던 중 Programmer를 조회하지 못했습니다. " + programmerId));
+                .orElseThrow(() -> new NotFoundProgrammerException(
+                        ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION,
+                        String.format("Answer를 생성하던 중 %d로 Programmer를 조회하지 못했습니다.", programmerId))
+                );
 
-        Answer createdResult = defaultAnswerRepository.save(request.toEntity());
-        createdResult.setProgrammer(writer);
+        Answer createdResult = defaultAnswerRepository.save(request.toEntity(writer));
 
         return new AnswerCreateResponse(createdResult.getId());
     }
 
     @Transactional(readOnly = true)
     public AnswerPageResponse read(Long answerId, Long programmerId) {
-        var answer = readRepository.read(answerId).orElseThrow(() -> new AnswerNotCreateException("Answer를 조회하지 못했습니다. " + answerId));
+        var answer = readRepository.read(answerId).orElseThrow(() -> new NotFoundAnswerException(
+                        ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION,
+                        String.format("요청한 %d로 Answer를 생성하지 못했습니다", answerId)
+                )
+        );
 
         var response = AnswerPageResponse.from(answer);
         response.setIsRequesterIsOwner(programmerId);
@@ -67,10 +74,14 @@ public class AnswerService {
     }
 
     @Transactional
-    public AnswerPageResponse update(Long programmerId, Long answerId, AnswerUpdateRequest request) {
+    public void update(Long programmerId, Long answerId, AnswerUpdateRequest request) {
         long changedRowNumber = writeRepository.update(programmerId, answerId, request);
-        if (changedRowNumber != 1) throw new NotFoundAnswerException(answerId);
-        return read(answerId, programmerId);
+        if (changedRowNumber == 0) {
+            throw new NotFoundAnswerException(
+                    ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION,
+                    String.format("요청한 %d로 Answer를 조회하지 못했습니다", answerId)
+            );
+        }
     }
 
     @Transactional
