@@ -24,14 +24,6 @@ public class AnswerWriteRepository {
     private final EntityManager em;
 
     @Transactional
-    public Optional<Answer> create(Programmer programmer, AnswerCreateRequest answerCreateRequest) {
-        Answer entity = answerCreateRequest.toEntity();
-        entity.setProgrammer(programmer);
-
-        return Optional.of(answerRepository.save(entity));
-    }
-
-    @Transactional
     public long update(Long programmerId, Long answerId, AnswerUpdateRequest dto) {
         return queryFactory.update(answer)
                 .where(answer.id.eq(answerId))
