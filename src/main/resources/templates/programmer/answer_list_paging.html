@@ -207,7 +207,7 @@
         if (accessToken) {
 
             const response = await fetch('/api/v1/auth/tokens', {
-                method: 'POST',
+                method: 'GET',
                 headers: {
                     'Coding-Mate-Auth': accessToken
                 }
@@ -316,7 +316,7 @@
     // `page`와 `size` 파라미터 추가
     function fetch_problem_list(page, size, searchId, searchLanguage) {
         console.log(`[fetch_problem_list] API 호출 시작: page=${page}, size=${size}, searchId=${searchId}, searchLanguage=${searchLanguage}`);
-        let url = `/api/v1/answer/programmer?page=${page}&size=${size}`; // 페이징 파라미터 추가
+        let url = `/api/v1/answer/me?page=${page}&size=${size}`; // 페이징 파라미터 추가
         const queryParams = [];
 
         // 검색 조건이 있을 경우에만 쿼리 파라미터에 추가
