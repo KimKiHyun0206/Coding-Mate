@@ -4,11 +4,15 @@ import com.codingMate.exception.BusinessException;
 import com.codingMate.exception.dto.ErrorMessage;
 
 public class NotFoundAnswerException extends BusinessException {
-    public NotFoundAnswerException(Long answerId) {
-        super(ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION, "answerId : " + answerId);
+    public NotFoundAnswerException(ErrorMessage message) {
+        super(message);
     }
 
-    public NotFoundAnswerException(String message) {
-        super(ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION, message);
+    public NotFoundAnswerException(ErrorMessage message, String reason) {
+        super(message, reason);
+    }
+
+    public NotFoundAnswerException(String reason) {
+        super(reason);
     }
 }

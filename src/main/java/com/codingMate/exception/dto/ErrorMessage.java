@@ -12,6 +12,7 @@ public enum ErrorMessage {
     //PROGRAMMER
     DUPLICATE_PROGRAMMER_EXCEPTION(HttpStatus.CONFLICT, "중복된 PROGRAMMER 가 존재합니다"),
     PROGRAMMER_NOT_CREATED(HttpStatus.BAD_REQUEST, "요청이 올바르지 않아 PROGRAMMER가 생성되지 않았습니다"),
+    INVALID_ID(HttpStatus.BAD_REQUEST, "요청한 ID는 존재하지 않는 ID입니다"),
     NOT_FOUND_PROGRAMMER_EXCEPTION(HttpStatus.NOT_FOUND, "요청한 PROGRAMMER 를 찾을 수 없습니다"),
     INVALID_PASSWORD_REGEX(HttpStatus.CONFLICT, "유효한 비밀번호 형식이 아닙니다"),
     INVALID_EMAIL_REGEX(HttpStatus.CONFLICT, "유효한 이메일 형식이 아닙니다"),

@@ -4,10 +4,15 @@ import com.codingMate.exception.BusinessException;
 import com.codingMate.exception.dto.ErrorMessage;
 
 public class NotFoundProgrammerException extends BusinessException {
-    public NotFoundProgrammerException(Long programmerId) {
-        super(ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION, "programmer.id : " + programmerId);
+    public NotFoundProgrammerException(ErrorMessage message) {
+        super(message);
     }
-    public NotFoundProgrammerException(String loginId) {
-        super(ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION, "programmer.loginId : " + loginId);
+
+    public NotFoundProgrammerException(ErrorMessage message, String reason) {
+        super(message, reason);
+    }
+
+    public NotFoundProgrammerException(String reason) {
+        super(reason);
     }
 }
