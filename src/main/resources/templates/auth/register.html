@@ -82,7 +82,7 @@
 </nav>
 
 <h1>회원가입</h1>
-<form id="registrationForm" action="/api/v1/auth/register" method="post">
+<form id="registrationForm" action="/api/v1/auth/sign-up" method="post">
     <div>
         <label for="name">이름:</label>
         <input type="text" id="name" name="name" required>
@@ -186,7 +186,7 @@
                 formData.forEach((value, key) => {
                     jsonData[key] = value;
                 });
-                fetch('/api/v1/auth/register', {
+                fetch('/api/v1/auth/sign-up', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json' // 올바른 Content-Type 설정

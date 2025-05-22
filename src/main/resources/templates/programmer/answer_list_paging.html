@@ -206,7 +206,7 @@
 
         if (accessToken) {
 
-            const response = await fetch('/api/v1/auth/access-token', {
+            const response = await fetch('/api/v1/auth/tokens', {
                 method: 'POST',
                 headers: {
                     'Coding-Mate-Auth': accessToken
@@ -233,7 +233,7 @@
             return false;
         }
         try {
-            const refreshResponse = await fetch('/api/v1/auth/refresh-token', {
+            const refreshResponse = await fetch('/api/v1/auth/tokens', {
                 method: 'POST',
                 headers: {
                     'Coding-Mate-Auth-Ref': `${refreshToken}`
@@ -287,11 +287,14 @@
     }
 
     function logout() {
-        fetch('/api/v1/auth/logout', { // 서버의 로그아웃 엔드포인트로 요청
-            method: 'POST',
+        fetch('/api/v1/auth/sign-out', { // 서버의 로그아웃 엔드포인트로 요청
+            method: 'DELETE',
             headers: {
+                //'Content-Type': 'application/json' // 필요한 경우 Content-Type 설정
+                // 필요한 경우 인증 헤더 (Authorization 등)를 포함할 수 있습니다.
                 'Coding-Mate-Auth-Ref': localStorage.getItem('Coding-Mate-Auth-Ref')
             }
+            // body는 일반적으로 필요하지 않습니다.
         })
             .then(response => {
                 if (response.ok) {

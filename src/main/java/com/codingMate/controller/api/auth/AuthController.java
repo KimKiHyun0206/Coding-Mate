@@ -46,7 +46,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "로그인 성공."),
             @ApiResponse(responseCode = "404", description = "ID/PW가 틀렸습니다.")
     })
-    @PostMapping("/login")
+    @PostMapping("/sign-in")
     public ResponseEntity<?> login(
             @RequestBody LoginRequest loginRequest,
             HttpServletResponse response
@@ -68,7 +68,7 @@ public class AuthController {
             @ApiResponse(responseCode = "201", description = "회원가입 성공."),
             @ApiResponse(responseCode = "404", description = "요청 중 어떤 값이 유효하지 않은 값이라서 거부되었습니다.")
     })
-    @PostMapping("/register")
+    @PostMapping("/sign-up")
     public ResponseEntity<?> register(@RequestBody ProgrammerCreateRequest programmerCreateRequest) {
         programmerService.create(programmerCreateRequest);
         return ResponseDto.toResponseEntity(ResponseMessage.CREATED);
@@ -80,7 +80,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공."),
             @ApiResponse(responseCode = "404", description = "로그아웃 요청에 들어온 Refresh token이 유효하지 않습니다.")
     })
-    @PostMapping("/logout")
+    @DeleteMapping("/sign-out")
     public ResponseEntity<?> logout(HttpServletRequest request) {
         refreshTokenService.deleteRefreshToken(JwtUtil.getRefreshToken(request));
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
@@ -92,7 +92,7 @@ public class AuthController {
             @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공."),
             @ApiResponse(responseCode = "404", description = "유효한 사용자가 아니기에 탈퇴하지 못했습니다.")
     })
-    @DeleteMapping("/withdrawal")
+    @DeleteMapping("/me")
     public ResponseEntity<?> withdrawal(HttpServletRequest request) {
         programmerService.delete(JwtUtil.getId(request));
         return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT);
@@ -104,7 +104,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "검증 성공."),
             @ApiResponse(responseCode = "401", description = "유효하지 않은 토큰입니다.")
     })
-    @PostMapping("/access-token")
+    @GetMapping("/tokens")
     public ResponseEntity<?> validateAccessToken(HttpServletRequest request) {
         tokenProvider.validateToken(JwtUtil.getAccessToken(request));
         return ResponseDto.toResponseEntity(ResponseMessage.AUTHORIZED);
@@ -116,7 +116,7 @@ public class AuthController {
             @ApiResponse(responseCode = "200", description = "토큰 재발급 성공."),
             @ApiResponse(responseCode = "401", description = "유효한 Refresh token이 아니기에 재발급에 실패앴습니다.")
     })
-    @PostMapping("/refresh-token")
+    @PostMapping("/tokens")
     public ResponseEntity<ResponseDto<TokenDto>> newRefreshToken(HttpServletRequest request) {
         var tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(JwtUtil.getRefreshToken(request));
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);

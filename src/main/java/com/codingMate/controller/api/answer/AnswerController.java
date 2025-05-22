@@ -78,7 +78,7 @@ public class AnswerController {
             @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
             @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다.")
     })
-    @GetMapping("/all")
+    @GetMapping
     public ResponseEntity<ResponseDto<Page<AnswerListResponse>>> readAll(
             @RequestParam(name = "language", required = false) LanguageType language,
             @RequestParam(name = "backjoonId", required = false) Long backjoonId,
@@ -96,7 +96,7 @@ public class AnswerController {
             @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
             @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다.")
     })
-    @GetMapping("/programmer")
+    @GetMapping("/me")
     public ResponseEntity<ResponseDto<Page<AnswerListResponse>>> readByProgrammer(
             @RequestParam(name = "language", required = false) LanguageType language,
             @RequestParam(name = "backjoonId", required = false) Long backjoonId,
