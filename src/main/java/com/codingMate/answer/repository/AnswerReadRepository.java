@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.codingMate.answer.domain.QAnswer.answer;
 
@@ -29,11 +30,11 @@ public class AnswerReadRepository {
     private final EntityManager em;
 
     @Transactional(readOnly = true)
-    public Answer read(Long answerId) {
-        return queryFactory.selectFrom(answer)
+    public Optional<Answer> read(Long answerId) {
+        return Optional.ofNullable(queryFactory.selectFrom(answer)
                 .where(answer.id.eq(answerId))
                 .join(answer.programmer)
-                .fetchOne();
+                .fetchOne());
     }
 
     @Transactional(readOnly = true)

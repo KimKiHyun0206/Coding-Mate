@@ -2,10 +2,8 @@ package com.codingMate.controller.api.programmer;
 
 import com.codingMate.common.response.ResponseDto;
 import com.codingMate.common.response.ResponseMessage;
-import com.codingMate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingMate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingMate.programmer.dto.response.MyPageResponse;
-import com.codingMate.programmer.dto.response.ProgrammerCreateResponse;
 import com.codingMate.programmer.service.ProgrammerService;
 import com.codingMate.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -32,7 +30,7 @@ public class ProgrammerController {
             @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다."),
             @ApiResponse(responseCode = "409", description = "ID가 중복되었습니다.")
     })
-    @GetMapping("/check-id")
+    @GetMapping("/login-id/exists")
     public ResponseEntity<?> isExistLoginId(@RequestParam("loginId") String loginId) {
         programmerService.isExistLoginId(loginId);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
@@ -45,7 +43,7 @@ public class ProgrammerController {
             @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다."),
             @ApiResponse(responseCode = "404", description = "유효한 요청이 아닙니다.")
     })
-    @GetMapping("/my-page")
+    @GetMapping("/me")
     public ResponseEntity<ResponseDto<MyPageResponse>> myPage(HttpServletRequest request) {
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
@@ -60,7 +58,7 @@ public class ProgrammerController {
             @ApiResponse(responseCode = "401", description = "유효한 인증이 아니어 실패앴습니다."),
             @ApiResponse(responseCode = "404", description = "수정 실패.")
     })
-    @PatchMapping
+    @PatchMapping("/me")
     public ResponseEntity<?> update(
             @RequestBody ProgrammerUpdateRequest programmerUpdateRequest,
             HttpServletRequest request

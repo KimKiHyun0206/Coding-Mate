@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.html.Option;
 import java.util.List;
+import java.util.Optional;
 
 import static com.codingMate.auth.domain.QAuthority.authority;
 import static com.codingMate.programmer.domain.QProgrammer.programmer;
@@ -34,31 +36,22 @@ public class ProgrammerReadRepository {
     }
 
     @Transactional(readOnly = true)
-    public Programmer read(Long id) {
+    public Optional<Programmer> read(Long id) {
         return programmerRepository
-                .findById(id)
-                .orElse(null);
+                .findById(id);
     }
 
     @Transactional(readOnly = true)
-    public Programmer readByLoginId(String loginId) {
-        return queryFactory.selectFrom(programmer)
+    public Optional<Programmer> readByLoginId(String loginId) {
+        return Optional.ofNullable(queryFactory.selectFrom(programmer)
                 .where(programmer.loginId.eq(loginId))
                 .leftJoin(programmer.authority, authority)
-                .fetchOne();
+                .fetchOne());
     }
 
     @Transactional(readOnly = true)
     public List<Programmer> readAll() {
         return programmerRepository
                 .findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public Long readIdByUserName(String userName) {
-        return queryFactory.select(programmer.id)
-                .from(programmer)
-                .where(programmer.loginId.eq(userName))
-                .fetchOne();
     }
 }

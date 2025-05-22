@@ -37,7 +37,8 @@ public class AnswerService {
 
     @Transactional
     public AnswerCreateResponse create(Long programmerId, AnswerCreateRequest request) {
-        Programmer writer = defaultProgrammerRepository.findById(programmerId).orElseThrow(() -> new NotFoundProgrammerException("Answer를 생성하던 중 Programmer를 조회하지 못했습니다. " + programmerId));
+        Programmer writer = defaultProgrammerRepository.findById(programmerId)
+                .orElseThrow(() -> new NotFoundProgrammerException("Answer를 생성하던 중 Programmer를 조회하지 못했습니다. " + programmerId));
 
         Answer createdResult = defaultAnswerRepository.save(request.toEntity());
         createdResult.setProgrammer(writer);
@@ -47,8 +48,7 @@ public class AnswerService {
 
     @Transactional(readOnly = true)
     public AnswerPageResponse read(Long answerId, Long programmerId) {
-        var answer = readRepository.read(answerId);
-        if (answer == null) throw new AnswerNotCreateException("Answer를 조회하지 못했습니다. " + answerId);
+        var answer = readRepository.read(answerId).orElseThrow(() -> new AnswerNotCreateException("Answer를 조회하지 못했습니다. " + answerId));
 
         var response = AnswerPageResponse.from(answer);
         response.setIsRequesterIsOwner(programmerId);
@@ -75,8 +75,9 @@ public class AnswerService {
 
     @Transactional
     public void delete(Long programmerId, Long answerId) {
-        Answer answer = readRepository.read(answerId);
-        if (answer == null) throw new NotFoundAnswerException("삭제하기 위한 Answer를 조회할 수 없습니다. " + answerId);
+        Answer answer = readRepository.read(answerId)
+                .orElseThrow(() -> new NotFoundAnswerException("삭제하기 위한 Answer를 조회할 수 없습니다. " + answerId));
+
         if (answer.getProgrammer().getId().equals(programmerId)) {
             defaultAnswerRepository.delete(answer);
         } else throw new AnswerAndProgrammerDoNotMatchException("요청한 Programmer가 작성한 Answer가 아닙니다. " + programmerId);

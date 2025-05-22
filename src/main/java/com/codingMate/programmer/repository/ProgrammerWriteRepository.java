@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static com.codingMate.programmer.domain.QProgrammer.programmer;
 
 @Repository
@@ -21,12 +23,11 @@ public class ProgrammerWriteRepository {
     private final DefaultProgrammerRepository programmerRepository;
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
-
     /**
      * @implSpec loginId가 중복되는지 여부 확인 + Programmer 등록으로 쿼리가 두 번 나감
      * */
     @Transactional
-    public void create(ProgrammerCreateRequest dto) {
+    public Optional<Programmer> create(ProgrammerCreateRequest dto) {
         Authority authority = Authority.builder()
                 .authorityName("ROLE_USER")
                 .build();
@@ -41,7 +42,7 @@ public class ProgrammerWriteRepository {
                 .tip("팁이 있다면 공유해주세요")
                 .build();
 
-        programmerRepository.save(entity);
+        return Optional.of(programmerRepository.save(entity));
     }
 
     @Transactional
@@ -53,5 +54,14 @@ public class ProgrammerWriteRepository {
                 .set(programmer.githubId, dto.githubId() == null ? null : dto.githubId())
                 .set(programmer.tip, dto.tip() == null ? null : dto.tip())
                 .execute();
+    }
+
+    @Transactional
+    public boolean delete(Long id) {
+        if (programmerRepository.existsById(id)) {
+            programmerRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }

@@ -2,6 +2,7 @@ package com.codingMate.programmer.service;
 
 import com.codingMate.answer.repository.AnswerReadRepository;
 import com.codingMate.answer.repository.AnswerWriteRepository;
+import com.codingMate.programmer.domain.Programmer;
 import com.codingMate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingMate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingMate.programmer.dto.response.MyPageResponse;
@@ -37,7 +38,8 @@ public class ProgrammerService {
         if (readRepository.isExistLoginId(request.loginId()))
             throw new DuplicateProgrammerLoginIdException(ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION, "요청한 Id는 이미 존재하는 Id입니다");
 
-        writeRepository.create(request);
+        Programmer result = writeRepository.create(request).orElseThrow(() -> new ProgrammerNotCreateException(ErrorMessage.PROGRAMMER_NOT_CREATED, "요청에 따른 PROGRAMMER가 생성되지 않았습니다."));
+
     }
 
     @Transactional(readOnly = true)
@@ -48,8 +50,8 @@ public class ProgrammerService {
 
     @Transactional(readOnly = true)
     public MyPageResponse myPage(Long id) {
-        var programmer = readRepository.read(id);
-        if (programmer == null) throw new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id);
+        var programmer = readRepository.read(id).orElseThrow(() -> new NotFoundProgrammerException("요청한 Programmer를 조회할 수 없습니다. " + id));
+
         return MyPageResponse.builder()
                 .name(programmer.getName().getName())
                 .tip(programmer.getTip())

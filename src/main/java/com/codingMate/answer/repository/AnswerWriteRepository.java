@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 import static com.codingMate.answer.domain.QAnswer.answer;
 
 @Repository
@@ -22,11 +24,11 @@ public class AnswerWriteRepository {
     private final EntityManager em;
 
     @Transactional
-    public Answer create(Programmer programmer, AnswerCreateRequest answerCreateRequest) {
+    public Optional<Answer> create(Programmer programmer, AnswerCreateRequest answerCreateRequest) {
         Answer entity = answerCreateRequest.toEntity();
         entity.setProgrammer(programmer);
 
-        return answerRepository.save(entity);
+        return Optional.of(answerRepository.save(entity));
     }
 
     @Transactional
