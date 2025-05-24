@@ -4,11 +4,15 @@ import com.codingMate.exception.BusinessException;
 import com.codingMate.exception.dto.ErrorMessage;
 
 public class AnswerAndProgrammerDoNotMatchException extends BusinessException {
-    public AnswerAndProgrammerDoNotMatchException(Long programmerId, Long answerId) {
-        super(ErrorMessage.ANSWER_AND_PROGRAMMER_DO_NOT_MATCH, "programmerId : " + programmerId + ", answerId : " + answerId);
+    public AnswerAndProgrammerDoNotMatchException(ErrorMessage message) {
+        super(message);
     }
 
-    public AnswerAndProgrammerDoNotMatchException(String message) {
-        super(ErrorMessage.ANSWER_AND_PROGRAMMER_DO_NOT_MATCH, message);
+    public AnswerAndProgrammerDoNotMatchException(ErrorMessage message, String reason) {
+        super(message, reason);
+    }
+
+    public AnswerAndProgrammerDoNotMatchException(String reason) {
+        super(reason);
     }
 }
