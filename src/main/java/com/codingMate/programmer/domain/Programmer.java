@@ -5,6 +5,7 @@ import com.codingMate.programmer.domain.converter.PasswordEncodeConverter;
 import com.codingMate.auth.domain.Authority;
 import com.codingMate.programmer.domain.vo.Email;
 import com.codingMate.programmer.domain.vo.Name;
+import com.codingMate.programmer.dto.request.ProgrammerCreateRequest;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -50,5 +51,17 @@ public class Programmer extends BaseEntity {
         this.email = email;
         this.tip = tip;
         this.authority = authority;
+    }
+
+    public static Programmer toEntity(ProgrammerCreateRequest request) {
+        return Programmer.builder()
+                .email(new Email(request.email()))
+                .name(new Name(request.name()))
+                .githubId(request.githubId())
+                .password(request.password())
+                .authority(Authority.toEntity("ROLE_USER"))
+                .loginId(request.loginId())
+                .tip("팁이 있다면 공유해주세요")
+                .build();
     }
 }

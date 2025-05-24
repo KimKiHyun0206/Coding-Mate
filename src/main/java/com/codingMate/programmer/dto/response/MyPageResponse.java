@@ -5,12 +5,13 @@ import lombok.Builder;
 
 @Builder
 public record MyPageResponse(String githubId, String name, String email, Long numberOfAnswer, String tip) {
-    public static MyPageResponse from(Programmer programmer) {
+    public static MyPageResponse of(Programmer programmer, Long numberOfAnswer) {
         return MyPageResponse.builder()
                 .githubId(programmer.getGithubId())
                 .email(programmer.getEmail().getEmail())
                 .name(programmer.getName().getName())
                 .tip(programmer.getTip())
+                .numberOfAnswer(numberOfAnswer)
                 .build();
     }
 }
