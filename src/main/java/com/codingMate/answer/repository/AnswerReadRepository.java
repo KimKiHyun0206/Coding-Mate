@@ -8,7 +8,6 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -25,16 +24,16 @@ import static com.codingMate.answer.domain.QAnswer.answer;
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AnswerReadRepository {
-    private final DefaultAnswerRepository answerRepository;
     private final JPAQueryFactory queryFactory;
-    private final EntityManager em;
 
     @Transactional(readOnly = true)
     public Optional<Answer> read(Long answerId) {
-        return Optional.ofNullable(queryFactory.selectFrom(answer)
-                .where(answer.id.eq(answerId))
-                .join(answer.programmer)
-                .fetchOne());
+        return Optional.ofNullable(
+                queryFactory.selectFrom(answer)
+                        .where(answer.id.eq(answerId))
+                        .join(answer.programmer)
+                        .fetchOne()
+        );
     }
 
     @Transactional(readOnly = true)
