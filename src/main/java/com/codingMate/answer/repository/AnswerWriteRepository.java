@@ -36,28 +36,6 @@ public class AnswerWriteRepository {
     }
 
     @Transactional
-    public boolean delete(@NotNull Long programmerId, @NotNull Long answerId) {
-        /*long executedRow = queryFactory
-                .delete(answer)
-                .where(answer.id.eq(answerId))
-                .where(answer.programmer.id.eq(programmerId))
-                .execute();
-        if (executedRow == 0) {
-            throw new NotFoundProgrammerException(programmerId);
-        }*/
-        Answer answer = answerRepository
-                .findById(answerId)
-                .orElse(null);
-        if (answer == null) return false;
-
-        if (answer.getProgrammer().getId().equals(programmerId)) {
-            answerRepository.delete(answer);
-            return true;
-        }
-        return false;
-    }
-
-    @Transactional
     public long deleteByProgrammerId(Long id) {
         return queryFactory.delete(answer)
                 .where(answer.programmer.id.eq(id))
