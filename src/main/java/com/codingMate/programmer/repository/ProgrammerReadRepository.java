@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.swing.text.html.Option;
-import java.util.List;
 import java.util.Optional;
 
 import static com.codingMate.auth.domain.QAuthority.authority;
@@ -18,7 +16,7 @@ import static com.codingMate.programmer.domain.QProgrammer.programmer;
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProgrammerReadRepository {
-    private final DefaultProgrammerRepository programmerRepository;
+
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;
 
@@ -36,22 +34,12 @@ public class ProgrammerReadRepository {
     }
 
     @Transactional(readOnly = true)
-    public Optional<Programmer> read(Long id) {
-        return programmerRepository
-                .findById(id);
-    }
-
-    @Transactional(readOnly = true)
     public Optional<Programmer> readByLoginId(String loginId) {
-        return Optional.ofNullable(queryFactory.selectFrom(programmer)
-                .where(programmer.loginId.eq(loginId))
-                .leftJoin(programmer.authority, authority)
-                .fetchOne());
-    }
-
-    @Transactional(readOnly = true)
-    public List<Programmer> readAll() {
-        return programmerRepository
-                .findAll();
+        return Optional.ofNullable(
+                queryFactory.selectFrom(programmer)
+                        .where(programmer.loginId.eq(loginId))
+                        .leftJoin(programmer.authority, authority)
+                        .fetchOne()
+        );
     }
 }
