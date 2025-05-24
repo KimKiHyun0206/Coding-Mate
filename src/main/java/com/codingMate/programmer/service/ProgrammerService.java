@@ -2,7 +2,6 @@ package com.codingMate.programmer.service;
 
 import com.codingMate.answer.repository.AnswerReadRepository;
 import com.codingMate.answer.repository.AnswerWriteRepository;
-import com.codingMate.programmer.domain.Programmer;
 import com.codingMate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingMate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingMate.programmer.dto.response.MyPageResponse;
@@ -38,7 +37,7 @@ public class ProgrammerService {
             );
         }
 
-        Programmer result = writeRepository.create(request)
+        var result = writeRepository.create(request)
                 .orElseThrow(() -> new ProgrammerNotCreateException(
                         ErrorMessage.PROGRAMMER_NOT_CREATED,
                         "요청에 따른 PROGRAMMER가 생성되지 않았습니다.")
@@ -57,25 +56,19 @@ public class ProgrammerService {
 
     @Transactional(readOnly = true)
     public MyPageResponse getProgrammerMyPageInfo(Long programmerId) {
-        var programmer = readRepository.read(programmerId)
+        var programmer = defaultProgrammerRepository.findById(programmerId)
                 .orElseThrow(() -> new NotFoundProgrammerException(
                         ErrorMessage.INVALID_ID,
-                        programmerId + " 는 존재하지 않는 유저 정보입니다")
+                        String.format("%d는 존재하지 않는 ProgrammerID입니다.", programmerId))
                 );
 
-        return MyPageResponse.builder()
-                .name(programmer.getName().getName())
-                .tip(programmer.getTip())
-                .numberOfAnswer(answerReadRepository.countProgrammerWroteAnswer(programmerId))
-                .email(programmer.getEmail().getEmail())
-                .githubId(programmer.getGithubId())
-                .build();
+        return MyPageResponse.of(programmer, answerReadRepository.countProgrammerWroteAnswer(programmerId));
     }
 
     @Transactional
     public void update(Long programmerId, ProgrammerUpdateRequest request) {
         long changedRows = writeRepository.update(programmerId, request);
-        if(changedRows == 0) { // 변경된 행이 0개인 경우 (찾지 못한 경우)
+        if (changedRows == 0) { // 변경된 행이 0개인 경우 (찾지 못한 경우)
             throw new NotFoundProgrammerException(
                     ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION,
                     String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", programmerId)
@@ -87,7 +80,7 @@ public class ProgrammerService {
     public void delete(Long programmerId) {
         boolean isExist = defaultProgrammerRepository.existsById(programmerId);
         if (isExist) {
-            long deletedAnswersCount  = answerWriteRepository.deleteByProgrammerId(programmerId);
+            long deletedAnswersCount = answerWriteRepository.deleteByProgrammerId(programmerId);
             log.info("Programmer ID {}와 관련된 답변 {}개가 삭제되었습니다.", programmerId, deletedAnswersCount);
             defaultProgrammerRepository.deleteById(programmerId);
         } else {
