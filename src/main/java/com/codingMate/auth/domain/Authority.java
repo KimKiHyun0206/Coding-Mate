@@ -10,11 +10,17 @@ import lombok.*;
 @Table(name = "authority")
 @Builder
 @Getter
-@AllArgsConstructor(access = AccessLevel.PACKAGE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Authority {
+    @Id
+    @Column(name = "authority_name", length = 50)
+    private String authorityName;
 
-   @Id
-   @Column(name = "authority_name", length = 50)
-   private String authorityName;
+    public static Authority toEntity(String authorityName) {
+        return Authority
+                .builder()
+                .authorityName(authorityName)
+                .build();
+    }
 }
