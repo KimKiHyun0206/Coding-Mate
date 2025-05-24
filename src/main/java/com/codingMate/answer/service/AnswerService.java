@@ -25,8 +25,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -38,13 +36,13 @@ public class AnswerService {
 
     @Transactional
     public AnswerCreateResponse create(Long programmerId, AnswerCreateRequest request) {
-        Programmer writer = defaultProgrammerRepository.findById(programmerId)
+        var writer = defaultProgrammerRepository.findById(programmerId)
                 .orElseThrow(() -> new NotFoundProgrammerException(
                         ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION,
                         String.format("Answer를 생성하던 중 %d로 Programmer를 조회하지 못했습니다.", programmerId))
                 );
 
-        Answer createdResult = defaultAnswerRepository.save(request.toEntity(writer));
+        var createdResult = defaultAnswerRepository.save(request.toEntity(writer));
 
         return new AnswerCreateResponse(createdResult.getId());
     }
@@ -86,11 +84,17 @@ public class AnswerService {
 
     @Transactional
     public void delete(Long programmerId, Long answerId) {
-        Answer answer = readRepository.read(answerId)
-                .orElseThrow(() -> new NotFoundAnswerException("삭제하기 위한 Answer를 조회할 수 없습니다. " + answerId));
+        var answer = readRepository.read(answerId)
+                .orElseThrow(() -> new NotFoundAnswerException(
+                        ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION,
+                        String.format("요청한 Id %d를 가진 Answer가 존재하지 않습니다.", answerId))
+                );
 
         if (answer.getProgrammer().getId().equals(programmerId)) {
             defaultAnswerRepository.delete(answer);
-        } else throw new AnswerAndProgrammerDoNotMatchException("요청한 Programmer가 작성한 Answer가 아닙니다. " + programmerId);
+        } else throw new AnswerAndProgrammerDoNotMatchException(
+                ErrorMessage.ANSWER_AND_PROGRAMMER_DO_NOT_MATCH,
+                String.format("Programmer %d가 삭제 요청한 Answer %d는 요청자가 작성한 Answer가 아닙니다.", programmerId, answerId)
+        );
     }
 }
