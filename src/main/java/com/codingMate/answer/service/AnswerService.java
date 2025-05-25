@@ -5,14 +5,12 @@ import com.codingMate.answer.domain.vo.LanguageType;
 import com.codingMate.answer.repository.AnswerReadRepository;
 import com.codingMate.answer.repository.AnswerWriteRepository;
 import com.codingMate.exception.dto.ErrorMessage;
-import com.codingMate.programmer.domain.Programmer;
 import com.codingMate.answer.dto.request.AnswerCreateRequest;
 import com.codingMate.answer.dto.request.AnswerUpdateRequest;
 import com.codingMate.answer.dto.response.AnswerCreateResponse;
 import com.codingMate.answer.dto.response.AnswerListResponse;
 import com.codingMate.answer.dto.response.AnswerPageResponse;
 import com.codingMate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
-import com.codingMate.exception.exception.answer.AnswerNotCreateException;
 import com.codingMate.exception.exception.answer.NotFoundAnswerException;
 import com.codingMate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingMate.answer.repository.DefaultAnswerRepository;
@@ -42,7 +40,7 @@ public class AnswerService {
                         String.format("Answer를 생성하던 중 %d로 Programmer를 조회하지 못했습니다.", programmerId))
                 );
 
-        var createdResult = defaultAnswerRepository.save(request.toEntity(writer));
+        var createdResult = defaultAnswerRepository.save(Answer.toEntity(request, writer));
 
         return new AnswerCreateResponse(createdResult.getId());
     }
@@ -55,10 +53,7 @@ public class AnswerService {
                 )
         );
 
-        var response = AnswerPageResponse.from(answer);
-        response.setIsRequesterIsOwner(programmerId);
-
-        return response;
+        return AnswerPageResponse.of(answer, programmerId);
     }
 
     @Transactional(readOnly = true)
