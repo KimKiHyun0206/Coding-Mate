@@ -1,6 +1,5 @@
 package com.codingmate;
 
-import com.codingmate.aop.Trace;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -18,7 +17,6 @@ import java.util.TimeZone;
 public class CodingMateApplication implements ApplicationListener<ApplicationReadyEvent> {
     private final Environment environment;
 
-    @Trace
     public static void main(String[] args) {
         init();
         SpringApplication.run(CodingMateApplication.class, args);
