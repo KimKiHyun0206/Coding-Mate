@@ -1,5 +1,6 @@
 package com.codingMate.answer.domain;
 
+import com.codingMate.answer.dto.request.AnswerCreateRequest;
 import com.codingMate.common.BaseEntity;
 import com.codingMate.answer.domain.vo.LanguageType;
 import com.codingMate.programmer.domain.Programmer;
@@ -45,5 +46,16 @@ public class Answer extends BaseEntity {
         this.explanation = explanation;
         this.languageType = languageType;
         this.programmer = programmer;
+    }
+
+    public static Answer toEntity(AnswerCreateRequest request,Programmer programmer){
+        return Answer.builder()
+                .code(request.code())
+                .title(request.title())
+                .explanation(request.explanation())
+                .languageType(request.languageType())
+                .programmer(programmer)
+                .backJoonId(request.backjoonId())
+                .build();
     }
 }

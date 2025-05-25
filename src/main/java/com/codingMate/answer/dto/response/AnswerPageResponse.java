@@ -9,18 +9,18 @@ import java.util.Objects;
 
 @Getter
 @Builder
-public class AnswerPageResponse {
-    private Long id;
-    private Long backjoonId;
-    private String title;
-    private String code;
-    private String explanation;
-    private String programmerName;
-    private Long programmerId;
-    private LanguageType languageType;
-    private Boolean isRequesterIsOwner = false;
+public record AnswerPageResponse(
+        Long id,
+        Long backjoonId,
+        String title,
+        String code,
+        String explanation,
+        String programmerName,
+        Long programmerId,
+        LanguageType languageType,
+        Boolean isRequesterIsOwner) {
 
-    public static AnswerPageResponse from(Answer answer) {
+    public static AnswerPageResponse of(Answer answer, Long requestProgrammerId) {
         return AnswerPageResponse.builder()
                 .id(answer.getId())
                 .backjoonId(answer.getBackJoonId())
@@ -30,10 +30,7 @@ public class AnswerPageResponse {
                 .programmerId(answer.getProgrammer().getId())
                 .languageType(answer.getLanguageType())
                 .programmerName(answer.getProgrammer().getName().getName())
+                .isRequesterIsOwner(Objects.equals(requestProgrammerId, answer.getProgrammer().getId()))
                 .build();
-    }
-
-    public void setIsRequesterIsOwner(Long programmerId){
-        this.isRequesterIsOwner = Objects.equals(this.programmerId, programmerId);
     }
 }

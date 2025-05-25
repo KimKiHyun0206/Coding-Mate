@@ -3,7 +3,13 @@ package com.codingMate.answer.dto.response;
 import com.codingMate.answer.domain.vo.LanguageType;
 import com.querydsl.core.annotations.QueryProjection;
 
-public record AnswerListResponse(Long answerId, Long backjoonId, String title, String programmerName, LanguageType languageType) {
+public record AnswerListResponse(
+        Long answerId,
+        Long backjoonId,
+        String title,
+        String programmerName,
+        LanguageType languageType
+) {
     @QueryProjection
     public AnswerListResponse(Long answerId, Long backjoonId, String title, String programmerName, LanguageType languageType) {
         this.answerId = answerId;
