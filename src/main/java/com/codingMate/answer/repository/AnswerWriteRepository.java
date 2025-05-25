@@ -19,9 +19,7 @@ import static com.codingMate.answer.domain.QAnswer.answer;
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AnswerWriteRepository {
-    private final DefaultAnswerRepository answerRepository;
     private final JPAQueryFactory queryFactory;
-    private final EntityManager em;
 
     @Transactional
     public long update(Long programmerId, Long answerId, AnswerUpdateRequest dto) {
