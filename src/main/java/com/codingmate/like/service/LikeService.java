@@ -11,14 +11,12 @@ import com.codingmate.like.dto.response.LikeResponse;
 import com.codingmate.like.repository.LikeRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-@ToString
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class LikeService {
     private final LikeRepository likeRepository;
@@ -59,6 +57,6 @@ public class LikeService {
                 }
         );
 
-        return LikeResponse.of(answer.getVoteCount());
+        return LikeResponse.of(answer.getLikeCount());
     }
 }
