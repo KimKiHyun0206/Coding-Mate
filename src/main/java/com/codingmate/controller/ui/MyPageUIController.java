@@ -1,11 +1,11 @@
-package com.codingmate.controller.ui.programmer;
+package com.codingmate.controller.ui;
 
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-public class MyPageController {
+public class MyPageUIController {
     @RequestMapping("/my-page")
     public String myPage() {
         return "programmer/my_page";

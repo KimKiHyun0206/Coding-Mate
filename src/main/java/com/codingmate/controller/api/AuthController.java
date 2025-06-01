@@ -1,17 +1,15 @@
-package com.codingmate.controller.api.auth;
+package com.codingmate.controller.api;
 
 import com.codingmate.common.response.ResponseDto;
 import com.codingmate.common.response.ResponseMessage;
 import com.codingmate.auth.dto.request.LoginRequest;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
-import com.codingmate.auth.dto.response.TokenDto;
 import com.codingmate.jwt.TokenProvider;
 import com.codingmate.auth.service.LoginService;
 import com.codingmate.programmer.service.ProgrammerService;
 import com.codingmate.redis.RefreshTokenService;
 import com.codingmate.util.CookieUtil;
 import com.codingmate.util.JwtUtil;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -124,8 +122,10 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "유효한 Refresh token이 아니기에 재발급에 실패앴습니다.")
     })
     @PostMapping("/tokens")
-    public ResponseEntity<?> newRefreshToken(@CookieValue(name = "refresh-token") String refreshToken, HttpServletResponse response) {
-        log.info(refreshToken);
+    public ResponseEntity<?> newRefreshToken(
+            @CookieValue(name = "refresh-token") String refreshToken,
+            HttpServletResponse response
+    ) {
         var tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(refreshToken);
         var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, tokenDto.refreshToken());
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

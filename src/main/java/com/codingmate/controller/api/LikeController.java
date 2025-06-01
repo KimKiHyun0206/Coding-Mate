@@ -1,4 +1,4 @@
-package com.codingmate.controller.api.like;
+package com.codingmate.controller.api;
 
 import com.codingmate.common.response.ResponseDto;
 import com.codingmate.common.response.ResponseMessage;
