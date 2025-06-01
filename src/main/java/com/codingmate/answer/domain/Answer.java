@@ -44,7 +44,7 @@ public class Answer extends BaseEntity {
     private Programmer programmer;
 
     @Column(name = "vote_count")
-    private Integer voteCount = 0;
+    private Integer likeCount = 0;
 
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Like> likes = new HashSet<>();
@@ -71,13 +71,13 @@ public class Answer extends BaseEntity {
     }
 
     public void upVote(Like like){
-        this.voteCount++;
+        this.likeCount++;
         likes.add(like);
     }
 
     public void downVote(Like like){
-        if(this.voteCount > 0){
-            this.voteCount--;
+        if(this.likeCount > 0){
+            this.likeCount--;
             likes.remove(like);
         }
     }
