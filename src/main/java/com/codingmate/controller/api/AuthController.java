@@ -3,6 +3,7 @@ package com.codingmate.controller.api;
 import com.codingmate.common.response.ResponseDto;
 import com.codingmate.common.response.ResponseMessage;
 import com.codingmate.auth.dto.request.LoginRequest;
+import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.jwt.TokenProvider;
 import com.codingmate.auth.service.LoginService;
@@ -15,10 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,18 +24,22 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class AuthController {
     private final TokenProvider tokenProvider;
     private final ProgrammerService programmerService;
     private final RefreshTokenService refreshTokenService;
     private final LoginService loginService;
+    private final String ACCESS_TOKEN_HEADER_NAME;
+    private final String REFRESH_TOKEN_COOKIE_NAME;
 
-    @Value("${jwt.header}")
-    private String ACCESS_TOKEN_HEADER_NAME;
-
-    @Value("${jwt.refresh}")
-    private String REFRESH_TOKEN_COOKIE_NAME;
+    public AuthController(TokenProvider tokenProvider, ProgrammerService programmerService, RefreshTokenService refreshTokenService, LoginService loginService, JWTProperties jwtProperties) {
+        this.tokenProvider = tokenProvider;
+        this.programmerService = programmerService;
+        this.refreshTokenService = refreshTokenService;
+        this.loginService = loginService;
+        this.ACCESS_TOKEN_HEADER_NAME = jwtProperties.getAccessTokenHeader();
+        this.REFRESH_TOKEN_COOKIE_NAME = jwtProperties.getRefreshTokenCookie();
+    }
 
 
     @Operation(summary = "로그인", description = "ID/PW로 로그인을 시도합니다.")

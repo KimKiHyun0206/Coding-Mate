@@ -1,10 +1,10 @@
 package com.codingmate.util;
 
+import com.codingmate.config.properties.JWTProperties;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -14,11 +14,10 @@ public class JwtUtil {
     private static String ACCESS_TOKEN_HEADER;
 
     public JwtUtil(
-            @Value("${jwt.secret}") String SECRET,
-            @Value("${jwt.header}") String header
+            JWTProperties jwtProperties
     ) {
-        JwtUtil.SECRET = SECRET;
-        JwtUtil.ACCESS_TOKEN_HEADER = header;
+        JwtUtil.SECRET = jwtProperties.getSecret();
+        JwtUtil.ACCESS_TOKEN_HEADER = jwtProperties.getAccessTokenHeader();
     }
 
     public static Long getId(HttpServletRequest request) {

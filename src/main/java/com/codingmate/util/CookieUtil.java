@@ -1,21 +1,31 @@
 package com.codingmate.util;
 
-import lombok.experimental.UtilityClass;
+import com.codingmate.config.properties.JWTProperties;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
+import org.springframework.stereotype.Component;
 
-@UtilityClass
+@Slf4j
+@Component
 public class CookieUtil {
-    public ResponseCookie getCookie(String name, String value) {
+    private static final long ONE_DAY_IN_SECONDS = 24 * 60 * 60;
+    private static int expirationDays;
+
+    public CookieUtil(JWTProperties jwtProperties) {
+        CookieUtil.expirationDays = jwtProperties.getExpirationDays();
+    }
+
+    public static ResponseCookie getCookie(String name, String value) {
         return ResponseCookie.from(name, value)
                 .httpOnly(true)       // JavaScript 접근 불가
                 .secure(true)         // HTTPS 에서만 전송
                 .path("/")            // 모든 경로에서 쿠키 유효
-                .maxAge(60 * 24 * 60 * 60) // 예: 60일 (초 단위)
+                .maxAge(expirationDays * ONE_DAY_IN_SECONDS)
                 .sameSite("Lax")      // CSRF 방어 (Strict, Lax, None)
                 .build();
     }
 
-    public ResponseCookie deleteCookie(String name){
+    public static ResponseCookie deleteCookie(String name){
         return ResponseCookie.from(name, "") // 쿠키 이름은 클라이언트에 저장된 이름과 동일하게
                 .httpOnly(true)       // HttpOnly, Secure, Path 등 기존 쿠키와 동일한 속성 설정
                 .secure(true)         // HTTPS 환경에서는 true

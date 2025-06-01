@@ -24,9 +24,6 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public class JwtFilter extends GenericFilterBean {
-
-    @Value("${jwt.header}")
-    private String AUTHORIZATION_HEADER;
     private final TokenProvider tokenProvider;
 
     @Override

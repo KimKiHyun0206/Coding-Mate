@@ -1,5 +1,6 @@
 package com.codingmate.jwt;
 
+import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.jwt.ExpiredTokenException;
 import com.codingmate.exception.exception.jwt.IllegalTokenException;
@@ -33,11 +34,10 @@ public class TokenProvider implements InitializingBean {
     private Key key;
 
     public TokenProvider(
-            @Value("${jwt.secret}") String secret,
-            @Value("${jwt.token-validity-in-seconds}") long tokenValidityInSeconds
+            JWTProperties jwtProperties
     ) {
-        this.secret = secret;
-        this.tokenValidityInMilliseconds = tokenValidityInSeconds * 1000;
+        this.secret = jwtProperties.getSecret();
+        this.tokenValidityInMilliseconds = jwtProperties.getTokenValidityInSeconds() * 1000;
         //this.tokenValidityInMilliseconds = 10000; //TEST용 10초 토큰
     }
 

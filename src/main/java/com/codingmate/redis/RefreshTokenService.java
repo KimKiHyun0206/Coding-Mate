@@ -1,6 +1,7 @@
 package com.codingmate.redis;
 
 import com.codingmate.auth.dto.response.TokenDto;
+import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.redis.InvalidRefreshTokenException;
 import com.codingmate.exception.exception.redis.RefreshTokenIsNullException;
@@ -18,13 +19,16 @@ public class RefreshTokenService {
     private final RedisTemplate<String, RedisCacheInfo> redisTemplate;
     private final ValueOperations<String, RedisCacheInfo> valueOperations;
     private final TokenProvider tokenProvider;
+    private final int expirationDays;
 
     public RefreshTokenService(RedisTemplate<String, RedisCacheInfo> redisTemplate,
-                               TokenProvider tokenProvider
+                               TokenProvider tokenProvider,
+                               JWTProperties jwtProperties
     ) {
         this.redisTemplate = redisTemplate;
         this.valueOperations = redisTemplate.opsForValue();
         this.tokenProvider = tokenProvider;
+        this.expirationDays = jwtProperties.getExpirationDays();
     }
 
     public void saveToken(String token, Long id, String authority) {
@@ -33,7 +37,7 @@ public class RefreshTokenService {
                 .authority(authority)
                 .id(id)
                 .issuedAt(now)
-                .expiresAt(now.plusMonths(3))
+                .expiresAt(now.plusDays(expirationDays))
                 .build();
         log.info("save({}, {})", token, info);
         valueOperations.set(token, info);
