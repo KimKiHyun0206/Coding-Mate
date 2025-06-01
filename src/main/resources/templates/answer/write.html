@@ -158,6 +158,7 @@
     const backjoonIdInput = document.getElementById('backjoonId');
 
     createProblemForm.addEventListener('submit', async function (event) {
+        await check_and_refresh_token_for_nav_bar();
         event.preventDefault();
         let isValid = true;
 

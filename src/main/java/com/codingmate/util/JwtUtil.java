@@ -10,34 +10,26 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class JwtUtil {
-    private static String secret;
-    private static String header;
-    private static String refresh;
+    private static String SECRET;
+    private static String ACCESS_TOKEN_HEADER;
 
     public JwtUtil(
-            @Value("${jwt.secret}") String secret,
-            @Value("${jwt.header}") String header,
-            @Value("${jwt.refresh}") String refresh
+            @Value("${jwt.secret}") String SECRET,
+            @Value("${jwt.header}") String header
     ) {
-        JwtUtil.secret = secret;
-        JwtUtil.header = header;
-        JwtUtil.refresh = refresh;
+        JwtUtil.SECRET = SECRET;
+        JwtUtil.ACCESS_TOKEN_HEADER = header;
     }
 
     public static Long getId(HttpServletRequest request) {
-        String token = request.getHeader(header);
+        String token = request.getHeader(ACCESS_TOKEN_HEADER);
         if (token == null || token.equals("null")) return null;
         return getIdFromString(token);
     }
 
-    public static String getRefreshToken(HttpServletRequest request) {
-        String token = request.getHeader(refresh);
-        if (token == null || token.equals("null")) return null;
-        return token;
-    }
 
     public static String getAccessToken(HttpServletRequest request) {
-        String token = request.getHeader(header);
+        String token = request.getHeader(ACCESS_TOKEN_HEADER);
         if (token == null || token.equals("null")) return null;
         return token;
     }
@@ -48,7 +40,7 @@ public class JwtUtil {
     private static Claims getAllClaims(String token) {
         log.info("getAllClaims token = {}", token);
         return Jwts.parser()
-                .setSigningKey(secret)
+                .setSigningKey(SECRET)
                 .parseClaimsJws(token)
                 .getBody();
     }

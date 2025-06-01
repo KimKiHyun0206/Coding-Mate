@@ -186,11 +186,9 @@
                             throw new Error(`로그인 실패: ${errorData.message || '아이디 또는 비밀번호를 확인해주세요.'}`);
                         });
                     }
-                    const token = response.headers.get('Coding-Mate-Auth');
-                    const refreshToken = response.headers.get('Coding-Mate-Auth-Ref');
+                    const token = response.headers.get('Authorization');
                     if (token) {
-                        localStorage.setItem('Coding-Mate-Auth', token);
-                        localStorage.setItem('Coding-Mate-Auth-Ref', refreshToken);
+                        localStorage.setItem('Authorization', token);
                         alert('로그인 성공!');
                         window.location.href = '/'; // 로그인 성공 후 메인 페이지로
                     } else {

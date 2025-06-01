@@ -19,5 +19,10 @@
 </nav>
 
 <script src="/js/auth.js" defer></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        await check_and_refresh_token_for_nav_bar();
+    });
+</script>
 </body>
 </html>

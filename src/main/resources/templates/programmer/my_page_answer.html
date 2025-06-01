@@ -144,6 +144,7 @@
 <script>
     //로그인 여부에 따라 navbar가 바뀌도록 함
     document.addEventListener('DOMContentLoaded', async function () {
+        await check_and_refresh_token_for_nav_bar();
         await fetch_problem_list();
     });
 

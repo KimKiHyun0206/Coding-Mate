@@ -9,7 +9,9 @@ import com.codingmate.jwt.TokenProvider;
 import com.codingmate.auth.service.LoginService;
 import com.codingmate.programmer.service.ProgrammerService;
 import com.codingmate.redis.RefreshTokenService;
+import com.codingmate.util.CookieUtil;
 import com.codingmate.util.JwtUtil;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -19,6 +21,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,10 +36,10 @@ public class AuthController {
     private final LoginService loginService;
 
     @Value("${jwt.header}")
-    private String header;
+    private String ACCESS_TOKEN_HEADER_NAME;
 
     @Value("${jwt.refresh}")
-    private String refreshHeader;
+    private String REFRESH_TOKEN_COOKIE_NAME;
 
 
     @Operation(summary = "로그인", description = "ID/PW로 로그인을 시도합니다.")
@@ -54,8 +57,11 @@ public class AuthController {
         String refreshToken = tokenProvider.createRefreshToken(programmerResponse.id());
 
         refreshTokenService.saveToken(refreshToken, programmerResponse.id(), programmerResponse.authority());
-        response.setHeader(header, accessToken);
-        response.setHeader(refreshHeader, refreshToken);
+
+        var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken);
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());  //헤더에 쿠키 추가
+        response.addHeader(ACCESS_TOKEN_HEADER_NAME, accessToken);             //헤더에 액세스 토큰 추가
 
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
@@ -79,8 +85,11 @@ public class AuthController {
             @ApiResponse(responseCode = "404", description = "로그아웃 요청에 들어온 Refresh token이 유효하지 않습니다.")
     })
     @DeleteMapping("/sign-out")
-    public ResponseEntity<?> logout(HttpServletRequest request) {
-        refreshTokenService.deleteRefreshToken(JwtUtil.getRefreshToken(request));
+    public ResponseEntity<?> logout(@CookieValue(name = "refresh-token") String refreshToken, HttpServletResponse response) {
+        log.info(refreshToken);
+        refreshTokenService.deleteRefreshToken(refreshToken);
+        var cookie = CookieUtil.deleteCookie(REFRESH_TOKEN_COOKIE_NAME);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
@@ -115,8 +124,12 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "유효한 Refresh token이 아니기에 재발급에 실패앴습니다.")
     })
     @PostMapping("/tokens")
-    public ResponseEntity<ResponseDto<TokenDto>> newRefreshToken(HttpServletRequest request) {
-        var tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(JwtUtil.getRefreshToken(request));
-        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS, tokenDto);
+    public ResponseEntity<?> newRefreshToken(@CookieValue(name = "refresh-token") String refreshToken, HttpServletResponse response) {
+        log.info(refreshToken);
+        var tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(refreshToken);
+        var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, tokenDto.refreshToken());
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(ACCESS_TOKEN_HEADER_NAME, tokenDto.accessToken());
+        return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 }

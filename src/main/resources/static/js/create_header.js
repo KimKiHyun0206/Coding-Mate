@@ -1,11 +1,11 @@
 function create_header() {
-    const authToken = localStorage.getItem('Coding-Mate-Auth');
+    const authToken = localStorage.getItem('Authorization');
     const headers = {
         'Content-Type': 'application/json',
     };
 
     if (authToken) {
-        headers['Coding-Mate-Auth'] = `${authToken}`;
+        headers['Authorization'] = `${authToken}`;
     }
 
     return headers

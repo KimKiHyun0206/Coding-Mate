@@ -223,8 +223,7 @@
     });
 
     async function fetchDataWithAuth(url, options = {}) {
-        const createdHeader = create_header();
-        const newOptions = {...options, headers: createdHeader};
+        const newOptions = {...options, headers: create_header()};
         const response = await fetch(url, newOptions);
 
         if (!response.ok) {
@@ -257,8 +256,7 @@
                 .then(response => {
                     if (response.status === 204) {
                         alert('계정이 성공적으로 탈퇴되었습니다.');
-                        localStorage.removeItem('Coding-Mate-Auth');
-                        localStorage.removeItem('Coding-Mate-Auth-Ref');
+                        localStorage.removeItem('Authorization');
                         window.location.href = '/';
                     } else {
                         return response.json().then(errorData => {
