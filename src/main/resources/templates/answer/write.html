@@ -147,6 +147,7 @@
     </form>
 </div>
 <script src="/js/auth.js" defer></script>
+<script src="/js/create_header.js"></script>
 <script>
 
     const createProblemForm = document.getElementById('createProblemForm');
@@ -249,17 +250,6 @@
                 console.error('문제 생성 실패:', error);
                 alert(error.message);
             }
-        }
-
-        function create_header() {
-            const authToken = localStorage.getItem('Coding-Mate-Auth');
-            const headers = {
-                'Content-Type': 'application/json' // JSON 형식으로 보낼 때 Content-Type 설정
-            };
-            if (authToken) {
-                headers['Coding-Mate-Auth'] = authToken;
-            }
-            return headers;
         }
     })
 </script>

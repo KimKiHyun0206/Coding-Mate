@@ -171,6 +171,7 @@
     </div>
 </div>
 <script src="/js/auth.js" defer></script>
+<script src="/js/create_header.js"></script>
 <script>
     //로그인 여부에 따라 navbar가 바뀌도록 함
     document.addEventListener('DOMContentLoaded', function () {
@@ -365,19 +366,6 @@
                 alert(error.message || '풀이 삭제 요청 중 오류가 발생했습니다.');
             }
         }
-    }
-
-    function create_header() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        const headers = {
-            'Content-Type': 'application/json' // JSON 형식으로 보낼 때 Content-Type 설정
-        };
-
-        if (authToken) {
-            headers['Coding-Mate-Auth'] = `${authToken}`;
-        }
-
-        return headers
     }
 </script>
 </body>

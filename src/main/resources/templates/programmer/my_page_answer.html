@@ -140,6 +140,7 @@
 
 <button class="create-problem-button" onclick="location.href='/answer/write'">문제 생성</button>
 <script src="/js/auth.js" defer></script>
+<script src="/js/create_header.js"></script>
 <script>
     //로그인 여부에 따라 navbar가 바뀌도록 함
     document.addEventListener('DOMContentLoaded', async function () {
@@ -218,19 +219,6 @@
         const searchId = searchBackjoonIdInput.value.trim();
         const searchLanguage = searchLanguageSelect.value;
         fetch_problem_list(searchId, searchLanguage);
-    }
-
-    function create_header() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        const headers = {
-            'Content-Type': 'application/json',
-        };
-
-        if (authToken) {
-            headers['Coding-Mate-Auth'] = `${authToken}`;
-        }
-
-        return headers
     }
 </script>
 </body>

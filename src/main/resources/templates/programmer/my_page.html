@@ -193,6 +193,7 @@
     </div>
 </div>
 <script src="/js/auth.js" defer></script>
+<script src="/js/create_header.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
         console.log('DOMContentLoaded 시작');
@@ -237,15 +238,6 @@
             }
         }
         return response.json();
-    }
-
-    function create_header() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        const headers = {};
-        if (authToken) {
-            headers['Coding-Mate-Auth'] = `${authToken}`;
-        }
-        return headers;
     }
 
     function moveMyAnswer() {

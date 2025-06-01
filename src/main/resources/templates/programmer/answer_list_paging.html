@@ -180,6 +180,7 @@
 
 <button class="create-problem-button" onclick="location.href='/answer/write'">문제 생성</button>
 <script src="/js/auth.js" defer></script>
+<script src="/js/create_header.js"></script>
 <script>
     // 전역 변수로 현재 페이지 정보와 페이지 크기 설정
     let currentPage = 0; // Spring Data JPA는 페이지 번호를 0부터 시작
@@ -357,14 +358,6 @@
         console.log(`[update_pagination_buttons] 현재 페이지: ${currentPage}, 전체 페이지: ${totalPages}, 전체 항목: ${totalElements}`);
     }
 
-    function create_header() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        const headers = {};
-        if (authToken) {
-            headers['Coding-Mate-Auth'] = `${authToken}`;
-        }
-        return headers;
-    }
 </script>
 </body>
 </html>

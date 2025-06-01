@@ -145,6 +145,7 @@
     </form>
 </div>
 <script src="/js/auth.js" defer></script>
+<script src="/js/create_header.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const answerId = get_answer_id_from_url();
@@ -234,8 +235,6 @@
             });
             console.log('update response:', response); // 응답 확인 로그
             if (response.ok) {
-                const responseData = await response.json();
-                console.log('update responseData:', responseData); // 응답 데이터 확인 로그
                 alert('풀이가 성공적으로 수정되었습니다.');
                 window.location.href = `/answer/${answerId}`;
                 return;
@@ -261,19 +260,6 @@
             document.getElementById('errorMessage').textContent = error.message;
             document.getElementById('errorMessage').style.display = 'block';
         }
-    }
-
-    function create_header() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        const headers = {
-            'Content-Type': 'application/json' // JSON 형식으로 보낼 때 Content-Type 설정
-        };
-
-        if (authToken) {
-            headers['Coding-Mate-Auth'] = `${authToken}`;
-        }
-
-        return headers
     }
 </script>
 </body>

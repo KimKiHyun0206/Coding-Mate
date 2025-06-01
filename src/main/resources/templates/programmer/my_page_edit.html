@@ -110,6 +110,7 @@
     </form>
 </div>
 <script src="/js/auth.js" defer></script>
+<script src="/js/create_header.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         fetch_profile();
@@ -192,19 +193,6 @@
             document.getElementById('errorMessage').textContent = error.message;
             document.getElementById('errorMessage').style.display = 'block';
         }
-    }
-
-    function create_header() {
-        const authToken = localStorage.getItem('Coding-Mate-Auth');
-        const headers = {
-            'Content-Type': 'application/json',
-        };
-
-        if (authToken) {
-            headers['Coding-Mate-Auth'] = `${authToken}`;
-        }
-
-        return headers
     }
 </script>
 </body>
