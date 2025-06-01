@@ -18,7 +18,7 @@ public class AnswerUIController {
     @RequestMapping("/{id}")
     public String answerPage(@PathVariable(name = "id") Long id) {
         log.info("answerPage({})", id);
-        return "answer/answer";
+        return "answer/answer_details";
     }
 
     @RequestMapping("/write")

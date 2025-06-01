@@ -4,11 +4,16 @@ import com.codingmate.answer.dto.request.AnswerCreateRequest;
 import com.codingmate.common.BaseEntity;
 import com.codingmate.answer.domain.vo.LanguageType;
 import com.codingmate.programmer.domain.Programmer;
+import com.codingmate.like.domain.Like;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Getter
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Answer extends BaseEntity {
 
@@ -38,7 +43,13 @@ public class Answer extends BaseEntity {
     @JoinColumn(name = "programmer_id")
     private Programmer programmer;
 
-    @Builder
+    @Column(name = "vote_count")
+    private Integer voteCount = 0;
+
+    @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Like> likes = new HashSet<>();
+
+    @Builder(access = AccessLevel.PRIVATE)
     public Answer(Long backJoonId, String title, String code, String explanation, LanguageType languageType, Programmer programmer) {
         this.backJoonId = backJoonId;
         this.title = title;
@@ -57,5 +68,17 @@ public class Answer extends BaseEntity {
                 .programmer(programmer)
                 .backJoonId(request.backjoonId())
                 .build();
+    }
+
+    public void upVote(Like like){
+        this.voteCount++;
+        likes.add(like);
+    }
+
+    public void downVote(Like like){
+        if(this.voteCount > 0){
+            this.voteCount--;
+            likes.remove(like);
+        }
     }
 }

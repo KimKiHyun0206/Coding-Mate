@@ -3,6 +3,7 @@ package com.codingmate.answer.dto.response;
 import com.codingmate.answer.domain.Answer;
 import com.codingmate.answer.domain.vo.LanguageType;
 import lombok.Builder;
+import org.apache.el.parser.BooleanNode;
 
 import java.util.Objects;
 
@@ -16,19 +17,24 @@ public record AnswerPageResponse(
         String programmerName,
         Long programmerId,
         LanguageType languageType,
-        Boolean isRequesterIsOwner) {
+        Integer voteCount,
+        Boolean isRequesterIsOwner,
+        Boolean isLiked
+        ) {
 
-    public static AnswerPageResponse of(Answer answer, Long requestProgrammerId) {
+    public static AnswerPageResponse of(Answer answer, Long requestProgrammerId, Boolean isLiked) {
         return AnswerPageResponse.builder()
                 .id(answer.getId())
                 .backjoonId(answer.getBackJoonId())
                 .title(answer.getTitle())
                 .code(answer.getCode())
                 .explanation(answer.getExplanation())
+                .voteCount(answer.getVoteCount())
                 .programmerId(answer.getProgrammer().getId())
                 .languageType(answer.getLanguageType())
                 .programmerName(answer.getProgrammer().getName().getName())
                 .isRequesterIsOwner(Objects.equals(requestProgrammerId, answer.getProgrammer().getId()))
+                .isLiked(isLiked)
                 .build();
     }
 }
