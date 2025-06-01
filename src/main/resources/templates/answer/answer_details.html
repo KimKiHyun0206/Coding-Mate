@@ -162,7 +162,6 @@
     <p id="error" style="color: red; display: none;">풀이 정보를 불러오는 데 실패했습니다.</p>
 
     <div class="like-section" id="voteSection" style="display: none;">
-        <span class="like-count" id="displayLikeCount">0</span>
         <button id="voteButton"></button>
     </div>
 
@@ -381,10 +380,8 @@
         const actionButtons = document.getElementById('actionButtons');
         const voteSection = document.getElementById('voteSection');
         const voteButton = document.getElementById('voteButton');
-        const displayLikeCount = document.getElementById('displayLikeCount');
 
         // 추천 수 및 버튼 상태 업데이트
-        displayLikeCount.textContent = answer.likeCount;
         update_vote_button_state(answer.isLiked);
 
         // 수정/삭제 버튼 표시 여부
@@ -454,7 +451,6 @@
 
             // UI 업데이트 (추천 수, 버튼 상태)
             document.getElementById('likeCount').textContent = updatedAnswer.likeCount;
-            document.getElementById('displayLikeCount').textContent = updatedAnswer.likeCount;
             update_vote_button_state(!currentAnswer.isLiked);
 
             // currentAnswer 업데이트
