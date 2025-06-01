@@ -15,6 +15,7 @@ import com.codingmate.exception.exception.answer.NotFoundAnswerException;
 import com.codingmate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingmate.answer.repository.DefaultAnswerRepository;
 import com.codingmate.programmer.repository.DefaultProgrammerRepository;
+import com.codingmate.like.repository.LikeRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class AnswerService {
     private final AnswerWriteRepository writeRepository;
     private final DefaultAnswerRepository defaultAnswerRepository;
     private final DefaultProgrammerRepository defaultProgrammerRepository;
+    private final LikeRepository likeRepository;
 
     @Transactional
     public AnswerCreateResponse create(Long programmerId, AnswerCreateRequest request) {
@@ -52,8 +54,8 @@ public class AnswerService {
                         String.format("요청한 %d로 Answer를 생성하지 못했습니다", answerId)
                 )
         );
-
-        return AnswerPageResponse.of(answer, programmerId);
+        boolean isLiked = likeRepository.existsByProgrammerAndAnswer(answer.getProgrammer(), answer);
+        return AnswerPageResponse.of(answer, programmerId, isLiked);
     }
 
     @Transactional(readOnly = true)
