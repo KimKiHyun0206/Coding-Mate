@@ -16,11 +16,15 @@ import java.util.List;
 
 //TODO follow 기능 추가 염두해둘 것
 @Entity
+@Table(name = "programmer")
 @Getter
+@ToString(exclude = {"authority", "likedAnswers"})
+@Builder(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Programmer extends BaseEntity {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "programmer_id")
     private Long id;
 
@@ -49,41 +53,15 @@ public class Programmer extends BaseEntity {
     @OneToMany(mappedBy = "programmer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likedAnswers = new ArrayList<>();
 
-    @Builder(access = AccessLevel.PRIVATE)
-    public Programmer(String loginId, String githubId, String password, Name name, Email email, String tip, Authority authority) {
-        this.loginId = loginId;
-        this.githubId = githubId;
-        this.password = password;
-        this.name = name;
-        this.email = email;
-        this.tip = tip;
-        this.authority = authority;
-    }
-
-    public static Programmer toEntity(ProgrammerCreateRequest request) {
+    public static Programmer toEntity(ProgrammerCreateRequest request, Authority authority) {
         return Programmer.builder()
                 .email(new Email(request.email()))
                 .name(new Name(request.name()))
                 .githubId(request.githubId())
                 .password(request.password())
-                .authority(Authority.toEntity("ROLE_USER"))
+                .authority(authority)
                 .loginId(request.loginId())
                 .tip("팁이 있다면 공유해주세요")
                 .build();
-    }
-
-    @Override
-    public String toString() {
-        return "Programmer{" +
-                "id=" + id +
-                ", loginId='" + loginId + '\'' +
-                ", githubId='" + githubId + '\'' +
-                ", password='" + password + '\'' +
-                ", name=" + name +
-                ", email=" + email +
-                ", tip='" + tip + '\'' +
-                ", authority=" + authority +
-                ", likedAnswers=" + likedAnswers +
-                '}';
     }
 }

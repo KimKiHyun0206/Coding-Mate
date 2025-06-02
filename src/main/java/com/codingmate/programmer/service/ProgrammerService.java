@@ -2,6 +2,7 @@ package com.codingmate.programmer.service;
 
 import com.codingmate.answer.repository.AnswerReadRepository;
 import com.codingmate.answer.repository.AnswerWriteRepository;
+import com.codingmate.auth.service.AuthorityFinder;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingmate.programmer.dto.response.MyPageResponse;
@@ -27,6 +28,7 @@ public class ProgrammerService {
     private final ProgrammerReadRepository readRepository;
     private final AnswerReadRepository answerReadRepository;
     private final AnswerWriteRepository answerWriteRepository;
+    private final AuthorityFinder authorityFinder;
 
     @Transactional
     public void create(ProgrammerCreateRequest request) {
@@ -37,7 +39,7 @@ public class ProgrammerService {
             );
         }
 
-        var result = writeRepository.create(request)
+        writeRepository.create(request, authorityFinder.getUserAuthority("ROLE_USER"))
                 .orElseThrow(() -> new ProgrammerNotCreateException(
                         ErrorMessage.PROGRAMMER_NOT_CREATED,
                         "요청에 따른 PROGRAMMER가 생성되지 않았습니다.")
