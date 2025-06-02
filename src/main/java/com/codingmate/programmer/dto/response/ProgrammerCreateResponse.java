@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record ProgrammerCreateResponse(String githubLink, String name, String email, String tip) {
-    public static ProgrammerCreateResponse from(Programmer programmer) {
+    public static ProgrammerCreateResponse of(Programmer programmer) {
         return ProgrammerCreateResponse.builder()
                 .githubLink(programmer.getGithubId())
                 .name(programmer.getName().getName())

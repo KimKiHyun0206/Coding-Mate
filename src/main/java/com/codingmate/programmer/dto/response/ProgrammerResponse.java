@@ -13,7 +13,7 @@ public record ProgrammerResponse(
         String email,
         String tip,
         String authority) {
-    public static ProgrammerResponse from(Programmer programmer) {
+    public static ProgrammerResponse of(Programmer programmer) {
         return ProgrammerResponse.builder()
                 .id(programmer.getId())
                 .loginId(programmer.getLoginId())
