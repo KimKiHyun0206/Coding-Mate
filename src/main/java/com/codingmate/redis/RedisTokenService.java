@@ -13,12 +13,12 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Service
-public class RefreshTokenService {
+public class RedisTokenService {
     private final TokenProvider tokenProvider;
     private final RedisRepository redisRepository;
     private final int REDIS_TOKEN_EXPIRE_DAYS;
 
-    public RefreshTokenService(
+    public RedisTokenService(
             TokenProvider tokenProvider,
             RedisRepository redisRepository,
             JWTProperties jwtProperties
