@@ -8,6 +8,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.stream.Collectors;
+
 @Slf4j
 @RestControllerAdvice
 public class BusinessExceptionHandler {
@@ -23,10 +25,12 @@ public class BusinessExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     protected ResponseEntity<ErrorResponseDto> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
-        var errorMessage = ErrorMessage.INVALID_REQUEST_PARAMETER;
+        String detailedErrorMessage = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                .collect(Collectors.joining(", "));
 
-        log.error("[ERROR] MethodArgumentNotValidException -> {}", e.getBindingResult());
+        log.error("[ERROR] MethodArgumentNotValidException -> {}", detailedErrorMessage);
 
-        return ErrorResponseDto.of(errorMessage);
+        return ErrorResponseDto.of(ErrorMessage.INVALID_REQUEST_PARAMETER);
     }
 }
