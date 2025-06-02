@@ -1,6 +1,6 @@
 package com.codingmate.auth.service;
 
-import com.codingmate.auth.dto.response.TokenDto;
+import com.codingmate.auth.dto.response.TokenResponse;
 import com.codingmate.jwt.TokenProvider;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -20,14 +20,14 @@ public class TokenService {
      * @param authority 토큰에 포함될 사용자의 권한
      * @return 생성된 Access Token과 Refresh Token을 담은 TokenDto
      */
-    public TokenDto generateToken(Long id, String authority) {
+    public TokenResponse generateToken(Long id, String authority) {
         log.debug("[TokenService] generateToken - Request to generate tokens for user ID: {}, authority: {}", id, authority);
 
         log.info("[TokenService] Generating new access and refresh tokens for user ID: {}", id);
         String accessToken = tokenProvider.createAccessToken(id, authority);
         String refreshToken = tokenProvider.createRefreshToken(id);
 
-        var tokenDto = new TokenDto(accessToken, refreshToken);
+        var tokenDto = new TokenResponse(accessToken, refreshToken);
 
         log.info("[TokenService] Tokens successfully generated for user ID: {}", id);
         log.debug("[TokenService] Generated Access Token (prefix): {}, Refresh Token (prefix): {}",

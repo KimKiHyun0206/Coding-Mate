@@ -1,6 +1,6 @@
 package com.codingmate.redis;
 
-import com.codingmate.auth.dto.response.TokenDto;
+import com.codingmate.auth.dto.response.TokenResponse;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.redis.FailedDeleteRefreshToken;
@@ -36,7 +36,7 @@ public class RedisTokenService {
      * @throws com.codingmate.exception.exception.redis.InvalidRefreshTokenException 리프레시 토큰이 유효하지 않거나 Redis에 없는 경우 발생
      * @throws com.codingmate.exception.exception.redis.FailedDeleteRefreshToken 기존 리프레시 토큰 삭제에 실패한 경우 발생
      */
-    public TokenDto refreshTokens(String refreshToken) {
+    public TokenResponse refreshTokens(String refreshToken) {
         log.debug("[RedisTokenService] refreshTokens({})", refreshToken);
         log.info("[RedisTokenService] Refresh token renewal request for: {}", refreshToken);
         validateToken(refreshToken);    //토큰이 유효한지 검증한다
@@ -58,7 +58,7 @@ public class RedisTokenService {
         //기존 토큰을 제거하고 새로운 refreshToken을 저장함
         renewToken(refreshToken, newRefreshToken, redisCacheInfo);
         log.info("[RedisTokenService] Tokens successfully refreshed. New Access Token Length: {}, New Refresh Token Length: {}", newAccessToken.length(), newRefreshToken.length());
-        return TokenDto.of(newAccessToken, newRefreshToken);
+        return TokenResponse.of(newAccessToken, newRefreshToken);
     }
 
     /**
