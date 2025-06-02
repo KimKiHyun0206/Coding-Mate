@@ -1,6 +1,5 @@
 package com.codingmate.auth.service;
 
-import com.codingmate.programmer.domain.Programmer;
 import com.codingmate.programmer.dto.response.ProgrammerResponse;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.programmer.LoginIdNotMatchException;
@@ -19,25 +18,24 @@ import org.springframework.transaction.annotation.Transactional;
 public class LoginService {
     private final ProgrammerReadRepository programmerReadRepository;
     private final PasswordEncoder passwordEncoder;
-    /**
-     * @implNote 아이디로 유저를 찾는다
-     * */
-    @Transactional(readOnly = true)
-    public Programmer getUserWithAuthorities(String loginId) {
-        log.info("getUserWithAuthorities({})", loginId);
-        return programmerReadRepository.readByLoginId(loginId)
-                .orElseThrow(() -> new LoginIdNotMatchException(ErrorMessage.WRONG_ID, "요청한 ID가 일치하지 않습니다"));
-    }
 
     @Transactional(readOnly = true)
     public ProgrammerResponse login(String loginId, String password) {
-        log.info("login({}, {})", loginId, password);
-        Programmer programmer = programmerReadRepository.readByLoginId(loginId)
-                .orElseThrow(() -> new LoginIdNotMatchException(ErrorMessage.WRONG_ID, "요청한 ID가 일치하지 않습니다"));;
+        log.info("[SYSTEM] login({}, {})", loginId, password);
+        var programmer = programmerReadRepository.readByLoginId(loginId)
+                .orElseThrow(() ->
+                        new LoginIdNotMatchException(
+                                ErrorMessage.WRONG_ID,
+                                String.format("요청한 ID %s는 존재하지 않는 ID입니다.", loginId)
+                        )
+                );
 
         if (!passwordEncoder.matches(password, programmer.getPassword())) {
-            throw new PasswordNotMatchException(ErrorMessage.WRONG_PASSWORD, "요청한 비밀번호가 일치하지 않습니다");
+            throw new PasswordNotMatchException(
+                    ErrorMessage.WRONG_PASSWORD,
+                    String.format("요청한 비밀번호 %s가 요청한 ID의 비밀번호와 일치하지 않습니다.", password)
+            );
         }
-        return ProgrammerResponse.from(programmer);
+        return ProgrammerResponse.of(programmer);
     }
 }
