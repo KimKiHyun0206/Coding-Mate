@@ -35,4 +35,6 @@ public class JWTProperties {
      * Access Token의 만료 기간 (초 단위)
      */
     private long tokenValidityInSeconds;
+
+    private String authorityKey;
 }

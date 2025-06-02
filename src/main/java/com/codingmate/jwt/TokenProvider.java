@@ -11,8 +11,6 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,25 +24,20 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Component
-public class TokenProvider implements InitializingBean {
+public class TokenProvider {
 
-    private static final String AUTHORITIES_KEY = "auth";
-    private final String secret;
-    private final long tokenValidityInMilliseconds;
-    private Key key;
+    private final String AUTHORITIES_KEY;
+    private final long VALIDATE_TIME_IN_SECOND;
+    private final Key KEY;
 
     public TokenProvider(
             JWTProperties jwtProperties
     ) {
-        this.secret = jwtProperties.getSecret();
-        this.tokenValidityInMilliseconds = jwtProperties.getTokenValidityInSeconds() * 1000;
+        this.AUTHORITIES_KEY = jwtProperties.getAuthorityKey();
+        this.VALIDATE_TIME_IN_SECOND = jwtProperties.getTokenValidityInSeconds();
         //this.tokenValidityInMilliseconds = 10000; //TEST용 10초 토큰
-    }
-
-    @Override
-    public void afterPropertiesSet() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        this.key = Keys.hmacShaKeyFor(keyBytes);
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());
+        this.KEY = Keys.hmacShaKeyFor(keyBytes);
     }
 
     /**
@@ -61,24 +54,25 @@ public class TokenProvider implements InitializingBean {
         var claims = Jwts.claims().setSubject(String.valueOf(userId));
         claims.put(AUTHORITIES_KEY, role);
         claims.put("id", userId);
+
+        return buildToken(claims);
+    }
+
+    public String createRefreshToken(Long userId) {
+        var claims = Jwts
+                .claims()
+                .setSubject(String.valueOf(userId));
+
+        return buildToken(claims);
+    }
+
+    private String buildToken(Claims claims) {
         var date = new Date();
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(date)
-                .signWith(SignatureAlgorithm.HS256, key)
-                .setExpiration(DateUtil.getTokenValidTime(date, tokenValidityInMilliseconds))
-                .compact();
-    }
-
-    public String createRefreshToken(Long userId) {
-        var claims = Jwts.claims().setSubject(String.valueOf(userId));
-        Date now = new Date();
-
-        return Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(DateUtil.getTokenValidTime(now, tokenValidityInMilliseconds))
-                .signWith(SignatureAlgorithm.HS256, key)
+                .signWith(SignatureAlgorithm.HS256, KEY)
+                .setExpiration(DateUtil.getTokenValidTime(date, VALIDATE_TIME_IN_SECOND))
                 .compact();
     }
 
@@ -86,7 +80,7 @@ public class TokenProvider implements InitializingBean {
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts
                 .parserBuilder()
-                .setSigningKey(key)
+                .setSigningKey(KEY)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
@@ -103,7 +97,7 @@ public class TokenProvider implements InitializingBean {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+            Jwts.parserBuilder().setSigningKey(KEY).build().parseClaimsJws(token);
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.info("잘못된 JWT 서명입니다 {}", token);
