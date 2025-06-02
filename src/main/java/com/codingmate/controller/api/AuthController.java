@@ -1,5 +1,6 @@
 package com.codingmate.controller.api;
 
+import com.codingmate.auth.service.TokenService;
 import com.codingmate.common.response.ResponseDto;
 import com.codingmate.common.response.ResponseMessage;
 import com.codingmate.auth.dto.request.LoginRequest;
@@ -25,18 +26,25 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
-    private final TokenProvider tokenProvider;
     private final ProgrammerService programmerService;
     private final RefreshTokenService refreshTokenService;
     private final LoginService loginService;
+    private final TokenService tokenService;
+
     private final String ACCESS_TOKEN_HEADER_NAME;
     private final String REFRESH_TOKEN_COOKIE_NAME;
 
-    public AuthController(TokenProvider tokenProvider, ProgrammerService programmerService, RefreshTokenService refreshTokenService, LoginService loginService, JWTProperties jwtProperties) {
-        this.tokenProvider = tokenProvider;
+    public AuthController(
+            ProgrammerService programmerService,
+            RefreshTokenService refreshTokenService,
+            LoginService loginService,
+            TokenService tokenService,
+            JWTProperties jwtProperties
+    ) {
         this.programmerService = programmerService;
         this.refreshTokenService = refreshTokenService;
         this.loginService = loginService;
+        this.tokenService = tokenService;
         this.ACCESS_TOKEN_HEADER_NAME = jwtProperties.getAccessTokenHeader();
         this.REFRESH_TOKEN_COOKIE_NAME = jwtProperties.getRefreshTokenCookie();
     }
@@ -45,23 +53,26 @@ public class AuthController {
     @Operation(summary = "로그인", description = "ID/PW로 로그인을 시도합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그인 성공."),
-            @ApiResponse(responseCode = "404", description = "ID/PW가 틀렸습니다.")
+            @ApiResponse(responseCode = "400", description = "ID/PW가 틀렸습니다.")
     })
     @PostMapping("/sign-in")
     public ResponseEntity<?> login(
             @RequestBody LoginRequest loginRequest,
             HttpServletResponse response
     ) {
-        var programmerResponse = loginService.login(loginRequest.loginId(), loginRequest.password());
-        String accessToken = tokenProvider.createAccessToken(programmerResponse.id(), programmerResponse.authority());
-        String refreshToken = tokenProvider.createRefreshToken(programmerResponse.id());
+        var programmer = loginService.login(loginRequest.loginId(), loginRequest.password());
+        var tokens = tokenService.generateToken(programmer.id(), programmer.authority());
 
-        refreshTokenService.saveToken(refreshToken, programmerResponse.id(), programmerResponse.authority());
+        refreshTokenService.saveToken(
+                tokens.refreshToken(),
+                programmer.id(),
+                programmer.authority()
+        );
 
-        var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, refreshToken);
+        var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken());
 
-        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());  //헤더에 쿠키 추가
-        response.addHeader(ACCESS_TOKEN_HEADER_NAME, accessToken);             //헤더에 액세스 토큰 추가
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());                  //헤더에 쿠키 추가
+        response.addHeader(ACCESS_TOKEN_HEADER_NAME, tokens.accessToken());             //헤더에 액세스 토큰 추가
 
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
@@ -70,7 +81,7 @@ public class AuthController {
     @Operation(summary = "회원가입", description = "회원가입을 요청합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "회원가입 성공."),
-            @ApiResponse(responseCode = "404", description = "요청 중 어떤 값이 유효하지 않은 값이라서 거부되었습니다.")
+            @ApiResponse(responseCode = "400", description = "요청 중 어떤 값이 유효하지 않은 값이라서 거부되었습니다.")
     })
     @PostMapping("/sign-up")
     public ResponseEntity<?> register(@RequestBody ProgrammerCreateRequest programmerCreateRequest) {
@@ -82,7 +93,7 @@ public class AuthController {
     @Operation(summary = "로그아웃", description = "로그아웃을 시도합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "로그아웃 성공."),
-            @ApiResponse(responseCode = "404", description = "로그아웃 요청에 들어온 Refresh token이 유효하지 않습니다.")
+            @ApiResponse(responseCode = "401", description = "로그아웃 요청에 들어온 Refresh token이 유효하지 않습니다.")
     })
     @DeleteMapping("/sign-out")
     public ResponseEntity<?> logout(@CookieValue(name = "refresh-token") String refreshToken, HttpServletResponse response) {
@@ -97,7 +108,7 @@ public class AuthController {
     @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 시도합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공."),
-            @ApiResponse(responseCode = "404", description = "유효한 사용자가 아니기에 탈퇴하지 못했습니다.")
+            @ApiResponse(responseCode = "401", description = "유효한 사용자가 아니기에 탈퇴하지 못했습니다.")
     })
     @DeleteMapping("/me")
     public ResponseEntity<?> withdrawal(HttpServletRequest request) {
@@ -113,7 +124,7 @@ public class AuthController {
     })
     @GetMapping("/tokens")
     public ResponseEntity<?> validateAccessToken(HttpServletRequest request) {
-        tokenProvider.validateToken(JwtUtil.getAccessToken(request));
+        tokenService.validateToken(JwtUtil.getAccessToken(request));
         return ResponseDto.toResponseEntity(ResponseMessage.AUTHORIZED);
     }
 
