@@ -10,7 +10,7 @@ import lombok.*;
 @Table(name = "authority")
 @Builder
 @Getter
-@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Authority {
     @Id
