@@ -8,9 +8,10 @@ import lombok.*;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString(exclude = {"programmer", "answer"})
 @Builder(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "answer_like", uniqueConstraints = {
         @UniqueConstraint(columnNames = {"programmer_id", "answer_id"})
 })

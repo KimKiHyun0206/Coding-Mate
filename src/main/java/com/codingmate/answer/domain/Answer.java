@@ -12,8 +12,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "answer")
 @Getter
-@ToString
+@ToString(exclude = {"likes", "programmer"})
+@Builder(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Answer extends BaseEntity {
 
@@ -38,7 +41,6 @@ public class Answer extends BaseEntity {
     @Column(name = "language_type")
     private LanguageType languageType;
 
-    @Setter
     @ManyToOne
     @JoinColumn(name = "programmer_id")
     private Programmer programmer;
@@ -49,17 +51,7 @@ public class Answer extends BaseEntity {
     @OneToMany(mappedBy = "answer", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Like> likes = new HashSet<>();
 
-    @Builder(access = AccessLevel.PRIVATE)
-    public Answer(Long backJoonId, String title, String code, String explanation, LanguageType languageType, Programmer programmer) {
-        this.backJoonId = backJoonId;
-        this.title = title;
-        this.code = code;
-        this.explanation = explanation;
-        this.languageType = languageType;
-        this.programmer = programmer;
-    }
-
-    public static Answer toEntity(AnswerCreateRequest request,Programmer programmer){
+    public static Answer toEntity(AnswerCreateRequest request, Programmer programmer) {
         return Answer.builder()
                 .code(request.code())
                 .title(request.title())
@@ -70,13 +62,13 @@ public class Answer extends BaseEntity {
                 .build();
     }
 
-    public void upVote(Like like){
+    public void upVote(Like like) {
         this.likeCount++;
         likes.add(like);
     }
 
-    public void downVote(Like like){
-        if(this.likeCount > 0){
+    public void downVote(Like like) {
+        if (this.likeCount > 0) {
             this.likeCount--;
             likes.remove(like);
         }
