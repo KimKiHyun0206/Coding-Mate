@@ -38,7 +38,7 @@ public class AnswerService {
     public AnswerCreateResponse create(Long programmerId, AnswerCreateRequest request) {
         var writer = defaultProgrammerRepository.findById(programmerId)
                 .orElseThrow(() -> new NotFoundProgrammerException(
-                        ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION,
+                        ErrorMessage.NOT_FOUND_PROGRAMMER,
                         String.format("Answer를 생성하던 중 %d로 Programmer를 조회하지 못했습니다.", programmerId))
                 );
 
@@ -50,7 +50,7 @@ public class AnswerService {
     @Transactional(readOnly = true)
     public AnswerPageResponse read(Long answerId, Long programmerId) {
         var answer = readRepository.read(answerId).orElseThrow(() -> new NotFoundAnswerException(
-                        ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION,
+                        ErrorMessage.NOT_FOUND_ANSWER,
                         String.format("요청한 %d로 Answer를 생성하지 못했습니다", answerId)
                 )
         );
@@ -73,7 +73,7 @@ public class AnswerService {
         long changedRowNumber = writeRepository.update(programmerId, answerId, request);
         if (changedRowNumber == 0) {
             throw new NotFoundAnswerException(
-                    ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION,
+                    ErrorMessage.NOT_FOUND_ANSWER,
                     String.format("요청한 %d로 Answer를 조회하지 못했습니다", answerId)
             );
         }
@@ -83,7 +83,7 @@ public class AnswerService {
     public void delete(Long programmerId, Long answerId) {
         var answer = readRepository.read(answerId)
                 .orElseThrow(() -> new NotFoundAnswerException(
-                        ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION,
+                        ErrorMessage.NOT_FOUND_ANSWER,
                         String.format("요청한 Id %d를 가진 Answer가 존재하지 않습니다.", answerId))
                 );
 

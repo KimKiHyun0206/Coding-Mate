@@ -1,19 +1,22 @@
 package com.codingmate.exception.dto;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public enum ErrorMessage {
     //Server
     INVALID_REQUEST_PARAMETER(HttpStatus.BAD_REQUEST, "잘못된 요청 입니다."),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "예기치 못한 에러가 발생했습니다"),
 
     //PROGRAMMER
-    DUPLICATE_PROGRAMMER_EXCEPTION(HttpStatus.CONFLICT, "중복된 PROGRAMMER 가 존재합니다"),
+    DUPLICATE_PROGRAMMER(HttpStatus.CONFLICT, "중복된 PROGRAMMER 가 존재합니다"),
     PROGRAMMER_NOT_CREATED(HttpStatus.BAD_REQUEST, "요청이 올바르지 않아 PROGRAMMER가 생성되지 않았습니다"),
     INVALID_ID(HttpStatus.BAD_REQUEST, "요청한 ID는 존재하지 않는 ID입니다"),
-    NOT_FOUND_PROGRAMMER_EXCEPTION(HttpStatus.NOT_FOUND, "요청한 PROGRAMMER 를 찾을 수 없습니다"),
+    NOT_FOUND_PROGRAMMER(HttpStatus.NOT_FOUND, "요청한 PROGRAMMER 를 찾을 수 없습니다"),
     INVALID_PASSWORD_REGEX(HttpStatus.CONFLICT, "유효한 비밀번호 형식이 아닙니다"),
     INVALID_EMAIL_REGEX(HttpStatus.CONFLICT, "유효한 이메일 형식이 아닙니다"),
     INVALID_NAME_REGEX(HttpStatus.CONFLICT, "유효한 이름 형식이 아닙니다"),
@@ -22,7 +25,7 @@ public enum ErrorMessage {
     WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "Password 가 일치하지 않습니다"),
 
     //ANSWER
-    NOT_FOUND_ANSWER_EXCEPTION(HttpStatus.NOT_FOUND, "요청한 ANSWER 를 찾을 수 없습니다"),
+    NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "요청한 ANSWER 를 찾을 수 없습니다"),
     ANSWER_AND_PROGRAMMER_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, "요청한 ANSWER는 요청한 PROGRAMMER의 ANSWER가 아닙니다"),
 
     //JWT
@@ -40,18 +43,4 @@ public enum ErrorMessage {
 
     private final HttpStatus status;
     private final String message;
-
-    ErrorMessage(HttpStatus status, String message) {
-        this.status = status;
-        this.message = message;
-    }
-
-    public HttpStatus getStatus() {
-        return status;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
 }

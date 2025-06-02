@@ -18,7 +18,7 @@ public class AnswerFinder {
     public Answer read(Long id) {
         return answerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundAnswerException(
-                        ErrorMessage.NOT_FOUND_ANSWER_EXCEPTION,
+                        ErrorMessage.NOT_FOUND_ANSWER,
                         "답변을 찾을 수 없습니다.")
                 );
     }

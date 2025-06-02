@@ -18,7 +18,7 @@ public class ProgrammerFinder {
     public Programmer read(Long id){
         return programmerRepository.findById(id)
                 .orElseThrow(() -> new NotFoundProgrammerException(
-                        ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION,
+                        ErrorMessage.NOT_FOUND_PROGRAMMER,
                         "프로그래머를 찾을 수 없습니다.")
                 );
     }

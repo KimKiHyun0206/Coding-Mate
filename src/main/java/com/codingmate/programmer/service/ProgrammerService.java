@@ -34,7 +34,7 @@ public class ProgrammerService {
     public void create(ProgrammerCreateRequest request) {
         if (readRepository.isExistLoginId(request.loginId())) {
             throw new DuplicateProgrammerLoginIdException(
-                    ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION,
+                    ErrorMessage.DUPLICATE_PROGRAMMER,
                     "요청한 Id는 이미 존재하는 Id입니다"
             );
         }
@@ -50,7 +50,7 @@ public class ProgrammerService {
     public void checkLoginIdAvailability(String loginId) {
         if (readRepository.isExistLoginId(loginId)) {
             throw new DuplicateProgrammerLoginIdException(
-                    ErrorMessage.DUPLICATE_PROGRAMMER_EXCEPTION,
+                    ErrorMessage.DUPLICATE_PROGRAMMER,
                     "요청한 ID는 중복된 ID입니다. " + loginId
             );
         }
@@ -72,7 +72,7 @@ public class ProgrammerService {
         long changedRows = writeRepository.update(programmerId, request);
         if (changedRows == 0) { // 변경된 행이 0개인 경우 (찾지 못한 경우)
             throw new NotFoundProgrammerException(
-                    ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION,
+                    ErrorMessage.NOT_FOUND_PROGRAMMER,
                     String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", programmerId)
             );
         }
@@ -87,7 +87,7 @@ public class ProgrammerService {
             defaultProgrammerRepository.deleteById(programmerId);
         } else {
             throw new NotFoundProgrammerException(
-                    ErrorMessage.NOT_FOUND_PROGRAMMER_EXCEPTION,
+                    ErrorMessage.NOT_FOUND_PROGRAMMER,
                     String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 삭제를 진행할 수 없습니다.", programmerId)
             );
         }
