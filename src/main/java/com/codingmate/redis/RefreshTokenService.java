@@ -5,13 +5,11 @@ import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.redis.FailedDeleteRefreshToken;
 import com.codingmate.exception.exception.redis.InvalidRefreshTokenException;
-import com.codingmate.exception.exception.redis.RefreshTokenIsNullException;
 import com.codingmate.jwt.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -33,7 +31,7 @@ public class RefreshTokenService {
     public TokenDto refreshTokens(String refreshToken) {
         validateToken(refreshToken);    //토큰이 유효한지 검증한다
 
-        var redisCacheInfo = getCacheInfo(refreshToken);
+        var redisCacheInfo = getRefreshTokenDetail(refreshToken);
 
         //가져온 정보로 토큰 생성
         String newAccessToken = tokenProvider
@@ -52,7 +50,7 @@ public class RefreshTokenService {
 
     public void saveToken(String token, Long id, String authority) {
         var now = LocalDateTime.now();
-        var info = RedisCacheInfo.of(
+        var info = RefreshTokenDetail.of(
                 id,
                 authority,
                 now,
@@ -62,16 +60,11 @@ public class RefreshTokenService {
     }
 
     private void validateToken(String refreshToken) {
-        Objects.requireNonNull(refreshToken, () -> {
-            throw new RefreshTokenIsNullException(
-                    ErrorMessage.REFRESH_TOKEN_IS_NULL,
-                    "갱신할 리프레시 토큰이 없습니다"
-            );
-        });
+        tokenProvider.validateToken(refreshToken);
     }
 
-    private RedisCacheInfo getCacheInfo(String refreshToken) {
-        return redisRepository.getCacheInfo(refreshToken)
+    private RefreshTokenDetail getRefreshTokenDetail(String refreshToken) {
+        return redisRepository.getRefreshTokenDetail(refreshToken)
                 .orElseThrow(() ->
                         new InvalidRefreshTokenException(
                                 ErrorMessage.INVALID_JWT,
@@ -79,21 +72,21 @@ public class RefreshTokenService {
                 );
     }
 
-    private void renewToken(String oldRefreshToken, String newRefreshToken, RedisCacheInfo oldRedisCacheInfo) {
+    private void renewToken(String oldRefreshToken, String newRefreshToken, RefreshTokenDetail oldRefreshTokenDetail) {
         // 기존 토큰 제거
         deleteRefreshToken(oldRefreshToken);
         // 새로운 토큰 저장
         redisRepository.save(
                 newRefreshToken,
-                createNewRedisCacheInfo(oldRedisCacheInfo)
+                createNewRefreshTokenDetail(oldRefreshTokenDetail)
         );
     }
 
-    private RedisCacheInfo createNewRedisCacheInfo(RedisCacheInfo redisCacheInfo) {
+    private RefreshTokenDetail createNewRefreshTokenDetail(RefreshTokenDetail refreshTokenDetail) {
         var now = LocalDateTime.now();
-        return RedisCacheInfo.of(
-                redisCacheInfo.id(),
-                redisCacheInfo.authority(),
+        return RefreshTokenDetail.of(
+                refreshTokenDetail.id(),
+                refreshTokenDetail.authority(),
                 now,
                 now.plusDays(REDIS_TOKEN_EXPIRE_DAYS)
         );

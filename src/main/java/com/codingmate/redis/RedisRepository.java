@@ -13,14 +13,14 @@ import java.util.Optional;
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class RedisRepository {
-    private final ValueOperations<String, RedisCacheInfo> valueOperations;
-    private final RedisTemplate<String, RedisCacheInfo> redisTemplate;
+    private final ValueOperations<String, RefreshTokenDetail> valueOperations;
+    private final RedisTemplate<String, RefreshTokenDetail> redisTemplate;
 
-    public void save(String token, RedisCacheInfo redisCacheInfo) {
-        valueOperations.set(token, redisCacheInfo);
+    public void save(String token, RefreshTokenDetail refreshTokenDetail) {
+        valueOperations.set(token, refreshTokenDetail);
     }
 
-    public Optional<RedisCacheInfo> getCacheInfo(String refreshToken) {
+    public Optional<RefreshTokenDetail> getRefreshTokenDetail(String refreshToken) {
         return Optional.ofNullable(valueOperations.get(refreshToken));
     }
 
