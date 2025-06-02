@@ -128,7 +128,7 @@ public class AuthController {
             @CookieValue(name = "refresh-token") String refreshToken,
             HttpServletResponse response
     ) {
-        var tokenDto = refreshTokenService.createAccessTokenFromRefreshToken(refreshToken);
+        var tokenDto = refreshTokenService.refreshTokens(refreshToken);
         var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, tokenDto.refreshToken());
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addHeader(ACCESS_TOKEN_HEADER_NAME, tokenDto.accessToken());

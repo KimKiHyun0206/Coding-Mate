@@ -34,6 +34,7 @@ public enum ErrorMessage {
 
     //Redis
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Server에서 오류가 발생했습니다"),
+    FAILED_DELETE_REFRESH_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 에서 리프레시 토큰을 삭제하는 중 오류가 발생했습니다"),
     ;
 
 
