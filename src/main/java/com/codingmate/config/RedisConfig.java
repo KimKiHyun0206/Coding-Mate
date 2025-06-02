@@ -1,16 +1,14 @@
 package com.codingmate.config;
 
 import com.codingmate.config.properties.RedisProperties;
-import com.codingmate.redis.RedisCacheInfo;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import com.codingmate.redis.RefreshTokenDetail;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 
 @Configuration
 @EnableCaching
@@ -29,9 +27,14 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, RedisCacheInfo> redisTemplate() {
-        RedisTemplate<String, RedisCacheInfo> redisTemplate = new RedisTemplate<>();
+    public RedisTemplate<String, RefreshTokenDetail> redisTemplate() {
+        RedisTemplate<String, RefreshTokenDetail> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
         return redisTemplate;
+    }
+
+    @Bean
+    public ValueOperations<String, RefreshTokenDetail> valueOperations() {
+        return redisTemplate().opsForValue();
     }
 }
