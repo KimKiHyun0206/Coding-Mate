@@ -44,8 +44,8 @@ public class AuthController {
         this.redisTokenService = redisTokenService;
         this.loginService = loginService;
         this.tokenService = tokenService;
-        this.ACCESS_TOKEN_HEADER_NAME = jwtProperties.getAccessTokenHeader();
-        this.REFRESH_TOKEN_COOKIE_NAME = jwtProperties.getRefreshTokenCookie();
+        this.ACCESS_TOKEN_HEADER_NAME = jwtProperties.accessTokenHeader();
+        this.REFRESH_TOKEN_COOKIE_NAME = jwtProperties.refreshTokenCookie();
     }
 
 

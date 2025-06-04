@@ -12,7 +12,7 @@ public class CookieUtil {
     private static int expirationDays;
 
     public CookieUtil(JWTProperties jwtProperties) {
-        CookieUtil.expirationDays = jwtProperties.getExpirationDays();
+        CookieUtil.expirationDays = jwtProperties.expirationDays();
     }
 
     public static ResponseCookie getCookie(String name, String value) {

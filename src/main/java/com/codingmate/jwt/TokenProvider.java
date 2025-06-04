@@ -33,10 +33,10 @@ public class TokenProvider {
     public TokenProvider(
             JWTProperties jwtProperties
     ) {
-        this.AUTHORITIES_KEY = jwtProperties.getAuthorityKey();
-        this.VALIDATE_TIME_IN_SECOND = jwtProperties.getTokenValidityInSeconds();
+        this.AUTHORITIES_KEY = jwtProperties.authorityKey();
+        this.VALIDATE_TIME_IN_SECOND = jwtProperties.tokenValidityInSeconds();
         //this.tokenValidityInMilliseconds = 10000; //TEST용 10초 토큰
-        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.getSecret());    // Secret 값을 Base64 디코딩하여 HMAC SHA 키로 변환합니다.
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.secret());    // Secret 값을 Base64 디코딩하여 HMAC SHA 키로 변환합니다.
         this.KEY = Keys.hmacShaKeyFor(keyBytes);
     }
 

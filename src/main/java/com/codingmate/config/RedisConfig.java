@@ -17,8 +17,8 @@ public class RedisConfig {
     private final int port;
 
     public RedisConfig(RedisProperties redisProperties) {
-        this.host = redisProperties.getHost();
-        this.port = redisProperties.getPort();
+        this.host = redisProperties.host();
+        this.port = redisProperties.port();
     }
 
     @Bean

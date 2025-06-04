@@ -25,7 +25,7 @@ public class RedisTokenService {
     ) {
         this.tokenProvider = tokenProvider;
         this.redisRepository = redisRepository;
-        this.REDIS_TOKEN_EXPIRE_DAYS = jwtProperties.getExpirationDays();
+        this.REDIS_TOKEN_EXPIRE_DAYS = jwtProperties.expirationDays();
     }
 
     /**

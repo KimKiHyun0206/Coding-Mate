@@ -16,8 +16,8 @@ public class JwtUtil {
     public JwtUtil(
             JWTProperties jwtProperties
     ) {
-        JwtUtil.SECRET = jwtProperties.getSecret();
-        JwtUtil.ACCESS_TOKEN_HEADER = jwtProperties.getAccessTokenHeader();
+        JwtUtil.SECRET = jwtProperties.secret();
+        JwtUtil.ACCESS_TOKEN_HEADER = jwtProperties.accessTokenHeader();
     }
 
     public static Long getId(HttpServletRequest request) {
