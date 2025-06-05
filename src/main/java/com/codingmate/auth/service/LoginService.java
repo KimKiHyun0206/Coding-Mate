@@ -1,5 +1,6 @@
 package com.codingmate.auth.service;
 
+import com.codingmate.common.annotation.Explanation;
 import com.codingmate.programmer.dto.response.ProgrammerResponse;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.programmer.LoginIdNotMatchException;
@@ -15,6 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Explanation(
+        responsibility = "사용자 로그인",
+        domain = "Programmer, Authority",
+        lastReviewed = "2025.06.05"
+)
 public class LoginService {
     private final ProgrammerReadRepository programmerReadRepository;
     private final PasswordEncoder passwordEncoder;

@@ -4,6 +4,7 @@ import com.codingmate.answer.domain.Answer;
 import com.codingmate.answer.domain.vo.LanguageType;
 import com.codingmate.answer.dto.response.AnswerListResponse;
 import com.codingmate.answer.dto.response.QAnswerListResponse;
+import com.codingmate.common.annotation.Explanation;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -23,6 +24,12 @@ import static com.codingmate.answer.domain.QAnswer.answer;
 
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Explanation(
+        responsibility = "Answer Query",
+        detail = "성능 최적화를 위해 Querydsl을 사용",
+        domain = "Answer",
+        lastReviewed = "2025.06.05"
+)
 public class AnswerReadRepository {
     private final JPAQueryFactory queryFactory;
 
