@@ -1,6 +1,7 @@
 package com.codingmate.auth.service;
 
 import com.codingmate.auth.dto.response.TokenResponse;
+import com.codingmate.common.annotation.Explanation;
 import com.codingmate.jwt.TokenProvider;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Explanation(
+        responsibility = "토큰 생성",
+        domain = "RefreshToken, Authority, Programmer",
+        lastReviewed = "2025.06.05"
+)
 public class TokenService {
     private final TokenProvider tokenProvider;
 
@@ -25,14 +31,14 @@ public class TokenService {
 
         log.info("[TokenService] Generating new access and refresh tokens for user ID: {}", id);
         String accessToken = tokenProvider.createAccessToken(id, authority);
-        String refreshToken = tokenProvider.createRefreshToken(id);
+        var refreshTokenResult = tokenProvider.createRefreshToken(id);
 
-        var tokenDto = new TokenResponse(accessToken, refreshToken);
+        var tokenDto = new TokenResponse(accessToken, refreshTokenResult.refreshToken(), refreshTokenResult.jti());
 
         log.info("[TokenService] Tokens successfully generated for user ID: {}", id);
         log.debug("[TokenService] Generated Access Token (prefix): {}, Refresh Token (prefix): {}",
-                accessToken.substring(0, Math.min(accessToken.length(), 20)), // 앞부분만 로깅
-                refreshToken.substring(0, Math.min(refreshToken.length(), 20))); // 앞부분만 로깅
+                accessToken.substring(20), // 앞부분만 로깅
+                refreshTokenResult.refreshToken().substring(20)); // 앞부분만 로깅
 
         return tokenDto;
     }

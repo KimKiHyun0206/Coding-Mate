@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.webjars.NotFoundException;
 
 @Slf4j
 @Service
@@ -113,6 +114,21 @@ public class ProgrammerService {
         return MyPageResponse.of(programmer, wroteAnswersCount);
     }
 
+    @Transactional(readOnly = true)
+    public String getProgrammerRole(Long id) {
+        log.info("[ProgrammerService] getProgrammerRole({})", id);
+
+        log.debug("[ProgrammerService] Searching for programmer with ID: {}", id);
+        return readRepository.readProgrammerRole(id)
+                .orElseThrow(() -> {
+                    log.warn("[ProgrammerService] Programmer not found by ID: {}", id);
+                    return new NotFoundProgrammerException(
+                            ErrorMessage.NOT_FOUND_PROGRAMMER,
+                            String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", id)
+                    );
+                });
+    }
+
     /**
      * 특정 프로그래머의 정보를 업데이트합니다.
      *
@@ -165,6 +181,5 @@ public class ProgrammerService {
                     String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 삭제를 진행할 수 없습니다.", programmerId)
             );
         }
-
     }
 }

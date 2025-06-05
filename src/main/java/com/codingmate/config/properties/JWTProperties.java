@@ -20,6 +20,19 @@ public record JWTProperties(
         //Access Token의 만료 기간 (초 단위)
         long tokenValidityInSeconds,
 
-        String authorityKey
+        //인증용 키
+        String authorityKey,
+
+        Redis redis
+
 ) {
+    public record Redis(
+            int maxToken,
+            Key key
+    ) {
+        public record Key(
+                String prefix,
+                String suffix
+        ) {}
+    }
 }

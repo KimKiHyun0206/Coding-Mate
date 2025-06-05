@@ -10,7 +10,11 @@ public record TokenResponse(
         String accessToken,
 
         @Schema(description = "리프레시 토큰 (액세스 토큰 재발급 시 사용)", example = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
-        String refreshToken
+        String refreshToken,
+
+        @Schema(description = "리프레시 토큰의 jti")
+        String jti
+
 ) {
     /**
      * accessToken과 refreshToken을 사용하여 TokenDto를 생성합니다.
@@ -19,10 +23,11 @@ public record TokenResponse(
      * @param refreshToken 새로 발급된 리프레시 토큰
      * @return TokenDto 객체
      */
-    public static TokenResponse of(String accessToken, String refreshToken) {
+    public static TokenResponse of(String accessToken, String refreshToken, String jti) {
         return TokenResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .jti(jti)
                 .build();
     }
 }
