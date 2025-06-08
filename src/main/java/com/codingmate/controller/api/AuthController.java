@@ -71,7 +71,7 @@ public class AuthController {
         refreshTokenService.create(RefreshTokenCreateRequest.of(
                 tokens.refreshToken(),
                 tokens.jti(),
-                Instant.now(),
+                tokens.instant(),
                 programmer.id()
         ));
 
