@@ -11,14 +11,14 @@ public record JWTProperties(
         String refreshTokenCookie,
 
         //Refresh Token의 만료 기간 (일 단위)
-        int expirationDays,
+        int refreshTokenExpirationDays,
 
         //JWT 서명 및 검증에 사용될 비밀 키 (Base64 인코딩된 문자열)
         //HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 합니다.
         String secret,
 
         //Access Token의 만료 기간 (초 단위)
-        long tokenValidityInSeconds,
+        long accessTokenValidityInHour,
 
         //인증용 키
         String authorityKey,

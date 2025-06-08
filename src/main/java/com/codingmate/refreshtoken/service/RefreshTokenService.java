@@ -3,7 +3,6 @@ package com.codingmate.refreshtoken.service;
 import com.codingmate.common.annotation.Explanation;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
-import com.codingmate.exception.exception.jwt.RefreshTokenIsRevoked;
 import com.codingmate.exception.exception.jwt.RefreshTokenOverMax;
 import com.codingmate.exception.exception.redis.FailedFindRefreshToken;
 import com.codingmate.redis.RedisRepository;
@@ -29,22 +28,23 @@ public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final RedisRepository redisRepository;
     private final RefreshTokenReadRepository refreshTokenReadRepository;
+    private final RefreshTokenWriteRepository refreshTokenWriteRepository;
 
-    private final int REDIS_TOKEN_EXPIRE_DAYS;
     private final String KEY_PREFIX;
     private final String KEY_SUFFIX;
     private final int MAX_TOKEN;
-    private final RefreshTokenWriteRepository refreshTokenWriteRepository;
+    private final int REDIS_TOKEN_EXPIRE_DAYS;
 
     protected RefreshTokenService(
             RefreshTokenRepository refreshTokenRepository,
             RedisRepository redisRepository,
             JWTProperties jwtProperties,
             RefreshTokenReadRepository refreshTokenReadRepository,
-            RefreshTokenWriteRepository refreshTokenWriteRepository) {
+            RefreshTokenWriteRepository refreshTokenWriteRepository
+    ) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.redisRepository = redisRepository;
-        this.REDIS_TOKEN_EXPIRE_DAYS = jwtProperties.expirationDays();
+        this.REDIS_TOKEN_EXPIRE_DAYS = jwtProperties.refreshTokenExpirationDays();
         this.KEY_PREFIX = jwtProperties.redis().key().prefix();
         this.KEY_SUFFIX = jwtProperties.redis().key().suffix();
         this.MAX_TOKEN = jwtProperties.redis().maxToken();
@@ -52,36 +52,61 @@ public class RefreshTokenService {
         this.refreshTokenWriteRepository = refreshTokenWriteRepository;
     }
 
-
+    /**
+     * 리프레쉬 토큰을 생성합니다. 생성 전에 한 유저에게 발급된 리프레쉬 토큰이 몇 개인지 세어보고 만약 최대치를 넘겼을 경우 발급이 거부됩니다.
+     * 저장은 DB와 Redis에 모두 저장됩니다.
+     *
+     * @param request 저장할 정보를 담은 dto
+     * */
     @Transactional
     public RefreshTokenResponse create(RefreshTokenCreateRequest request) {
         log.debug("[RefreshTokenService] create({})", request);
 
-        log.debug("[RefreshTokenService] Check Programmer`s refresh token");
-        Long count = refreshTokenReadRepository.countRefreshToken(request.userId());
-        log.info("[RefreshTokenService] Programmer`s refresh token count: {}", count);
-        if (count > MAX_TOKEN) {    //만약 MAX_TOKEN의 수보다 많을 시 토큰 발급을 거부함
-            throw new RefreshTokenOverMax(
-                    ErrorMessage.REFRESH_TOKEN_OVER_MAX,
-                    String.format("최대치 %d개가 넘게 발급되어 더이상 리프레시 토큰 발급이 불가능합니다.", MAX_TOKEN)
-            );
-        }
+        validateMaxTokenCount(request.userId());
 
         var entity = RefreshToken.toEntity(request, REDIS_TOKEN_EXPIRE_DAYS);
 
         log.debug("[RefreshTokenService] Try to save tokens: {}", entity.getToken().substring(20));
 
-        RefreshToken save = refreshTokenRepository.save(entity);
+        var save = refreshTokenRepository.save(entity);
         saveInRedis(entity);
+
         return RefreshTokenResponse.of(save);
     }
 
+    /**
+     * 발급된 토큰이 몇 개인지 보고 최대치를 넘겼다면 예외를 발생시킵니다.
+     *
+     * @exception RefreshTokenOverMax 리프레쉬 토큰이 이미 최대값까지 발급되어있을 때 발생시키는 예외
+     * */
+    private void validateMaxTokenCount(Long programmerId){
+        log.debug("[RefreshTokenService] Checking token count for user: {}", programmerId);
+        Long count = refreshTokenReadRepository.countRefreshToken(programmerId);
+        log.info("[RefreshTokenService] Token count: {}", count);
+        if (count > MAX_TOKEN) {
+            throw new RefreshTokenOverMax(
+                    ErrorMessage.REFRESH_TOKEN_OVER_MAX,
+                    String.format("최대 %d개의 토큰을 초과하여 발급이 불가능합니다.", MAX_TOKEN)
+            );
+        }
+    }
+
+    /**
+     * jti가 이전에 사용되었는지 보기 위한 메소드.
+     *
+     * @param jti 검증할 jti
+     * */
     @Transactional
     public boolean isUsedJti(String jti) {
         log.debug("[RefreshTokenService] isUsedJti({})", jti);
         return refreshTokenReadRepository.isUsedJti(jti);
     }
 
+    /**
+     * Redis에 정보를 저장하기 위한 메소드
+     *
+     * @param refreshToken 리프레쉬 토큰에서 정보를 가져와 key와 value를 만들어 저장합니다.
+     * */
     private void saveInRedis(RefreshToken refreshToken) {
         log.debug("[RefreshTokenService] saveInRedis({})", refreshToken);
 
@@ -91,24 +116,41 @@ public class RefreshTokenService {
         redisRepository.save(key, value);
     }
 
-    public String makeRedisKey(Long userId) {
-        return KEY_PREFIX + userId + KEY_SUFFIX;
-    }
-
+    /**
+     * 토큰을 무효로 만들기 위한 메소드
+     *
+     * @param token 무효로 만들 토큰
+     * */
     @Transactional
-    public void makeIsRevokedTrue(String token) {
-        log.debug("[RefreshTokenService] makeRevoted({})", token.substring(0, 20));
+    public void revokeToken(String token) {
+        String shortToken = shortToken(token);
+        log.debug("[RefreshTokenService] makeRevoked({})", shortToken);
+
         refreshTokenRepository.findByToken(token).ifPresentOrElse(ref -> {
-            log.info("[RefreshTokenService] Revoked refresh token: {}", token.substring(20));
-            ref.revoke();
-            deleteRefreshTokenInRedis(ref.getId());
-        }, () -> {
-            log.warn("[RefreshTokenService] Can`t found refresh token in database: {}", token.substring(20));
-        });
-        log.info("[RefreshTokenService] Refresh token make revoked true successfully: {}", token);
+            log.info("[RefreshTokenService] Revoked refresh token: {}",shortToken);
+            removeAndRevoke(ref);
+        }, () -> log.warn("[RefreshTokenService] Can`t found refresh token in database: {}", shortToken));
+
+        log.info("[RefreshTokenService] Refresh token make revoked true successfully: {}", shortToken);
     }
 
-    private void deleteRefreshTokenInRedis(Long id) {
+    /**
+     * 토큰을 Redis에서 지우고 무효로 만들기 위한 메소드
+     *
+     * @param refreshToken 무효로 만들 리프레쉬 토큰
+     * @implNote 위의 메소드가 번잡해지는 것을 막기 위해서 만든 메소드임
+     * */
+    private void removeAndRevoke(RefreshToken refreshToken){
+        refreshToken.revoke();
+        deleteFromRedis(refreshToken.getUserId());
+    }
+
+    /**
+     * Redis에서 토큰 값을 지우기 위한 메소드
+     *
+     * @param id redis에서 삭제할 키 값
+     * */
+    private void deleteFromRedis(Long id) {
         log.debug("[RefreshTokenService] deleteRefreshTokenInRedis({})", id);
         boolean b = redisRepository.delete(makeRedisKey(id));
         log.info("[RefreshTokenService] Refresh token deleted successfully: {}", b);
@@ -132,10 +174,23 @@ public class RefreshTokenService {
         ).split(" ")[1];    // 1749124821607 6c6dd655-cff3-4272-a8cf-848614ba152c 이러한 형태를 가질 때 띄어쓰기를 하고 뒤의 것이 jti
     }
 
+    /**
+     * 한 유저가 발급한 모든 리프레쉬 토큰을 무효화하기 위한 메소드.
+     *
+     * @param programmerId 무효화할 토큰의 주인
+     * */
     @Transactional
     public void revokeAllToken(Long programmerId){
         log.debug("[RefreshTokenService] revokeAllToken({})", programmerId);
         long l = refreshTokenWriteRepository.revokeAllToken(programmerId);
         log.info("[RefreshTokenService] {} tokens revoked successfully", l);
+    }
+
+    private String shortToken(String token) {
+        return token.length() <= 20 ? token : token.substring(0, 20) + "...";
+    }
+
+    private String makeRedisKey(Long userId) {
+        return KEY_PREFIX + userId + KEY_SUFFIX;
     }
 }

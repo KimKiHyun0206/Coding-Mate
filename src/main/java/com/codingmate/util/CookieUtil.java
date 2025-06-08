@@ -14,10 +14,10 @@ import org.springframework.stereotype.Component;
 )
 public class CookieUtil {
     private static final long ONE_DAY_IN_SECONDS = 24 * 60 * 60;
-    private static int expirationDays;
+    private static int REFRESH_TOKEN_EXPIRE_DAY;
 
     public CookieUtil(JWTProperties jwtProperties) {
-        CookieUtil.expirationDays = jwtProperties.expirationDays();
+        CookieUtil.REFRESH_TOKEN_EXPIRE_DAY = jwtProperties.refreshTokenExpirationDays();
     }
 
     public static ResponseCookie getCookie(String name, String value) {
@@ -25,7 +25,7 @@ public class CookieUtil {
                 .httpOnly(true)       // JavaScript 접근 불가
                 .secure(true)         // HTTPS 에서만 전송
                 .path("/")            // 모든 경로에서 쿠키 유효
-                .maxAge(expirationDays * ONE_DAY_IN_SECONDS)
+                .maxAge(REFRESH_TOKEN_EXPIRE_DAY * ONE_DAY_IN_SECONDS)
                 .sameSite("Lax")      // CSRF 방어 (Strict, Lax, None)
                 .build();
     }
