@@ -3,6 +3,8 @@ package com.codingmate.auth.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+import java.time.Instant;
+
 @Builder
 @Schema(description = "인증/인가 응답으로 전달되는 토큰 정보 DTO")
 public record TokenResponse(
@@ -13,7 +15,9 @@ public record TokenResponse(
         String refreshToken,
 
         @Schema(description = "리프레시 토큰의 jti")
-        String jti
+        String jti,
+
+        Instant instant
 
 ) {
     /**
@@ -23,11 +27,12 @@ public record TokenResponse(
      * @param refreshToken 새로 발급된 리프레시 토큰
      * @return TokenDto 객체
      */
-    public static TokenResponse of(String accessToken, String refreshToken, String jti) {
+    public static TokenResponse of(String accessToken, String refreshToken, String jti, Instant instant) {
         return TokenResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .jti(jti)
+                .instant(instant)
                 .build();
     }
 }

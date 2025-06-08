@@ -33,12 +33,18 @@ public class TokenService {
         String accessToken = tokenProvider.createAccessToken(id, authority);
         var refreshTokenResult = tokenProvider.createRefreshToken(id);
 
-        var tokenDto = new TokenResponse(accessToken, refreshTokenResult.refreshToken(), refreshTokenResult.jti());
+        var tokenDto = new TokenResponse(
+                accessToken,
+                refreshTokenResult.refreshToken(),
+                refreshTokenResult.jti(),
+                refreshTokenResult.issuedAt()
+        );
 
         log.info("[TokenService] Tokens successfully generated for user ID: {}", id);
         log.debug("[TokenService] Generated Access Token (prefix): {}, Refresh Token (prefix): {}",
                 accessToken.substring(20), // 앞부분만 로깅
-                refreshTokenResult.refreshToken().substring(20)); // 앞부분만 로깅
+                refreshTokenResult.refreshToken().substring(20)
+        ); // 앞부분만 로깅
 
         return tokenDto;
     }

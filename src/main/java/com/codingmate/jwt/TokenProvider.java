@@ -21,6 +21,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ import java.util.stream.Collectors;
 public class TokenProvider {
     private final String AUTHORITIES_KEY;           // JWT 클레임에서 권한 정보를 추출할 때 사용하는 키
     private final long VALIDATE_TIME_IN_SECOND;     // 토큰의 유효 시간 (초 단위)
+    private final long EXPIRE_DAY;
     private final Key KEY;                          // JWT 서명에 사용되는 Secret Key
 
     public TokenProvider(
@@ -43,6 +45,7 @@ public class TokenProvider {
     ) {
         this.AUTHORITIES_KEY = jwtProperties.authorityKey();
         this.VALIDATE_TIME_IN_SECOND = jwtProperties.tokenValidityInSeconds();
+        this.EXPIRE_DAY = jwtProperties.expirationDays();
         //this.tokenValidityInMilliseconds = 10000; //TEST용 10초 토큰
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.secret());    // Secret 값을 Base64 디코딩하여 HMAC SHA 키로 변환합니다.
         this.KEY = Keys.hmacShaKeyFor(keyBytes);
@@ -65,9 +68,15 @@ public class TokenProvider {
         claims.put(AUTHORITIES_KEY, role);
         claims.put("id", userId);
 
-        var accessToken = buildToken(claims, DateUtil.getDate());
-        log.info("[TokenProvider] Access Token created for userId: {}. Token length: {}", userId, accessToken.length());
-        return accessToken;
+        var now = DateUtil.getDate();
+
+        log.info("[TokenProvider] Access Token created for userId: {}", userId);
+        return Jwts.builder()
+                .setClaims(claims) // 클레임 설정
+                .setIssuedAt(now) // 발급 시간 설정
+                .signWith(KEY, SignatureAlgorithm.HS256) // 암호화 알고리즘 및 Secret Key로 서명
+                .setExpiration(DateUtil.getTokenValidTime(now, VALIDATE_TIME_IN_SECOND)) // 만료 시간 설정
+                .compact(); // JWT 압축 및 생성
     }
 
     /**
@@ -85,9 +94,14 @@ public class TokenProvider {
                 .setSubject(String.valueOf(userId)); // jti 설정
         claims.put("jti", jti);
 
-        var issuedAt = DateUtil.getDate(); // JWT 발급 시간
+        var issuedAt = Instant.now();
 
-        String refreshToken = buildToken(claims, issuedAt);
+        String refreshToken = Jwts.builder()
+                .setClaims(claims) // 클레임 설정
+                .setIssuedAt(Date.from(issuedAt)) // 발급 시간 설정
+                .signWith(KEY, SignatureAlgorithm.HS256) // 암호화 알고리즘 및 Secret Key로 서명
+                .setExpiration(Date.from(issuedAt.plus(Duration.ofDays(EXPIRE_DAY)))) // 만료 시간 설정
+                .compact(); // JWT 압축 및 생성
         log.info("[TokenProvider] Refresh Token created for userId: {}. Token length: {}", userId, refreshToken.length());
         return RefreshTokenIssueResponse.of(refreshToken, jti, Instant.now());
     }
