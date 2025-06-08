@@ -3,6 +3,7 @@ package com.codingmate.refreshtoken.service;
 import com.codingmate.common.annotation.Explanation;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
+import com.codingmate.exception.exception.jwt.RefreshTokenIsRevoked;
 import com.codingmate.exception.exception.jwt.RefreshTokenOverMax;
 import com.codingmate.exception.exception.redis.FailedFindRefreshToken;
 import com.codingmate.redis.RedisRepository;
@@ -11,6 +12,7 @@ import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;
 import com.codingmate.refreshtoken.dto.response.RefreshTokenResponse;
 import com.codingmate.refreshtoken.repository.RefreshTokenReadRepository;
 import com.codingmate.refreshtoken.repository.RefreshTokenRepository;
+import com.codingmate.refreshtoken.repository.RefreshTokenWriteRepository;
 import com.codingmate.util.ScoreUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,13 +34,14 @@ public class RefreshTokenService {
     private final String KEY_PREFIX;
     private final String KEY_SUFFIX;
     private final int MAX_TOKEN;
+    private final RefreshTokenWriteRepository refreshTokenWriteRepository;
 
     protected RefreshTokenService(
             RefreshTokenRepository refreshTokenRepository,
             RedisRepository redisRepository,
             JWTProperties jwtProperties,
-            RefreshTokenReadRepository refreshTokenReadRepository
-    ) {
+            RefreshTokenReadRepository refreshTokenReadRepository,
+            RefreshTokenWriteRepository refreshTokenWriteRepository) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.redisRepository = redisRepository;
         this.REDIS_TOKEN_EXPIRE_DAYS = jwtProperties.expirationDays();
@@ -46,6 +49,7 @@ public class RefreshTokenService {
         this.KEY_SUFFIX = jwtProperties.redis().key().suffix();
         this.MAX_TOKEN = jwtProperties.redis().maxToken();
         this.refreshTokenReadRepository = refreshTokenReadRepository;
+        this.refreshTokenWriteRepository = refreshTokenWriteRepository;
     }
 
 
@@ -55,6 +59,7 @@ public class RefreshTokenService {
 
         log.debug("[RefreshTokenService] Check Programmer`s refresh token");
         Long count = refreshTokenReadRepository.countRefreshToken(request.userId());
+        log.info("[RefreshTokenService] Programmer`s refresh token count: {}", count);
         if (count > MAX_TOKEN) {    //만약 MAX_TOKEN의 수보다 많을 시 토큰 발급을 거부함
             throw new RefreshTokenOverMax(
                     ErrorMessage.REFRESH_TOKEN_OVER_MAX,
@@ -69,6 +74,12 @@ public class RefreshTokenService {
         RefreshToken save = refreshTokenRepository.save(entity);
         saveInRedis(entity);
         return RefreshTokenResponse.of(save);
+    }
+
+    @Transactional
+    public boolean isUsedJti(String jti) {
+        log.debug("[RefreshTokenService] isUsedJti({})", jti);
+        return refreshTokenReadRepository.isUsedJti(jti);
     }
 
     private void saveInRedis(RefreshToken refreshToken) {
@@ -119,5 +130,12 @@ public class RefreshTokenService {
                     );
                 }
         ).split(" ")[1];    // 1749124821607 6c6dd655-cff3-4272-a8cf-848614ba152c 이러한 형태를 가질 때 띄어쓰기를 하고 뒤의 것이 jti
+    }
+
+    @Transactional
+    public void revokeAllToken(Long programmerId){
+        log.debug("[RefreshTokenService] revokeAllToken({})", programmerId);
+        long l = refreshTokenWriteRepository.revokeAllToken(programmerId);
+        log.info("[RefreshTokenService] {} tokens revoked successfully", l);
     }
 }
