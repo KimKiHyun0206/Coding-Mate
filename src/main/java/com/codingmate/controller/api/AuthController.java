@@ -23,8 +23,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Instant;
-
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -104,7 +102,7 @@ public class AuthController {
     @DeleteMapping("/sign-out")
     public ResponseEntity<?> logout(@CookieValue(name = "refresh-token") String refreshToken, HttpServletResponse response) {
         log.info(refreshToken);
-        refreshTokenService.makeIsRevokedTrue(refreshToken);
+        refreshTokenService.revokeToken(refreshToken);
         var cookie = CookieUtil.deleteCookie(REFRESH_TOKEN_COOKIE_NAME);
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
