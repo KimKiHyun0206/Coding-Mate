@@ -28,13 +28,18 @@ public class RefreshTokenReadRepository {
         Long count = queryFactory
                 .select(refreshToken.count())
                 .from(refreshToken)
-                .where(
-                        refreshToken.userId.eq(userId)
-                                .and(refreshToken.isRevoked.eq(false))
-                )
+                .where(refreshToken.userId.eq(userId))
+                .where(refreshToken.isRevoked.eq(false))
                 .fetchOne();
 
-        // fetchOne()은 결과가 없을 경우 null을 반환할 수 있으므로, 0으로 처리
-        return count != null ? count : 0L;
+        return count == null ? 0 : count;
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean isUsedJti(String jti) {
+        return queryFactory.select(refreshToken.isRevoked)
+                .from(refreshToken)
+                .where(refreshToken.jti.eq(jti))
+                .fetchOne();
     }
 }
