@@ -14,7 +14,7 @@ import static com.codingmate.refreshtoken.domain.QRefreshToken.refreshToken;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Explanation(
         responsibility = "RefreshToken Query",
-        detail = "쿼리 최적화를 위해 Querydsl 사용",  //클래스 분리 요함
+        detail = "쿼리 최적화를 위해 Querydsl 사용",
         domain = "RefreshToken",
         lastReviewed = "2025.06.05"
 )
@@ -23,8 +23,6 @@ public class RefreshTokenReadRepository {
 
     @Transactional(readOnly = true)
     public Long countRefreshToken(Long userId) {
-        // select(refreshToken.count())를 사용하여 COUNT(*) 쿼리를 직접 생성
-        // fetchOne()을 사용하여 단일 Long 값을 가져옵니다.
         Long count = queryFactory
                 .select(refreshToken.count())
                 .from(refreshToken)
