@@ -8,7 +8,12 @@ import java.time.Duration;
 import java.time.Instant;
 
 @Entity
-@Table(name = "refresh_token_info")
+@Table(name = "refresh_token_info",
+        indexes = {
+                @Index(name = "ref_jti_idx", columnList = "jti", unique = true),
+                @Index(name = "ref_user_revoke_idx", columnList = "user_id, is_revoked")
+        }
+)
 @Builder(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -52,7 +57,7 @@ public class RefreshToken {
                 .build();
     }
 
-    public void revoke(){
+    public void revoke() {
         this.isRevoked = true;
     }
 }

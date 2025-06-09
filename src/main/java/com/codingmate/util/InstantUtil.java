@@ -12,7 +12,7 @@ import java.time.Instant;
         domain = "RefreshToken",
         lastReviewed = "2025.06.05"
 )
-public class ScoreUtil {
+public class InstantUtil {
 
     /**
      * java.time.Instant 객체를 Redis Sorted Set의 score로 사용될 Epoch 밀리초 값으로 변환합니다.

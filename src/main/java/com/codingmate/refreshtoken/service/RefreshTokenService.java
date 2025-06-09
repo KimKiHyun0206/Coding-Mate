@@ -12,7 +12,7 @@ import com.codingmate.refreshtoken.dto.response.RefreshTokenResponse;
 import com.codingmate.refreshtoken.repository.RefreshTokenReadRepository;
 import com.codingmate.refreshtoken.repository.RefreshTokenRepository;
 import com.codingmate.refreshtoken.repository.RefreshTokenWriteRepository;
-import com.codingmate.util.ScoreUtil;
+import com.codingmate.util.InstantUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,7 +111,7 @@ public class RefreshTokenService {
         log.debug("[RefreshTokenService] saveInRedis({})", refreshToken);
 
         String key = makeRedisKey(refreshToken.getUserId());
-        String value = ScoreUtil.instantToScore(refreshToken.getIssuedAt()) + " " + refreshToken.getJti();
+        String value = InstantUtil.instantToScore(refreshToken.getIssuedAt()) + " " + refreshToken.getJti();
         log.info("[RefreshTokenService] Trying save token info to Redis: Key={}, Value={}", key, value);
         redisRepository.save(key, value);
     }
