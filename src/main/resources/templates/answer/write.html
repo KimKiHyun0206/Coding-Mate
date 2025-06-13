@@ -146,124 +146,12 @@
         <button type="submit">풀이 등록</button>
     </form>
 </div>
-
+<script src="/js/auth.js" defer></script>
+<script src="/js/create_header.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        check_and_refresh_access_token_for_navbar(); // Navbar 업데이트를 위한 토큰 확인
+    document.addEventListener('DOMContentLoaded', async function () {
+        await check_and_refresh_token_for_nav_bar();
     });
-
-    async function check_and_refresh_access_token_for_navbar() {
-        console.log('checkAndRefreshAccessTokenForNavbar');
-        const accessToken = localStorage.getItem('Coding-Mate-Auth');
-        const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
-        const navElement = document.getElementById('mainNav');
-        const navLeft = navElement.querySelector('.nav-left');
-        const navRight = navElement.querySelector('.nav-right');
-
-        if (accessToken) {
-            const response = await fetch('/api/v1/auth/tokens', {
-                method: 'POST',
-                headers: {
-                    'Coding-Mate-Auth': accessToken
-                }
-            });
-
-            if (response.ok) {
-                update_navbar_authenticated(navLeft, navRight);
-                return true;
-            } else if (response.status === 401 && refreshToken) {
-                const refreshResult = await refresh_access_token(refreshToken);
-                if (refreshResult) {
-                    update_navbar_authenticated(navLeft, navRight);
-                    return true;
-                }
-            }
-        } else {
-            return false;
-        }
-    }
-
-    async function refresh_access_token(refreshToken) {
-        try {
-            const refreshResponse = await fetch('/api/v1/auth/tokens', {
-                method: 'POST',
-                headers: {
-                    'Coding-Mate-Auth-Ref': `${refreshToken}`
-                }
-            });
-
-            if (refreshResponse.ok) {
-                const newTokenData = await refreshResponse.json();
-                if (newTokenData && newTokenData.data && newTokenData.data.accessToken && newTokenData.data.refreshToken) {
-                    localStorage.setItem('Coding-Mate-Auth', newTokenData.data.accessToken);
-                    localStorage.setItem('Coding-Mate-Auth-Ref', newTokenData.data.refreshToken);
-                    console.log('토큰 갱신 성공:', newTokenData.data);
-                    return true;
-                } else {
-                    console.error('새로운 토큰 응답에 accessToken 또는 refreshToken 없음:', newTokenData);
-                    localStorage.removeItem('Coding-Mate-Auth');
-                    localStorage.removeItem('Coding-Mate-Auth-Ref');
-                    return false;
-                }
-            } else {
-                console.error('Refresh Token 요청 실패:', refreshResponse.status);
-                localStorage.removeItem('Coding-Mate-Auth');
-                localStorage.removeItem('Coding-Mate-Auth-Ref');
-                return false;
-            }
-        } catch (error) {
-            console.error('Refresh Token 요청 중 오류:', error);
-            localStorage.removeItem('Coding-Mate-Auth');
-            localStorage.removeItem('Coding-Mate-Auth-Ref');
-            return false;
-        }
-    }
-
-    function update_navbar_authenticated(navLeft, navRight) {
-        navLeft.innerHTML = `
-        <a href="/">홈</a>
-        <a href="/answer/list">풀이 목록</a>
-    `;
-        navRight.innerHTML = `
-        <a href="/my-page">프로필</a>
-        <a href="#" id="logoutButton">로그아웃</a>
-    `;
-
-        const logoutButton = document.getElementById('logoutButton');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', function (event) {
-                event.preventDefault(); // <a> 태그의 기본 동작(페이지 이동) 방지
-                logout(); // 로그아웃 함수 호출 (이전에 정의한 함수)
-            });
-        }
-    }
-
-    function logout() {
-        fetch('/api/v1/auth/sign-out', { // 서버의 로그아웃 엔드포인트로 요청
-            method: 'DELETE',
-            headers: {
-                //'Content-Type': 'application/json' // 필요한 경우 Content-Type 설정
-                // 필요한 경우 인증 헤더 (Authorization 등)를 포함할 수 있습니다.
-                'Coding-Mate-Auth-Ref': localStorage.getItem('Coding-Mate-Auth-Ref')
-            }
-            // body는 일반적으로 필요하지 않습니다.
-        })
-            .then(response => {
-                if (response.ok) {
-                    localStorage.removeItem('Coding-Mate-Auth');
-                    localStorage.removeItem('Coding-Mate-Auth-Ref');
-                    alert('로그아웃 되었습니다.');
-                    window.location.href = '/login'; // 로그인 페이지로 리다이렉트
-                } else {
-                    console.error('로그아웃 실패:', response.status);
-                    alert('로그아웃에 실패했습니다.');
-                }
-            })
-            .catch(error => {
-                console.error('로그아웃 요청 실패:', error);
-                alert('로그아웃 요청에 실패했습니다.');
-            });
-    }
 
     const createProblemForm = document.getElementById('createProblemForm');
     const codeInput = document.getElementById('code');
@@ -273,6 +161,7 @@
     const backjoonIdInput = document.getElementById('backjoonId');
 
     createProblemForm.addEventListener('submit', async function (event) {
+        console.log("check_and_refresh_token_for_nav_bar = over")
         event.preventDefault();
         let isValid = true;
 
@@ -324,58 +213,13 @@
                     const data = await response.json();
                     console.log(data);
                     window.location.href = `/answer/${data.data.id}`;
-                    return;
-                }
-
-                if (response.status === 401) {
-                    console.log('401 에러 발생. 토큰 갱신 시도.');
-                    const refreshToken = localStorage.getItem('Coding-Mate-Auth-Ref');
-                    if (refreshToken) {
-                        const refreshResult = await refresh_access_token(refreshToken);
-                        if (refreshResult) {
-                            // 토큰 갱신 성공 후 문제 생성 재시도
-                            const retryResponse = await fetch('/api/v1/answer', {
-                                method: 'POST',
-                                headers: create_header(), // 업데이트된 토큰으로 헤더 생성
-                                body: JSON.stringify(jsonData)
-                            });
-
-                            if (retryResponse.ok) {
-                                alert('문제가 성공적으로 생성되었습니다.');
-                                const retryData = await retryResponse.json();
-                                console.log(retryData);
-                                window.location.href = `/answer/${retryData.data.id}`;
-                                return;
-                            } else {
-                                const retryErrorData = await retryResponse.json();
-                                throw new Error(`문제 생성 재시도 실패: ${retryResponse.status}: ${retryErrorData.message || '알 수 없는 오류'}`);
-                            }
-                        } else {
-                            alert('인증 정보가 만료되었습니다. 다시 로그인해주세요.');
-                            window.location.href = '/login';
-                            return;
-                        }
-                    }
-
-                    const errorData = await response.json();
-                    throw new Error(`문제 생성 실패: ${response.status}: ${errorData.message || '알 수 없는 오류'}`);
-
+                } else {
+                    alert("문제가 발생하여 실패앴습니다");
                 }
             } catch (error) {
                 console.error('문제 생성 실패:', error);
                 alert(error.message);
             }
-        }
-
-        function create_header() {
-            const authToken = localStorage.getItem('Coding-Mate-Auth');
-            const headers = {
-                'Content-Type': 'application/json' // JSON 형식으로 보낼 때 Content-Type 설정
-            };
-            if (authToken) {
-                headers['Coding-Mate-Auth'] = authToken;
-            }
-            return headers;
         }
     })
 </script>

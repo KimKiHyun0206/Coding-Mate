@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>풀이 상세 정보</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/basic.css">
+    <style>
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 960px;
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+            width: 150px; /* 항목 이름 컬럼 너비 조정 */
+        }
+
+        .code-block {
+            white-space: pre-wrap;
+            font-family: monospace;
+            background-color: #eee;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .button-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .button-container button {
+            padding: 10px 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            background-color: #f0f0f0;
+            color: #555;
+        }
+
+        .button-container button:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* 추천 버튼 스타일 */
+        .like-section {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* 오른쪽 정렬 */
+            gap: 10px;
+            margin-top: 20px;
+            padding: 10px 0;
+            border-top: 1px solid #eee;
+        }
+
+        .like-section button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .like-section button.liked {
+            background-color: #4CAF50; /* 좋아요 누른 상태 */
+            color: white;
+        }
+
+        .like-section button.not-liked {
+            background-color: #ddd; /* 좋아요 누르지 않은 상태 */
+            color: #555;
+        }
+
+        .like-section button:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .like-count {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>풀이 상세 정보</h1>
+
+    <table id="answerDetailTable" style="display: none;">
+        <tbody>
+        <tr>
+            <th>백준 ID</th>
+            <td id="backjoonId"></td>
+        </tr>
+        <tr>
+            <th>코드</th>
+            <td>
+                <div class="code-block">
+                    <pre id="code"></pre>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>설명</th>
+            <td id="explanation"></td>
+        </tr>
+        <tr>
+            <th>언어 유형</th>
+            <td id="languageType"></td>
+        </tr>
+        <tr>
+            <th>작성자</th>
+            <td id="programmerName"></td>
+        </tr>
+        <tr>
+            <th>추천 수</th>
+            <td id="likeCount">0</td>
+        </tr>
+        </tbody>
+    </table>
+    <p id="loading">풀이 정보를 불러오는 중...</p>
+    <p id="error" style="color: red; display: none;">풀이 정보를 불러오는 데 실패했습니다.</p>
+
+    <div class="like-section" id="voteSection" style="display: none;">
+        <button id="voteButton"></button>
+    </div>
+
+    <div class="button-container" id="actionButtons" style="display: none;">
+        <button onclick="edit_answer()" id="editButton">수정</button>
+        <button onclick="delete_answer()" id="deleteButton">삭제</button>
+    </div>
+</div>
+<script src="/js/auth.js" defer></script>
+<script src="/js/create_header.js"></script>
+<script>
+    //로그인 여부에 따라 navbar가 바뀌도록 함
+    document.addEventListener('DOMContentLoaded', async function () {
+        await check_and_refresh_token_for_nav_bar();
+        const answerId = get_answer_id_from_url();
+        if (answerId) {
+            await fetch_answer_detail(answerId);
+        } else {
+            document.getElementById('error').textContent = '잘못된 풀이 ID입니다.';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('loading').style.display = 'none';
+        }
+    });
+
+    function get_answer_id_from_url() {
+        // URL이 /answer/{answerId} 형태일 때 '{answerId}' 부분을 반환
+        const pathSegments = window.location.pathname.split('/');
+        if (pathSegments.length === 3 && pathSegments[1] === 'answer') {
+            return pathSegments[2];
+        }
+        return null;
+    }
+
+
+    async function fetch_answer_detail(answerId) {
+        console.log('fetchAnswerDetail')
+        fetch(`/api/v1/answer/${answerId}`, {
+            headers: create_header()
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(`풀이 정보를 불러오는 데 실패했습니다: ${errorData.message || '알 수 없는 오류'}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(responseData => {
+                console.log(responseData)
+                const answer = responseData.data;
+                display_answer_detail(answer);
+            })
+            .catch(error => {
+                console.error('풀이 정보를 불러오는 데 실패했습니다:', error);
+                document.getElementById('error').textContent = error.message;
+                document.getElementById('error').style.display = 'block';
+            })
+            .finally(() => {
+                document.getElementById('loading').style.display = 'none';
+            });
+    }
+
+    let currentAnswer = null; // 현재 풀이 정보를 저장할 변수 추가
+
+    function display_answer_detail(answer) {
+        currentAnswer = answer; // 현재 풀이 정보 저장
+
+        document.getElementById('backjoonId').textContent = answer.backjoonId;
+        document.getElementById('code').textContent = answer.code;
+        document.getElementById('explanation').textContent = answer.explanation;
+        document.getElementById('languageType').textContent = answer.languageType;
+        document.getElementById('programmerName').textContent = answer.programmerName || '알 수 없음';
+        document.getElementById('likeCount').textContent = answer.likeCount; // 테이블 내 추천 수 업데이트
+
+        const actionButtons = document.getElementById('actionButtons');
+        const voteSection = document.getElementById('voteSection');
+        const voteButton = document.getElementById('voteButton');
+
+        // 추천 수 및 버튼 상태 업데이트
+        update_vote_button_state(answer.isLiked);
+
+        // 수정/삭제 버튼 표시 여부
+        if (answer.isRequesterIsOwner === true) {
+            actionButtons.style.display = 'flex';
+        } else {
+            actionButtons.style.display = 'none';
+        }
+
+        // 로그인 여부에 따라 추천 버튼 표시
+        if (localStorage.getItem('Coding-Mate-Auth')) { // 토큰이 있다는 것은 로그인 상태
+            voteSection.style.display = 'flex';
+            voteButton.onclick = toggle_like; // 로그인 상태일 때만 이벤트 리스너 할당
+        } else {
+            voteSection.style.display = 'none';
+        }
+
+
+        document.getElementById('answerDetailTable').style.display = 'table';
+    }
+
+    function update_vote_button_state(isLiked) {
+        const voteButton = document.getElementById('voteButton');
+        if (isLiked) {
+            voteButton.textContent = '추천 취소';
+            voteButton.classList.remove('not-liked');
+            voteButton.classList.add('liked');
+        } else {
+            voteButton.textContent = '추천하기';
+            voteButton.classList.remove('liked');
+            voteButton.classList.add('not-liked');
+        }
+    }
+
+
+    async function toggle_like() {
+        if (!currentAnswer) {
+            console.error("현재 풀이 정보가 없습니다.");
+            return;
+        }
+
+        const answerId = currentAnswer.id;
+        try {
+            const response = await fetch(`/api/v1/like/${answerId}`, {
+                method: 'POST', // 추천/취소 모두 POST 사용 (토글 방식)
+                headers: create_header()
+            });
+
+            if (response.status === 401) {
+                const tokenRefreshed = await refresh_access_token();
+                if (tokenRefreshed) {
+                    await toggle_like(); // 토큰 갱신 후 재시도
+                } else {
+                    alert('로그인 상태가 만료되었습니다. 다시 로그인해 주세요.');
+                    window.location.href = '/login';
+                }
+                return;
+            }
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`추천 상태 변경 실패: ${errorData.message || '알 수 없는 오류'}`);
+            }
+
+            const responseData = await response.json();
+            const updatedAnswer = responseData.data;
+
+            // UI 업데이트 (추천 수, 버튼 상태)
+            document.getElementById('likeCount').textContent = updatedAnswer.likeCount;
+            update_vote_button_state(!currentAnswer.isLiked);
+
+            // currentAnswer 업데이트
+            currentAnswer.likeCount = updatedAnswer.likeCount;
+            currentAnswer.isLiked = !currentAnswer.isLiked;
+
+        } catch (error) {
+            console.error('추천/취소 요청 중 오류:', error);
+            alert(error.message || '추천 상태 변경에 실패했습니다.');
+        }
+    }
+
+
+    function edit_answer() {
+        const answerId = get_answer_id_from_url();
+        if (answerId) {
+            const editUrl = `/answer/edit/${answerId}`;
+            window.open(editUrl, '_blank');
+        }
+    }
+
+    async function delete_answer() {
+        const answerId = get_answer_id_from_url();
+        if (confirm('정말로 이 풀이를 삭제하시겠습니까?')) {
+            try {
+                const response = await fetch(`/api/v1/answer/${answerId}`, {
+                    method: 'DELETE',
+                    headers: create_header()
+                });
+
+                if (response.status === 401) {
+                    const tokenRefreshed = await refresh_access_token();
+                    if (tokenRefreshed) {
+                        // 토큰 갱신 성공 시 삭제 API 재시도
+                        await delete_answer();
+                    } else {
+                        alert('토큰 갱신에 실패하여 풀이를 삭제할 수 없습니다. 다시 로그인해 주세요.');
+                        // 필요하다면 로그인 페이지로 리디렉션
+                        window.location.href = '/login';
+                    }
+                    return; // 401 처리 후 함수 종료
+                }
+
+                if (response.status === 204) {
+                    alert('풀이가 성공적으로 삭제되었습니다.');
+                    window.location.href = '/answer/list'; // 풀이 목록 페이지로 리다이렉트
+                } else {
+                    const errorData = await response.json();
+                    console.error('풀이 삭제에 실패했습니다:', errorData);
+                    alert(errorData.message || '풀이 삭제에 실패했습니다.');
+                }
+            } catch (error) {
+                console.error('풀이 삭제 요청 중 오류:', error);
+                alert(error.message || '풀이 삭제 요청 중 오류가 발생했습니다.');
+            }
+        }
+    }
+</script>
+</body>
+</html>
