@@ -3,6 +3,7 @@ package com.codingmate.like.service;
 import com.codingmate.answer.domain.Answer;
 import com.codingmate.answer.service.AnswerFinder;
 
+import com.codingmate.common.annotation.Explanation;
 import com.codingmate.programmer.domain.Programmer;
 import com.codingmate.like.domain.Like;
 import com.codingmate.like.dto.response.LikeResponse;
@@ -17,6 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Explanation(
+        responsibility = "Like 생성 및 삭제",
+        domain = "Like",
+        lastReviewed = "2025.06.05"
+)
 public class LikeService {
     private final LikeRepository likeRepository;
     private final AnswerFinder answerFinder;

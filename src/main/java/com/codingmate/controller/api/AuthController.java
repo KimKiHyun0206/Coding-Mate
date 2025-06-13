@@ -8,7 +8,9 @@ import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.auth.service.LoginService;
 import com.codingmate.programmer.service.ProgrammerService;
-import com.codingmate.redis.RedisTokenService;
+import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;
+import com.codingmate.refreshtoken.service.RefreshService;
+import com.codingmate.refreshtoken.service.RefreshTokenService;
 import com.codingmate.util.CookieUtil;
 import com.codingmate.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,26 +28,28 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
     private final ProgrammerService programmerService;
-    private final RedisTokenService redisTokenService;
+    private final RefreshService refreshService;
     private final LoginService loginService;
     private final TokenService tokenService;
+    private final RefreshTokenService refreshTokenService;
 
     private final String ACCESS_TOKEN_HEADER_NAME;
     private final String REFRESH_TOKEN_COOKIE_NAME;
 
     public AuthController(
             ProgrammerService programmerService,
-            RedisTokenService redisTokenService,
+            RefreshService refreshService,
             LoginService loginService,
             TokenService tokenService,
-            JWTProperties jwtProperties
-    ) {
+            JWTProperties jwtProperties,
+            RefreshTokenService refreshTokenService) {
         this.programmerService = programmerService;
-        this.redisTokenService = redisTokenService;
+        this.refreshService = refreshService;
         this.loginService = loginService;
         this.tokenService = tokenService;
         this.ACCESS_TOKEN_HEADER_NAME = jwtProperties.accessTokenHeader();
         this.REFRESH_TOKEN_COOKIE_NAME = jwtProperties.refreshTokenCookie();
+        this.refreshTokenService = refreshTokenService;
     }
 
 
@@ -62,11 +66,12 @@ public class AuthController {
         var programmer = loginService.login(loginRequest.loginId(), loginRequest.password());
         var tokens = tokenService.generateToken(programmer.id(), programmer.authority());
 
-        redisTokenService.saveToken(
+        refreshTokenService.create(RefreshTokenCreateRequest.of(
                 tokens.refreshToken(),
-                programmer.id(),
-                programmer.authority()
-        );
+                tokens.jti(),
+                tokens.instant(),
+                programmer.id()
+        ));
 
         var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken());
 
@@ -97,7 +102,7 @@ public class AuthController {
     @DeleteMapping("/sign-out")
     public ResponseEntity<?> logout(@CookieValue(name = "refresh-token") String refreshToken, HttpServletResponse response) {
         log.info(refreshToken);
-        redisTokenService.deleteRefreshToken(refreshToken);
+        refreshTokenService.revokeToken(refreshToken);
         var cookie = CookieUtil.deleteCookie(REFRESH_TOKEN_COOKIE_NAME);
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
@@ -138,7 +143,8 @@ public class AuthController {
             @CookieValue(name = "refresh-token") String refreshToken,
             HttpServletResponse response
     ) {
-        var tokenDto = redisTokenService.refreshTokens(refreshToken);
+        log.info("REFRESH TOKEN ID {}", JwtUtil.getIdFromSubject(refreshToken));
+        var tokenDto = refreshService.refreshTokens(refreshToken);
         var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, tokenDto.refreshToken());
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addHeader(ACCESS_TOKEN_HEADER_NAME, tokenDto.accessToken());

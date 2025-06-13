@@ -1,10 +1,11 @@
 package com.codingmate.programmer.repository;
 
+import com.codingmate.common.annotation.Explanation;
 import com.codingmate.programmer.domain.Programmer;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,12 +14,17 @@ import java.util.Optional;
 import static com.codingmate.auth.domain.QAuthority.authority;
 import static com.codingmate.programmer.domain.QProgrammer.programmer;
 
+@Slf4j
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Explanation(
+        responsibility = "Programmer Query",
+        detail = "쿼리 최적화를 위해 Querydsl 사용",  //클래스 분리 요함
+        domain = "Programmer",
+        lastReviewed = "2025.06.05"
+)
 public class ProgrammerReadRepository {
-
     private final JPAQueryFactory queryFactory;
-    private final EntityManager em;
 
     /**
      * @implSpec * exists를 사용하지 않음으로써 성능 개선
@@ -41,5 +47,14 @@ public class ProgrammerReadRepository {
                         .leftJoin(programmer.authority, authority)
                         .fetchOne()
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<String> readProgrammerRole (Long programmerId) {
+        Programmer result = queryFactory.selectFrom(programmer)
+                .where(programmer.id.eq(programmerId))
+                .leftJoin(programmer.authority, authority)
+                .fetchOne();
+        return result.getAuthority().getAuthorityName().describeConstable();
     }
 }

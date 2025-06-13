@@ -1,5 +1,6 @@
 package com.codingmate.util;
 
+import com.codingmate.common.annotation.Explanation;
 import com.codingmate.config.properties.JWTProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
@@ -7,12 +8,16 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
+@Explanation(
+        responsibility = "쿠키 생성 및 삭제",
+        lastReviewed = "2025.06.05"
+)
 public class CookieUtil {
     private static final long ONE_DAY_IN_SECONDS = 24 * 60 * 60;
-    private static int expirationDays;
+    private static int REFRESH_TOKEN_EXPIRE_DAY;
 
     public CookieUtil(JWTProperties jwtProperties) {
-        CookieUtil.expirationDays = jwtProperties.expirationDays();
+        CookieUtil.REFRESH_TOKEN_EXPIRE_DAY = jwtProperties.refreshTokenExpirationDays();
     }
 
     public static ResponseCookie getCookie(String name, String value) {
@@ -20,7 +25,7 @@ public class CookieUtil {
                 .httpOnly(true)       // JavaScript 접근 불가
                 .secure(true)         // HTTPS 에서만 전송
                 .path("/")            // 모든 경로에서 쿠키 유효
-                .maxAge(expirationDays * ONE_DAY_IN_SECONDS)
+                .maxAge(REFRESH_TOKEN_EXPIRE_DAY * ONE_DAY_IN_SECONDS)
                 .sameSite("Lax")      // CSRF 방어 (Strict, Lax, None)
                 .build();
     }

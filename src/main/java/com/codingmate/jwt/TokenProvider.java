@@ -1,11 +1,13 @@
 package com.codingmate.jwt;
 
+import com.codingmate.common.annotation.Explanation;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.jwt.ExpiredTokenException;
 import com.codingmate.exception.exception.jwt.IllegalTokenException;
 import com.codingmate.exception.exception.jwt.TokenSecutiryException;
 import com.codingmate.exception.exception.jwt.UnsupportedTokenException;
+import com.codingmate.refreshtoken.dto.response.RefreshTokenIssueResponse;
 import com.codingmate.util.DateUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -19,23 +21,32 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Component
+@Explanation(
+        responsibility = "JWT 토큰 생성",
+        detail = "토큰 발급 외에 토근 검증도 한다",  //클래스 분리 요함
+        domain = "Authority",
+        lastReviewed = "2025.06.05"
+)
 public class TokenProvider {
-
     private final String AUTHORITIES_KEY;           // JWT 클레임에서 권한 정보를 추출할 때 사용하는 키
-    private final long VALIDATE_TIME_IN_SECOND;     // 토큰의 유효 시간 (초 단위)
     private final Key KEY;                          // JWT 서명에 사용되는 Secret Key
+
+    private final long ACCESS_TOKEN_VALIDATE_HOUR;     // 토큰의 유효 시간 (시간 단위)
+    private final long REFRESH_TOKEN_VALIDATE_DAY;
 
     public TokenProvider(
             JWTProperties jwtProperties
     ) {
         this.AUTHORITIES_KEY = jwtProperties.authorityKey();
-        this.VALIDATE_TIME_IN_SECOND = jwtProperties.tokenValidityInSeconds();
-        //this.tokenValidityInMilliseconds = 10000; //TEST용 10초 토큰
+        this.ACCESS_TOKEN_VALIDATE_HOUR = jwtProperties.accessTokenValidityInHour();
+        this.REFRESH_TOKEN_VALIDATE_DAY = jwtProperties.refreshTokenExpirationDays();
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.secret());    // Secret 값을 Base64 디코딩하여 HMAC SHA 키로 변환합니다.
         this.KEY = Keys.hmacShaKeyFor(keyBytes);
     }
@@ -51,14 +62,27 @@ public class TokenProvider {
     public String createAccessToken(Long userId, String role) {
         log.debug("[TokenProvider] createAccessToken({}, {})", userId, role);
 
-        var claims = Jwts.claims().setSubject(String.valueOf(userId));
+        Instant issuedAt = Instant.now();
+        Claims claims = createAccessTokenClaims(userId, role);
+
+        String token = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(Date.from(issuedAt))
+                .setExpiration(Date.from(issuedAt.plus(Duration.ofHours(ACCESS_TOKEN_VALIDATE_HOUR))))
+                .signWith(KEY, SignatureAlgorithm.HS256)
+                .compact();
+
+        log.info("[TokenProvider] Access Token created for userId: {}", userId);
+        return token;
+    }
+
+    private Claims createAccessTokenClaims(Long userId, String role) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
         claims.put(AUTHORITIES_KEY, role);
         claims.put("id", userId);
-
-        var accessToken = buildToken(claims);
-        log.info("[TokenProvider] Access Token created for userId: {}. Token length: {}", userId, accessToken.length());
-        return accessToken;
+        return claims;
     }
+
 
     /**
      * 사용자 ID를 포함하는 Refresh Token을 생성합니다.
@@ -67,37 +91,33 @@ public class TokenProvider {
      * @param userId Refresh Token에 포함될 사용자 ID.
      * @return 생성된 Refresh Token 문자열.
      */
-    public String createRefreshToken(Long userId) {
+    public RefreshTokenIssueResponse createRefreshToken(Long userId) {
         log.debug("[TokenProvider] createRefreshToken({})", userId);
-        var claims = Jwts
-                .claims()
-                .setSubject(String.valueOf(userId)); // Subject (대상) 설정
 
-        String refreshToken = buildToken(claims);
+        Instant issuedAt = Instant.now();
+        String jti = UUID.randomUUID().toString();
+
+        Claims claims = createRefreshTokenClaims(userId, jti);
+
+        Date issuedAtDate = Date.from(issuedAt);
+        Date expirationDate = Date.from(issuedAt.plus(Duration.ofDays(REFRESH_TOKEN_VALIDATE_DAY)));
+
+        String refreshToken = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(issuedAtDate)
+                .setExpiration(expirationDate)
+                .signWith(KEY, SignatureAlgorithm.HS256)
+                .compact();
+
         log.info("[TokenProvider] Refresh Token created for userId: {}. Token length: {}", userId, refreshToken.length());
-        return refreshToken;
+
+        return RefreshTokenIssueResponse.of(refreshToken, jti, issuedAt);
     }
 
-    /**
-     * 주어진 클레임(claims)을 기반으로 JWT를 빌드하여 반환합니다.
-     * JWT의 발급 시간, 만료 시간, 서명 알고리즘 및 시크릿 키가 설정됩니다.
-     *
-     * @param claims JWT에 포함될 클레임 정보.
-     * @return 생성된 JWT 문자열.
-     */
-    private String buildToken(Claims claims) {
-        log.debug("[TokenProvider] buildToken({})", claims);
-        var issuedAt = DateUtil.getDate(); // JWT 발급 시간
-        var expirationDate = DateUtil.getTokenValidTime(issuedAt, VALIDATE_TIME_IN_SECOND); // JWT 만료 시간
-
-        log.debug("[TokenProvider] Building token with IssuedAt: {}, Expiration: {}. Claims: {}", issuedAt, expirationDate, claims);
-
-        return Jwts.builder()
-                .setClaims(claims) // 클레임 설정
-                .setIssuedAt(issuedAt) // 발급 시간 설정
-                .signWith(KEY, SignatureAlgorithm.HS256) // 암호화 알고리즘 및 Secret Key로 서명
-                .setExpiration(expirationDate) // 만료 시간 설정
-                .compact(); // JWT 압축 및 생성
+    private Claims createRefreshTokenClaims(Long userId, String jti) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
+        claims.put("jti", jti);
+        return claims;
     }
 
     /**

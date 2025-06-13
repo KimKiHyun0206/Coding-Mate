@@ -48,6 +48,7 @@ public class Programmer extends BaseEntity {
     private String tip;
 
     @ManyToOne
+    @JoinColumn(name = "authority")
     private Authority authority;
 
     @OneToMany(mappedBy = "programmer", cascade = CascadeType.ALL, orphanRemoval = true)

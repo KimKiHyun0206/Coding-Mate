@@ -34,10 +34,16 @@ public enum ErrorMessage {
     EXPIRED_JWT(HttpStatus.UNAUTHORIZED, "토큰 유효기간이 만료되었습니다"),
     SECURITY_TOKEN(HttpStatus.UNAUTHORIZED, "잘못된 JWT 서명입니다"),
     REFRESH_TOKEN_IS_NULL(HttpStatus.BAD_REQUEST, "갱신할 Refresh Token이 없습니다"),
+    UN_MATCH_JTI(HttpStatus.BAD_REQUEST, "JTI가 일치하지 않습니다"),
+    NOT_FOUND_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "요청한 리프레시 토큰을 찾을 수 없습니다"),
+    REFRESH_TOKEN_OVER_MAX(HttpStatus.CONFLICT, "리프레시 토큰을 더이상 발급할 수 없습니다"),
+    REFRESH_TOKEN_REVOKED(HttpStatus.CONFLICT, "이미 사용된 리프레시 토큰입니다"),
+    JTI_NOT_MATCH(HttpStatus.CONFLICT, "요청한 jti 값이 데이터베이스의 값과 일치하지 않습니다"),
 
     //Redis
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Server에서 오류가 발생했습니다"),
     FAILED_DELETE_REFRESH_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 에서 리프레시 토큰을 삭제하는 중 오류가 발생했습니다"),
+    FAILED_FIND_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "Redis 에서 리프레시 토큰을 찾지 못했습니다"),
     ;
 
 

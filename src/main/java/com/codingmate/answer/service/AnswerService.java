@@ -4,6 +4,7 @@ import com.codingmate.answer.domain.Answer;
 import com.codingmate.answer.domain.vo.LanguageType;
 import com.codingmate.answer.repository.AnswerReadRepository;
 import com.codingmate.answer.repository.AnswerWriteRepository;
+import com.codingmate.common.annotation.Explanation;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.answer.dto.request.AnswerCreateRequest;
 import com.codingmate.answer.dto.request.AnswerUpdateRequest;
@@ -27,6 +28,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
+@Explanation(
+        responsibility = "Answer CRUD",
+        domain = "Answer",
+        lastReviewed = "2025.06.05"
+)
 public class AnswerService {
     private final AnswerReadRepository readRepository;
     private final AnswerWriteRepository writeRepository;
