@@ -54,13 +54,10 @@ public class ProgrammerService {
         log.debug("[ProgrammerService] Login ID {} is available.", request.loginId());
 
 
-        writeRepository.create(request, authorityFinder.getUserAuthority("ROLE_USER"))
-                .orElseThrow(() -> {
-                    log.error("[ProgrammerService] Programmer creation failed for loginId: {}. Database write issue?", request.loginId());
-                    return new ProgrammerNotCreateException(
-                            ErrorMessage.PROGRAMMER_NOT_CREATED,
-                            "요청에 따른 PROGRAMMER가 생성되지 않았습니다.");
-                });
+        writeRepository.create(
+                request,
+                authorityFinder.getUserAuthority("ROLE_USER")
+        );
 
         log.info("[ProgrammerService] Programmer created successfully with loginId: {}", request.loginId());
     }

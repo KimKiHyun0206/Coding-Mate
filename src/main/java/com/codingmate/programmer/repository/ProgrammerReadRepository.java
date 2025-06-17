@@ -29,6 +29,7 @@ public class ProgrammerReadRepository {
     /**
      * @implSpec * exists를 사용하지 않음으로써 성능 개선
      *           * limit 1을 사용해서 1개를 찾으면 쿼리를 중단하도록 함
+     * @implSpec CREATE INDEX idx_programmer_login_id ON programmer(login_id); 인덱스를 만들어둠
      * */
     @Transactional(readOnly = true)
     public boolean isExistLoginId(String loginId) {
@@ -39,22 +40,32 @@ public class ProgrammerReadRepository {
                 .fetchFirst() != null;
     }
 
+    /**
+     * @implSpec fetchJoin으로 지연로딩 방지
+     * */
     @Transactional(readOnly = true)
     public Optional<Programmer> readByLoginId(String loginId) {
         return Optional.ofNullable(
                 queryFactory.selectFrom(programmer)
                         .where(programmer.loginId.eq(loginId))
                         .leftJoin(programmer.authority, authority)
+                        .fetchJoin()
                         .fetchOne()
         );
     }
 
+    /**
+     * @implSpec fetchJoin으로 지연로딩 방지
+     * */
     @Transactional(readOnly = true)
     public Optional<String> readProgrammerRole (Long programmerId) {
         Programmer result = queryFactory.selectFrom(programmer)
                 .where(programmer.id.eq(programmerId))
                 .leftJoin(programmer.authority, authority)
+                .fetchJoin()
                 .fetchOne();
         return result.getAuthority().getAuthorityName().describeConstable();
     }
+
+    //TODO 로그인 아이디와 비밀번호를 바꾸는 로직은 DTO 에서는 null-safe patch update DTO을 사용하도록 함.
 }
