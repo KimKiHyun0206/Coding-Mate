@@ -23,8 +23,10 @@ public class RefreshTokenWriteRepository {
     @Transactional
     public long revokeAllToken(Long userId) {
         return queryFactory.update(refreshToken)
-                .where(refreshToken.userId.eq(userId))
-                .where(refreshToken.isRevoked.eq(false))
+                .where(
+                        refreshToken.userId.eq(userId),
+                        refreshToken.isRevoked.eq(false)
+                )
                 .set(refreshToken.isRevoked, true)
                 .execute();
     }

@@ -81,7 +81,7 @@ public class RefreshTokenService {
      * */
     private void validateMaxTokenCount(Long programmerId){
         log.debug("[RefreshTokenService] Checking token count for user: {}", programmerId);
-        Long count = refreshTokenReadRepository.countRefreshToken(programmerId);
+        long count = refreshTokenReadRepository.countRefreshToken(programmerId);
         log.info("[RefreshTokenService] Token count: {}", count);
         if (count > MAX_TOKEN) {
             throw new RefreshTokenOverMax(
