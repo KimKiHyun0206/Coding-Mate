@@ -102,13 +102,13 @@ public class ProgrammerService {
                             ErrorMessage.INVALID_ID,
                             String.format("%d는 존재하지 않는 ProgrammerID입니다.", programmerId));
                 });
-        log.debug("[ProgrammerService] Programmer found: {}. Counting answers...", programmer.getId());
+        log.debug("[ProgrammerService] Programmer found: {}. Counting answers...", programmerId);
 
-        long wroteAnswersCount = answerReadRepository.countProgrammerWroteAnswer(programmerId);
-        log.debug("[ProgrammerService] Programmer {} has written {} answers.", programmerId, wroteAnswersCount);
+        long writtenAnswersCount = answerReadRepository.countProgrammerWroteAnswer(programmerId);
+        log.debug("[ProgrammerService] Programmer {} has written {} answers.", programmerId, writtenAnswersCount);
         log.info("[ProgrammerService] Successfully retrieved MyPage info for programmerId: {}", programmerId);
 
-        return MyPageResponse.of(programmer, wroteAnswersCount);
+        return MyPageResponse.of(programmer, writtenAnswersCount);
     }
 
     @Transactional(readOnly = true)
