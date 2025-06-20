@@ -35,7 +35,6 @@ public class ProgrammerWriteRepository {
      * @implSpec loginId가 중복되는지 여부 확인 + Programmer 등록으로 쿼리가 두 번 나감
      * @implNote em.persist는 항상 값을 반환하기 때문에 Optional을 사용하지 않는다.
      * */
-    @Transactional
     public ProgrammerResponse create(ProgrammerCreateRequest request, Authority authority) {
         log.info(request.toString());
         var entity = Programmer.toEntity(request, authority);
@@ -44,7 +43,6 @@ public class ProgrammerWriteRepository {
         return ProgrammerResponse.of(entity);
     }
 
-    @Transactional
     public long update(Long programmerId, ProgrammerUpdateRequest dto) {
         return queryFactory.update(programmer)
                 .where(programmer.id.eq(programmerId))

@@ -20,7 +20,6 @@ import static com.codingmate.refreshtoken.domain.QRefreshToken.refreshToken;
 public class RefreshTokenWriteRepository {
     private final JPAQueryFactory queryFactory;
 
-    @Transactional
     public long revokeAllToken(Long userId) {
         return queryFactory.update(refreshToken)
                 .where(

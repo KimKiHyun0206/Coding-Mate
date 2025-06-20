@@ -21,7 +21,6 @@ import static com.codingmate.refreshtoken.domain.QRefreshToken.refreshToken;
 public class RefreshTokenReadRepository {
     private final JPAQueryFactory queryFactory;
 
-    @Transactional(readOnly = true)
     public long countRefreshToken(Long userId) {
         Long count = queryFactory
                 .select(refreshToken.count())
@@ -38,7 +37,6 @@ public class RefreshTokenReadRepository {
     /**
      * @implNote isRevoked는 null을 반환할 수 있기 때문에 체크 후 리턴
      * */
-    @Transactional(readOnly = true)
     public boolean isUsedJti(String jti) {
         Boolean isRevoked = queryFactory.select(refreshToken.isRevoked)
                 .from(refreshToken)

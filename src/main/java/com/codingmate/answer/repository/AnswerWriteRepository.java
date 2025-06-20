@@ -21,7 +21,6 @@ import static com.codingmate.answer.domain.QAnswer.answer;
 public class AnswerWriteRepository {
     private final JPAQueryFactory queryFactory;
 
-    @Transactional
     public long update(Long programmerId, Long answerId, AnswerUpdateRequest dto) {
         return queryFactory.update(answer)
                 .where(
@@ -35,7 +34,6 @@ public class AnswerWriteRepository {
                 .execute();
     }
 
-    @Transactional
     public long deleteByProgrammerId(Long id) {
         return queryFactory.delete(answer)
                 .where(answer.programmer.id.eq(id))

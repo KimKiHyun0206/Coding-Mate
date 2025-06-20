@@ -33,7 +33,6 @@ import static com.codingmate.answer.domain.QAnswer.answer;
 public class AnswerReadRepository {
     private final JPAQueryFactory queryFactory;
 
-    @Transactional(readOnly = true)
     public Optional<Answer> read(Long answerId) {
         return Optional.ofNullable(
                 queryFactory.selectFrom(answer)
@@ -48,7 +47,6 @@ public class AnswerReadRepository {
      * @implNote fetchOne은 null을 반환할 수 있다.
      * @implSpec answer.count를 사용해서 숫자를 가져오도록 한다.
      * */
-    @Transactional(readOnly = true)
     public long countProgrammerWroteAnswer(Long programmerId) {
         Long count = queryFactory.select(answer.count())
                 .from(answer)
@@ -57,7 +55,7 @@ public class AnswerReadRepository {
         return count != null ? count : 0L;
     }
 
-    @Transactional(readOnly = true)
+
     public Page<AnswerListResponse> readAll(LanguageType languageType, Long backjoonId, Pageable pageable) {
 
         // 1. 실제 데이터를 조회하는 쿼리 실행
@@ -101,7 +99,7 @@ public class AnswerReadRepository {
         return backjoonId != null ? answer.backJoonId.eq(backjoonId) : null;
     }
 
-    @Transactional(readOnly = true)
+
     public Page<AnswerListResponse> readAllByProgrammerId(LanguageType languageType, Long backjoonId, Long programmerId, Pageable pageable) {
         List<AnswerListResponse> content = queryFactory.select(new QAnswerListResponse(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
                 .from(answer)

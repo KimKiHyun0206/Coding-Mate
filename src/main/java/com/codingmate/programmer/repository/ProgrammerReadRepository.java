@@ -31,7 +31,6 @@ public class ProgrammerReadRepository {
      *           * limit 1을 사용해서 1개를 찾으면 쿼리를 중단하도록 함
      * @implSpec CREATE INDEX idx_programmer_login_id ON programmer(login_id); 인덱스를 만들어둠
      * */
-    @Transactional(readOnly = true)
     public boolean isExistLoginId(String loginId) {
         return queryFactory.selectOne()
                 .from(programmer)
@@ -43,7 +42,6 @@ public class ProgrammerReadRepository {
     /**
      * @implSpec fetchJoin으로 지연로딩 방지
      * */
-    @Transactional(readOnly = true)
     public Optional<Programmer> readByLoginId(String loginId) {
         return Optional.ofNullable(
                 queryFactory.selectFrom(programmer)
@@ -57,7 +55,6 @@ public class ProgrammerReadRepository {
     /**
      * @implSpec fetchJoin으로 지연로딩 방지
      * */
-    @Transactional(readOnly = true)
     public Optional<String> readProgrammerRole (Long programmerId) {
         Programmer result = queryFactory.selectFrom(programmer)
                 .where(programmer.id.eq(programmerId))

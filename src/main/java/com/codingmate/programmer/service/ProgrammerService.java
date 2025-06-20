@@ -9,7 +9,6 @@ import com.codingmate.programmer.dto.response.MyPageResponse;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingmate.exception.exception.programmer.NotFoundProgrammerException;
-import com.codingmate.exception.exception.programmer.ProgrammerNotCreateException;
 import com.codingmate.programmer.repository.DefaultProgrammerRepository;
 import com.codingmate.programmer.repository.ProgrammerReadRepository;
 import com.codingmate.programmer.repository.ProgrammerWriteRepository;
@@ -18,7 +17,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.webjars.NotFoundException;
 
 @Slf4j
 @Service
@@ -36,8 +34,7 @@ public class ProgrammerService {
      * 계정 생성 전에 로그인 ID의 중복 여부를 확인합니다.
      *
      * @param request 생성할 프로그래머의 정보를 담은 DTO
-     * @throws com.codingmate.exception.exception.programmer.DuplicateProgrammerLoginIdException 요청한 {@code loginId}가 이미 존재할 경우 발생합니다.
-     * @throws com.codingmate.exception.exception.programmer.ProgrammerNotCreateException 프로그래머 생성 중 예상치 못한 오류가 발생하여 계정이 생성되지 않았을 경우 발생합니다.
+     * @throws DuplicateProgrammerLoginIdException 요청한 {@code loginId}가 이미 존재할 경우 발생합니다.
      */
     @Transactional
     public void create(ProgrammerCreateRequest request) {
@@ -66,7 +63,7 @@ public class ProgrammerService {
      * 주어진 로그인 ID의 사용 가능 여부를 확인합니다.
      *
      * @param loginId 확인할 로그인 ID
-     * @throws com.codingmate.exception.exception.programmer.DuplicateProgrammerLoginIdException 요청한 {@code loginId}가 이미 존재하여 사용할 수 없을 경우 발생합니다.
+     * @throws DuplicateProgrammerLoginIdException 요청한 {@code loginId}가 이미 존재하여 사용할 수 없을 경우 발생합니다.
      */
     @Transactional(readOnly = true)
     public void checkLoginIdAvailability(String loginId) {
@@ -88,7 +85,7 @@ public class ProgrammerService {
      *
      * @param programmerId 조회할 프로그래머의 ID
      * @return 프로그래머의 마이페이지 정보를 담은 응답 DTO
-     * @throws com.codingmate.exception.exception.programmer.NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
+     * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional(readOnly = true)
     public MyPageResponse getProgrammerMyPageInfo(Long programmerId) {
@@ -131,7 +128,7 @@ public class ProgrammerService {
      *
      * @param programmerId 업데이트할 프로그래머의 ID
      * @param request      업데이트할 내용을 담은 DTO
-     * @throws com.codingmate.exception.exception.programmer.NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
+     * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional
     public void update(Long programmerId, ProgrammerUpdateRequest request) {
@@ -155,7 +152,7 @@ public class ProgrammerService {
      * 계정 삭제 시, 해당 프로그래머가 작성한 모든 답변도 함께 삭제됩니다.
      *
      * @param programmerId 삭제할 프로그래머의 ID
-     * @throws com.codingmate.exception.exception.programmer.NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
+     * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional
     public void delete(Long programmerId) {
