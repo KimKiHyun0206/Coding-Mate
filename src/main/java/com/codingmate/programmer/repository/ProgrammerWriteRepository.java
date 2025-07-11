@@ -5,6 +5,7 @@ import com.codingmate.common.annotation.Explanation;
 import com.codingmate.programmer.domain.Programmer;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.dto.request.ProgrammerUpdateRequest;
+import com.codingmate.programmer.dto.response.ProgrammerResponse;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import lombok.AccessLevel;
@@ -32,17 +33,15 @@ public class ProgrammerWriteRepository {
 
     /**
      * @implSpec loginId가 중복되는지 여부 확인 + Programmer 등록으로 쿼리가 두 번 나감
+     * @implNote em.persist는 항상 값을 반환하기 때문에 Optional을 사용하지 않는다.
      * */
-    @Transactional
-    public Optional<Programmer> create(ProgrammerCreateRequest request, Authority authority) {
-        log.info(request.toString());
+    public ProgrammerResponse create(ProgrammerCreateRequest request, Authority authority) {
         var entity = Programmer.toEntity(request, authority);
         em.persist(entity);
-        log.info(entity.toString());
-        return Optional.of(entity);
+
+        return ProgrammerResponse.of(entity);
     }
 
-    @Transactional
     public long update(Long programmerId, ProgrammerUpdateRequest dto) {
         return queryFactory.update(programmer)
                 .where(programmer.id.eq(programmerId))
