@@ -1,9 +1,8 @@
 package com.codingmate.redis;
 
 import com.codingmate.common.annotation.Explanation;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
@@ -12,7 +11,6 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 @Explanation(
         responsibility = "Redis 조작",
         detail = "기본적인 생성, 조회, 삭제 메소드만 존재함",
@@ -21,6 +19,13 @@ import java.util.Optional;
 public class RedisRepository {
     private final ValueOperations<String, String> valueOperations;
     private final RedisTemplate<String, String> redisTemplate;
+
+    protected RedisRepository(
+            ValueOperations<String, String> valueOperations,
+            @Qualifier("stringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
+        this.valueOperations = valueOperations;
+        this.redisTemplate = redisTemplate;
+    }
 
     public void save(String key, String value) {
         valueOperations.set(key, value);
