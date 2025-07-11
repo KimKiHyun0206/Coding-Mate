@@ -16,12 +16,12 @@ import java.util.Optional;
         detail = "기본적인 생성, 조회, 삭제 메소드만 존재함",
         lastReviewed = "2025.06.05"
 )
-public class RedisRepository {
+public class TokenRedisRepository {
     private final ValueOperations<String, String> valueOperations;
     private final RedisTemplate<String, String> redisTemplate;
 
-    protected RedisRepository(
-            ValueOperations<String, String> valueOperations,
+    protected TokenRedisRepository(
+            @Qualifier("stringValueOperations") ValueOperations<String, String> valueOperations,
             @Qualifier("stringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.valueOperations = valueOperations;
         this.redisTemplate = redisTemplate;
