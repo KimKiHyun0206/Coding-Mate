@@ -1,4 +1,4 @@
-package com.codingmate.ranking;
+package com.codingmate.ranking.repository;
 
 import com.codingmate.ranking.dto.QRankingReadDto;
 import com.codingmate.ranking.dto.RankingReadDto;
