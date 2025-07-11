@@ -1,6 +1,7 @@
 package com.codingmate.config;
 
 import com.codingmate.config.properties.RedisProperties;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +32,7 @@ public class RedisConfig {
     }
 
     @Bean
-    public RedisTemplate<String, String> stringRedisTemplate() {
+    public RedisTemplate<String, String> myStringRedisTemplate() {
         RedisTemplate<String, String> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory());
 
@@ -46,7 +47,9 @@ public class RedisConfig {
     // Sorted Set Operations 빈 (활성 토큰 관리에 사용)
     // ZSetOperations는 RedisTemplate<String, String>에서 바로 가져올 수 있습니다.
     @Bean
-    public ZSetOperations<String, String> zSetOperations(RedisTemplate<String, String> redisTemplate) {
+    public ZSetOperations<String, String> zSetOperations(
+            @Qualifier("myStringRedisTemplate") RedisTemplate<String, String> redisTemplate
+    ) {
         return redisTemplate.opsForZSet();
     }
 
@@ -54,7 +57,7 @@ public class RedisConfig {
     // ValueOperations도 RedisTemplate<String, String>에서 바로 가져올 수 있습니다.
     @Bean
     public ValueOperations<String, String> stringValueOperations() {
-        return stringRedisTemplate().opsForValue();
+        return myStringRedisTemplate().opsForValue();
     }
 
     // 랭킹용 Redis 저장소
