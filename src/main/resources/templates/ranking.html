@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>코드 메이트 - 랭킹</title>
+    <link rel="stylesheet" href="/css/nav_bar.css">
+    <link rel="stylesheet" href="/css/basic.css">
+    <style>
+        .ranking-container {
+            max-width: 600px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .ranking-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ranking-table th, .ranking-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+
+        .ranking-table th {
+            background-color: #f5f5f5;
+        }
+
+        .ranking-title {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+    </style>
+</head>
+<body>
+<nav id="mainNav">
+    <div class="nav-left">
+        <a href="/">홈</a>
+        <a href="/answer/list">풀이 목록</a>
+        <a href="/ranking">랭킹</a>
+    </div>
+    <div class="nav-right">
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+    </div>
+</nav>
+
+<div class="ranking-container">
+    <div class="ranking-title">🏆 랭킹 TOP 10</div>
+    <table class="ranking-table">
+        <thead>
+        <tr>
+            <th>순위</th>
+            <th>이름</th>
+            <th>점수</th>
+        </tr>
+        </thead>
+        <tbody id="ranking-body">
+        <!-- JavaScript로 데이터가 삽입됩니다 -->
+        </tbody>
+    </table>
+</div>
+
+<script src="/js/auth.js" defer></script>
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        await check_and_refresh_token_for_nav_bar();
+
+        try {
+            const response = await fetch('/api/v1/rankings'); // 백엔드에서 랭킹 JSON 응답하는 API
+            const data = await response.json();
+
+            const tbody = document.getElementById('ranking-body');
+            data.slice(0, 10).forEach((entry, index) => {
+                const row = document.createElement('tr');
+
+                row.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${entry.name}</td>
+                    <td>${entry.score}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+        } catch (error) {
+            console.error('랭킹 정보를 불러오는 중 오류 발생:', error);
+        }
+    });
+</script>
+</body>
+</html>
