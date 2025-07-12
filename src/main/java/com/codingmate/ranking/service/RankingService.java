@@ -20,6 +20,14 @@ public class RankingService {
     private final RankingProperties rankingProperties;
 
     @Transactional(readOnly = true)
+    public List<RankingReadDto> refreshRanking() {
+        List<RankingReadDto> ranking = getRanking();
+        saveInRedis(ranking);
+
+        return ranking;
+    }
+
+    @Transactional(readOnly = true)
     public List<RankingReadDto> getRanking() {
         List<RankingReadDto> top10 = readRepository.getTop10();
         for (RankingReadDto readDto : top10) {
@@ -29,6 +37,12 @@ public class RankingService {
     }
 
     public void saveInRedis(List<RankingReadDto> ranking) {
-        redisRepository.save(rankingProperties.key(), ranking);
+        redisRepository.save(rankingProperties.getKey(), ranking);
+    }
+
+    public List<RankingReadDto> getRankingFromRedis() {
+        List<RankingReadDto> ranking = redisRepository.getRanking(rankingProperties.getKey());
+        log.info("Redis에서 Ranking 조회 size: {}", ranking.size());
+        return ranking;
     }
 }
