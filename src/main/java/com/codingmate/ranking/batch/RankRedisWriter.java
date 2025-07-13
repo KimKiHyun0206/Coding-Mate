@@ -35,7 +35,7 @@ public class RankRedisWriter implements ItemWriter<SolveCountRankingDto>, StepEx
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        top10 = new PriorityQueue<>(Comparator.comparingLong(SolveCountRankingDto::score)); // 오름차순
+        top10 = new PriorityQueue<>(Comparator.comparingLong(SolveCountRankingDto::score));
     }
 
     @Override
@@ -43,12 +43,8 @@ public class RankRedisWriter implements ItemWriter<SolveCountRankingDto>, StepEx
         String key = rankKeyGenerator.getTodayRankingKey(); // 예: ranking:daily:2025-07-11
         List<SolveCountRankingDto> sorted = new ArrayList<>(top10);
         sorted.sort(Comparator.comparingLong(SolveCountRankingDto::score).reversed());
-        sorted.forEach(s -> {
-            log.info("WRITER {} ", s.toString());
-        });
 
-        redisTemplate.opsForValue().set(key, sorted);
-        redisTemplate.expire(key, Duration.ofDays(1));
+        redisTemplate.opsForValue().set(key, sorted, Duration.ofDays(1));
 
         log.info("Redis 저장 key={} value={}", key, sorted);
 
@@ -57,7 +53,7 @@ public class RankRedisWriter implements ItemWriter<SolveCountRankingDto>, StepEx
 
     @Override
     public void write(Chunk<? extends SolveCountRankingDto> chunk) throws Exception {
-        for (SolveCountRankingDto user : chunk.getItems()) {
+        for (SolveCountRankingDto user : chunk) {
             top10.offer(user);
             if (top10.size() > 10) {
                 top10.poll(); // 가장 낮은 점수 제거
