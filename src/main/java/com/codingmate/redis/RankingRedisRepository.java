@@ -7,6 +7,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
 
+import java.time.Duration;
 import java.util.List;
 
 @Repository
@@ -28,11 +29,19 @@ public class RankingRedisRepository {
     }
 
     public void save(String key, List<SolveCountRankingDto> value) {
-        valueOperations.set(key, value);
+        valueOperations.set(key, value, Duration.ofDays(1));
     }
 
     public List<SolveCountRankingDto> getRanking(String key) {
-        return (List<SolveCountRankingDto>) valueOperations.get(key);
+        Object value = valueOperations.get(key);
+        if (value == null) {
+            return List.of();
+        }
+        try {
+            return (List<SolveCountRankingDto>) value;
+        } catch (ClassCastException e) {
+            throw new IllegalStateException("Redis 데이터 타입 불일치", e);
+        }
     }
 
     public Boolean delete(String key) {
