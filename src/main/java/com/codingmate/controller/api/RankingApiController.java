@@ -2,6 +2,9 @@ package com.codingmate.controller.api;
 
 import com.codingmate.ranking.dto.RankingReadDto;
 import com.codingmate.ranking.service.RankingService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,11 +21,19 @@ public class RankingApiController {
 
     private final RankingService rankingService;
 
+    @Operation(summary = "Redis에 등록된 오늘의 랭킹을 읽어온다.", description = "Redis에 등록된 오늘의 랭킹을 읽어온다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Redis에서 랭킹 조회 성공"),
+    })
     @GetMapping
     public ResponseEntity<List<RankingReadDto>> getRanking(){
         return ResponseEntity.ok(rankingService.getRankingFromRedis());
     }
 
+    @Operation(summary = "Redis에 등록된 랭킹 재설정", description = "Redis에 등록된 랭킹을 재설정합니다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Redis에서 랭킹 재설정 성공"),
+    })
     @PostMapping
     public ResponseEntity<List<RankingReadDto>> refreshRanking(){
         return ResponseEntity.ok(rankingService.refreshRanking());
