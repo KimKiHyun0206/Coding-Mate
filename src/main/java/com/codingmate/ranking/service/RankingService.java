@@ -24,18 +24,20 @@ public class RankingService {
     @Transactional(readOnly = true)
     public List<RankingReadDto> refreshRanking() {
         List<RankingReadDto> ranking = getRanking();
+
         saveInRedis(ranking);
+        validRankingList(ranking);
 
         return ranking;
     }
 
     @Transactional(readOnly = true)
     public List<RankingReadDto> getRanking() {
-        List<RankingReadDto> top10 = readRepository.getTop10();
-        for (RankingReadDto readDto : top10) {
-            log.info("RankingDTO {}", readDto.toString());
-        }
-        return top10;
+        List<RankingReadDto> ranking = readRepository.getTop10();
+
+        validRankingList(ranking);
+
+        return ranking;
     }
 
     public void saveInRedis(List<RankingReadDto> ranking) {
@@ -45,11 +47,16 @@ public class RankingService {
     public List<RankingReadDto> getRankingFromRedis() {
         List<RankingReadDto> ranking = redisRepository.getRanking(rankingProperties.getKey());
 
+        validRankingList(ranking);
+
+        return ranking;
+    }
+
+    private void validRankingList(List<RankingReadDto> ranking) {
         if(ranking.isEmpty()) {
             log.warn("Redis에서 Ranking을 조회했지만 Ranking이 존재하지 않습니다.");
             throw new NoRankingException(ErrorMessage.NO_RANKING_EXCEPTION, "오늘자 랭킹이 존재하지 않습니다.");
         }
         log.info("Redis에서 Ranking 조회 size: {}", ranking.size());
-        return ranking;
     }
 }
