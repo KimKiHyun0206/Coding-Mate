@@ -1,7 +1,7 @@
 package com.codingmate.redis;
 
 import com.codingmate.common.annotation.Explanation;
-import com.codingmate.ranking.dto.RankingReadDto;
+import com.codingmate.ranking.dto.SolveCountRankingDto;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -27,12 +27,12 @@ public class RankingRedisRepository {
         this.redisTemplate = redisTemplate;
     }
 
-    public void save(String key, List<RankingReadDto> value) {
+    public void save(String key, List<SolveCountRankingDto> value) {
         valueOperations.set(key, value);
     }
 
-    public List<RankingReadDto> getRanking(String key) {
-        return (List<RankingReadDto>) valueOperations.get(key);
+    public List<SolveCountRankingDto> getRanking(String key) {
+        return (List<SolveCountRankingDto>) valueOperations.get(key);
     }
 
     public Boolean delete(String key) {

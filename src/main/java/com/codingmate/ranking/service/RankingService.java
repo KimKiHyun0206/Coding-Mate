@@ -3,8 +3,8 @@ package com.codingmate.ranking.service;
 import com.codingmate.common.annotation.Explanation;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.ranking.NoRankingException;
+import com.codingmate.ranking.dto.SolveCountRankingDto;
 import com.codingmate.ranking.repository.RankingReadRepository;
-import com.codingmate.ranking.dto.RankingReadDto;
 import com.codingmate.redis.RankingRedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +26,8 @@ public class RankingService {
     private final RankKeyGenerator rankKeyGenerator;
 
     @Transactional(readOnly = true)
-    public List<RankingReadDto> refreshRanking() {
-        List<RankingReadDto> ranking = getRanking();
+    public List<SolveCountRankingDto> refreshRanking() {
+        List<SolveCountRankingDto> ranking = getRanking();
 
         saveInRedis(ranking);
         validRankingList(ranking);
@@ -36,27 +36,27 @@ public class RankingService {
     }
 
     @Transactional(readOnly = true)
-    public List<RankingReadDto> getRanking() {
-        List<RankingReadDto> ranking = readRepository.getTop10();
+    public List<SolveCountRankingDto> getRanking() {
+        List<SolveCountRankingDto> ranking = readRepository.getTop10();
 
         validRankingList(ranking);
 
         return ranking;
     }
 
-    public void saveInRedis(List<RankingReadDto> ranking) {
+    public void saveInRedis(List<SolveCountRankingDto> ranking) {
         redisRepository.save(rankKeyGenerator.getTodayRankingKey(), ranking);
     }
 
-    public List<RankingReadDto> getRankingFromRedis() {
-        List<RankingReadDto> ranking = redisRepository.getRanking(rankKeyGenerator.getTodayRankingKey());
+    public List<SolveCountRankingDto> getRankingFromRedis() {
+        List<SolveCountRankingDto> ranking = redisRepository.getRanking(rankKeyGenerator.getTodayRankingKey());
 
         validRankingList(ranking);
 
         return ranking;
     }
 
-    private void validRankingList(List<RankingReadDto> ranking) {
+    private void validRankingList(List<SolveCountRankingDto> ranking) {
         if(ranking.isEmpty()) {
             log.warn("Redis에서 Ranking을 조회했지만 Ranking이 존재하지 않습니다.");
             throw new NoRankingException(ErrorMessage.NO_RANKING_EXCEPTION, "오늘자 랭킹이 존재하지 않습니다.");

@@ -2,7 +2,7 @@ package com.codingmate.config;
 
 import com.codingmate.ranking.batch.RankRedisWriter;
 import com.codingmate.ranking.batch.RankReader;
-import com.codingmate.ranking.dto.RankingReadDto;
+import com.codingmate.ranking.dto.SolveCountRankingDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
@@ -23,7 +23,7 @@ public class BatchConfig {
     @Bean
     public Step rankingStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("rankingStep", jobRepository)
-                .<RankingReadDto, RankingReadDto>chunk(10, txManager)
+                .<SolveCountRankingDto, SolveCountRankingDto>chunk(10, txManager)
                 .reader(rankReader)
                 .writer(rankRedisWriter)
                 .build();

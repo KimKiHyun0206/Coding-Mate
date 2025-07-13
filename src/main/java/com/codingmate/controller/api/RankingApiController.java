@@ -1,6 +1,6 @@
 package com.codingmate.controller.api;
 
-import com.codingmate.ranking.dto.RankingReadDto;
+import com.codingmate.ranking.dto.SolveCountRankingDto;
 import com.codingmate.ranking.service.RankingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -26,7 +26,7 @@ public class RankingApiController {
             @ApiResponse(responseCode = "200", description = "Redis에서 랭킹 조회 성공"),
     })
     @GetMapping
-    public ResponseEntity<List<RankingReadDto>> getRanking(){
+    public ResponseEntity<List<SolveCountRankingDto>> getRanking(){
         return ResponseEntity.ok(rankingService.getRankingFromRedis());
     }
 
@@ -35,7 +35,7 @@ public class RankingApiController {
             @ApiResponse(responseCode = "200", description = "Redis에서 랭킹 재설정 성공"),
     })
     @PostMapping
-    public ResponseEntity<List<RankingReadDto>> refreshRanking(){
+    public ResponseEntity<List<SolveCountRankingDto>> refreshRanking(){
         return ResponseEntity.ok(rankingService.refreshRanking());
     }
 }

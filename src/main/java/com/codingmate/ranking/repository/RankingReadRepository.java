@@ -2,7 +2,7 @@ package com.codingmate.ranking.repository;
 
 import com.codingmate.common.annotation.Explanation;
 import com.codingmate.ranking.dto.QRankingReadDto;
-import com.codingmate.ranking.dto.RankingReadDto;
+import com.codingmate.ranking.dto.SolveCountRankingDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -22,7 +22,7 @@ import static com.codingmate.programmer.domain.QProgrammer.programmer;
 public class RankingReadRepository {
     private final JPAQueryFactory queryFactory;
 
-    public List<RankingReadDto> getTop10(){
+    public List<SolveCountRankingDto> getTop10(){
         return queryFactory.select(
                     new QRankingReadDto(
                         programmer.id,

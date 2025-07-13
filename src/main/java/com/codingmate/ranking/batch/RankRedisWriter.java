@@ -1,7 +1,7 @@
 package com.codingmate.ranking.batch;
 
 import com.codingmate.common.annotation.Explanation;
-import com.codingmate.ranking.dto.RankingReadDto;
+import com.codingmate.ranking.dto.SolveCountRankingDto;
 import com.codingmate.ranking.service.RankKeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,22 +27,22 @@ import java.util.PriorityQueue;
         detail = "프로퍼티에서 얻은 키로 Redis에 데이터를 저장한다.",
         lastReviewed = "2025.07.13"
 )
-public class RankRedisWriter implements ItemWriter<RankingReadDto>, StepExecutionListener {
+public class RankRedisWriter implements ItemWriter<SolveCountRankingDto>, StepExecutionListener {
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final RankKeyGenerator rankKeyGenerator;
-    private PriorityQueue<RankingReadDto> top10;
+    private PriorityQueue<SolveCountRankingDto> top10;
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        top10 = new PriorityQueue<>(Comparator.comparingLong(RankingReadDto::score)); // 오름차순
+        top10 = new PriorityQueue<>(Comparator.comparingLong(SolveCountRankingDto::score)); // 오름차순
     }
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
         String key = rankKeyGenerator.getTodayRankingKey(); // 예: ranking:daily:2025-07-11
-        List<RankingReadDto> sorted = new ArrayList<>(top10);
-        sorted.sort(Comparator.comparingLong(RankingReadDto::score).reversed());
+        List<SolveCountRankingDto> sorted = new ArrayList<>(top10);
+        sorted.sort(Comparator.comparingLong(SolveCountRankingDto::score).reversed());
         sorted.forEach(s -> {
             log.info("WRITER {} ", s.toString());
         });
@@ -56,8 +56,8 @@ public class RankRedisWriter implements ItemWriter<RankingReadDto>, StepExecutio
     }
 
     @Override
-    public void write(Chunk<? extends RankingReadDto> chunk) throws Exception {
-        for (RankingReadDto user : chunk.getItems()) {
+    public void write(Chunk<? extends SolveCountRankingDto> chunk) throws Exception {
+        for (SolveCountRankingDto user : chunk.getItems()) {
             top10.offer(user);
             if (top10.size() > 10) {
                 top10.poll(); // 가장 낮은 점수 제거
