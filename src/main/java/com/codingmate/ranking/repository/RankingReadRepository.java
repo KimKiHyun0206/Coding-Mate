@@ -1,7 +1,7 @@
 package com.codingmate.ranking.repository;
 
 import com.codingmate.common.annotation.Explanation;
-import com.codingmate.ranking.dto.QRankingReadDto;
+import com.codingmate.ranking.dto.QSolveCountRankingDto;
 import com.codingmate.ranking.dto.SolveCountRankingDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +24,7 @@ public class RankingReadRepository {
 
     public List<SolveCountRankingDto> getTop10(){
         return queryFactory.select(
-                    new QRankingReadDto(
+                    new QSolveCountRankingDto(
                         programmer.id,
                         programmer.name.name,
                         answer.count()

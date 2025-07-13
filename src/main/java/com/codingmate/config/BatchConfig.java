@@ -1,11 +1,13 @@
 package com.codingmate.config;
 
 import com.codingmate.ranking.batch.RankRedisWriter;
-import com.codingmate.ranking.batch.RankReader;
+import com.codingmate.ranking.batch.SolveCountRankReader;
 import com.codingmate.ranking.dto.SolveCountRankingDto;
+import com.codingmate.ranking.service.RankingService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -16,15 +18,20 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @RequiredArgsConstructor
 public class BatchConfig {
-    private final RankReader rankReader;
     private final RankRedisWriter rankRedisWriter;
+    private final RankingService rankingService;
 
+    @Bean
+    @StepScope
+    public SolveCountRankReader solveCountRankReader() {
+        return new SolveCountRankReader(rankingService);
+    }
 
     @Bean
     public Step rankingStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
         return new StepBuilder("rankingStep", jobRepository)
                 .<SolveCountRankingDto, SolveCountRankingDto>chunk(10, txManager)
-                .reader(rankReader)
+                .reader(solveCountRankReader())
                 .writer(rankRedisWriter)
                 .build();
     }
