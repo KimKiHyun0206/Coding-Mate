@@ -1,7 +1,6 @@
 package com.codingmate.ranking.service;
 
 import com.codingmate.common.annotation.Explanation;
-import com.codingmate.config.properties.RankingProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.ranking.NoRankingException;
 import com.codingmate.ranking.repository.RankingReadRepository;
@@ -24,7 +23,7 @@ import java.util.List;
 public class RankingService {
     private final RankingReadRepository readRepository;
     private final RankingRedisRepository redisRepository;
-    private final RankingProperties rankingProperties;
+    private final RankKeyGenerator rankKeyGenerator;
 
     @Transactional(readOnly = true)
     public List<RankingReadDto> refreshRanking() {
@@ -46,11 +45,11 @@ public class RankingService {
     }
 
     public void saveInRedis(List<RankingReadDto> ranking) {
-        redisRepository.save(rankingProperties.getKey(), ranking);
+        redisRepository.save(rankKeyGenerator.getTodayRankingKey(), ranking);
     }
 
     public List<RankingReadDto> getRankingFromRedis() {
-        List<RankingReadDto> ranking = redisRepository.getRanking(rankingProperties.getKey());
+        List<RankingReadDto> ranking = redisRepository.getRanking(rankKeyGenerator.getTodayRankingKey());
 
         validRankingList(ranking);
 

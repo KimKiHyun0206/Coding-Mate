@@ -1,8 +1,8 @@
 package com.codingmate.ranking.batch;
 
 import com.codingmate.common.annotation.Explanation;
-import com.codingmate.config.properties.RankingProperties;
 import com.codingmate.ranking.dto.RankingReadDto;
+import com.codingmate.ranking.service.RankKeyGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ExitStatus;
@@ -30,7 +30,7 @@ import java.util.PriorityQueue;
 public class RankRedisWriter implements ItemWriter<RankingReadDto>, StepExecutionListener {
 
     private final RedisTemplate<String, Object> redisTemplate;
-    private final RankingProperties rankingProperties;
+    private final RankKeyGenerator rankKeyGenerator;
     private PriorityQueue<RankingReadDto> top10;
 
     @Override
@@ -40,7 +40,7 @@ public class RankRedisWriter implements ItemWriter<RankingReadDto>, StepExecutio
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        String key = rankingProperties.getKey(); // 예: ranking:daily:2025-07-11
+        String key = rankKeyGenerator.getTodayRankingKey(); // 예: ranking:daily:2025-07-11
         List<RankingReadDto> sorted = new ArrayList<>(top10);
         sorted.sort(Comparator.comparingLong(RankingReadDto::score).reversed());
         sorted.forEach(s -> {
