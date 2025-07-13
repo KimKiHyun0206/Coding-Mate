@@ -1,5 +1,6 @@
 package com.codingmate.ranking.repository;
 
+import com.codingmate.common.annotation.Explanation;
 import com.codingmate.ranking.dto.QRankingReadDto;
 import com.codingmate.ranking.dto.RankingReadDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -13,6 +14,11 @@ import static com.codingmate.programmer.domain.QProgrammer.programmer;
 
 @Repository
 @RequiredArgsConstructor
+@Explanation(
+        responsibility = "데이터베이스에 저장된 Programmer들 중에서 상위 10명의 풀이 작성자를 읽어온다.",
+        detail = "가져오는 값은 programmer_id, programmer_name, count이다.",
+        lastReviewed = "2025.07.13"
+)
 public class RankingReadRepository {
     private final JPAQueryFactory queryFactory;
 

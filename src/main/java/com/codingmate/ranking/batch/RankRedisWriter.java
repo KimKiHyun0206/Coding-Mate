@@ -1,5 +1,6 @@
 package com.codingmate.ranking.batch;
 
+import com.codingmate.common.annotation.Explanation;
 import com.codingmate.config.properties.RankingProperties;
 import com.codingmate.ranking.dto.RankingReadDto;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,11 @@ import java.util.PriorityQueue;
 @Slf4j
 @Component
 @RequiredArgsConstructor
+@Explanation(
+        responsibility = "RankReader가 반환한 List를 Redis에 저장한다.",
+        detail = "프로퍼티에서 얻은 키로 Redis에 데이터를 저장한다.",
+        lastReviewed = "2025.07.13"
+)
 public class RankRedisWriter implements ItemWriter<RankingReadDto>, StepExecutionListener {
 
     private final RedisTemplate<String, Object> redisTemplate;
