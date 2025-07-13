@@ -30,7 +30,6 @@ public class RankingService {
         List<SolveCountRankingDto> ranking = getRanking();
 
         saveInRedis(ranking);
-        validRankingList(ranking);
 
         return ranking;
     }
@@ -39,28 +38,32 @@ public class RankingService {
     public List<SolveCountRankingDto> getRanking() {
         List<SolveCountRankingDto> ranking = readRepository.getTop10();
 
-        validRankingList(ranking);
+        checkRankingListNotEmpty(ranking, "Database");
 
         return ranking;
     }
 
     public void saveInRedis(List<SolveCountRankingDto> ranking) {
-        redisRepository.save(rankKeyGenerator.getTodayRankingKey(), ranking);
+        try {
+            redisRepository.save(rankKeyGenerator.getTodayRankingKey(), ranking);
+        } catch (Exception e) {
+            log.warn("Redis 저장 실패", e);
+        }
     }
 
     public List<SolveCountRankingDto> getRankingFromRedis() {
         List<SolveCountRankingDto> ranking = redisRepository.getRanking(rankKeyGenerator.getTodayRankingKey());
 
-        validRankingList(ranking);
+        checkRankingListNotEmpty(ranking, "Redis");
 
         return ranking;
     }
 
-    private void validRankingList(List<SolveCountRankingDto> ranking) {
-        if(ranking.isEmpty()) {
-            log.warn("Redis에서 Ranking을 조회했지만 Ranking이 존재하지 않습니다.");
+    private void checkRankingListNotEmpty(List<SolveCountRankingDto> ranking, String source) {
+        if (ranking == null || ranking.isEmpty()) {
+            log.warn("{}에서 Ranking을 조회했지만 Ranking이 존재하지 않습니다.", source);
             throw new NoRankingException(ErrorMessage.NO_RANKING_EXCEPTION, "오늘자 랭킹이 존재하지 않습니다.");
         }
-        log.info("Redis에서 Ranking 조회 size: {}", ranking.size());
+        log.info("{}에서 Ranking 조회 size: {}", source, ranking.size());
     }
 }
