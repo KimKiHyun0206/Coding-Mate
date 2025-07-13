@@ -1,6 +1,8 @@
 package com.codingmate.ranking.service;
 
 import com.codingmate.config.properties.RankingProperties;
+import com.codingmate.exception.dto.ErrorMessage;
+import com.codingmate.exception.exception.ranking.NoRankingException;
 import com.codingmate.ranking.repository.RankingReadRepository;
 import com.codingmate.ranking.dto.RankingReadDto;
 import com.codingmate.redis.RankingRedisRepository;
@@ -42,6 +44,11 @@ public class RankingService {
 
     public List<RankingReadDto> getRankingFromRedis() {
         List<RankingReadDto> ranking = redisRepository.getRanking(rankingProperties.getKey());
+
+        if(ranking.isEmpty()) {
+            log.warn("Redis에서 Ranking을 조회했지만 Ranking이 존재하지 않습니다.");
+            throw new NoRankingException(ErrorMessage.NO_RANKING_EXCEPTION, "오늘자 랭킹이 존재하지 않습니다.");
+        }
         log.info("Redis에서 Ranking 조회 size: {}", ranking.size());
         return ranking;
     }
