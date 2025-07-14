@@ -46,6 +46,7 @@ public enum ErrorMessage {
     JOB_BUILDER_BUILD_INVALID_PARAMETERS(HttpStatus.INTERNAL_SERVER_ERROR, "JobParameterBuilder가 올바르지 않은 파라미터를 생성했습니다"),
     RANKING_ILLEGAL_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "읽어온 Rank가 List 타입이 아닙니다"),
     RANKING_COUNT(HttpStatus.INTERNAL_SERVER_ERROR, "랭킹 카운트 중 예외가 발생했습니다"),
+    FAILED_SAVE_RANKING_IN_REDIS(HttpStatus.INTERNAL_SERVER_ERROR, "Redis에 저장하지 못했습니다"),
 
     //Redis
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Server에서 오류가 발생했습니다"),

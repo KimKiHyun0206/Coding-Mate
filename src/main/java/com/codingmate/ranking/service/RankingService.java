@@ -3,11 +3,14 @@ package com.codingmate.ranking.service;
 import com.codingmate.common.annotation.Explanation;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.ranking.NoRankingException;
+import com.codingmate.exception.exception.redis.FailedSaveRankingInRedisException;
 import com.codingmate.ranking.dto.SolveCountRankingDto;
 import com.codingmate.ranking.repository.RankingReadRepository;
 import com.codingmate.redis.RankingRedisRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.data.redis.RedisSystemException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,8 +49,18 @@ public class RankingService {
     public void saveInRedis(List<SolveCountRankingDto> ranking) {
         try {
             redisRepository.save(rankKeyGenerator.getTodayRankingKey(), ranking);
+        } catch (RedisConnectionFailureException | RedisSystemException e) {
+            log.warn("Redis 연결 또는 시스템 오류로 저장 실패", e);
+            throw new FailedSaveRankingInRedisException(
+                    ErrorMessage.FAILED_SAVE_RANKING_IN_REDIS,
+                    "연결 또는 시스템 오류로 Redis에 저장하는 데 실패했습니다"
+            );
         } catch (Exception e) {
-            log.warn("Redis 저장 실패", e);
+            log.error("예상치 못한 Redis 저장 오류", e);
+            throw new FailedSaveRankingInRedisException(
+                    ErrorMessage.FAILED_SAVE_RANKING_IN_REDIS,
+                    "예상치 못한 이유로 Redis에 저장하는 데 실패했습니다"
+            );
         }
     }
 
