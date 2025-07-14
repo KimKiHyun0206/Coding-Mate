@@ -33,7 +33,7 @@ public class RankRedisWriter implements ItemWriter<SolveCountRankingDto>, StepEx
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final RankKeyGenerator rankKeyGenerator;
-    private PriorityQueue<SolveCountRankingDto> top10;
+    private volatile PriorityQueue<SolveCountRankingDto> top10;
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
