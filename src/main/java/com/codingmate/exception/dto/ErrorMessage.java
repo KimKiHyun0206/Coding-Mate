@@ -44,6 +44,7 @@ public enum ErrorMessage {
     NO_RANKING_EXCEPTION(HttpStatus.NO_CONTENT, "오늘자 랭킹이 존재하지 않습니다"),
     JOB_ALREADY_EXECUTION(HttpStatus.INTERNAL_SERVER_ERROR, "이미 스케줄러가 실행되었습니다"),
     JOB_BUILDER_BUILD_INVALID_PARAMETERS(HttpStatus.INTERNAL_SERVER_ERROR, "JobParameterBuilder가 올바르지 않은 파라미터를 생성했습니다"),
+    RANKING_ILLEGAL_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "읽어온 Rank가 List 타입이 아닙니다"),
 
 
     //Redis

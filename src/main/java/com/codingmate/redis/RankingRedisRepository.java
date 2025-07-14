@@ -1,7 +1,10 @@
 package com.codingmate.redis;
 
 import com.codingmate.common.annotation.Explanation;
+import com.codingmate.exception.dto.ErrorMessage;
+import com.codingmate.exception.exception.ranking.RankingIllegalTypeException;
 import com.codingmate.ranking.dto.SolveCountRankingDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -10,6 +13,7 @@ import org.springframework.stereotype.Repository;
 import java.time.Duration;
 import java.util.List;
 
+@Slf4j
 @Repository
 @Explanation(
         responsibility = "Redis에 저장된 Ranking 조작",
@@ -38,9 +42,18 @@ public class RankingRedisRepository {
             return List.of();
         }
         try {
+            if(!(value instanceof List<?>)) {
+                throw new RankingIllegalTypeException(ErrorMessage.RANKING_ILLEGAL_TYPE, "Redis 데이터가 List 타입이 아닙니다.");
+            }
+            List<?> rawList = (List<?>) value;
+            if(!rawList.isEmpty() && !(rawList.get(0) instanceof SolveCountRankingDto)) {
+                throw new RankingIllegalTypeException(ErrorMessage.RANKING_ILLEGAL_TYPE, "Redis 데이터가 예상한 데이터 타입(SolveCountRankingDto)이 아닙니다.");
+            }
+
             return (List<SolveCountRankingDto>) value;
         } catch (ClassCastException e) {
-            throw new IllegalStateException("Redis 데이터 타입 불일치", e);
+            log.error("Redis에서 랭킹 데이터 타입 캐스팅 실패, key: {}, value type: {}", key, value.getClass());
+            throw new IllegalStateException("Redis 데이터 타입 불일치: " + value.getClass(), e);
         }
     }
 
