@@ -56,10 +56,12 @@ public class RankRedisWriter implements ItemWriter<SolveCountRankingDto>, StepEx
     @Override
     public void write(Chunk<? extends SolveCountRankingDto> chunk) throws Exception {
         try {
-            for (SolveCountRankingDto user : chunk) {
-                top10.offer(user);
-                if (top10.size() > 10) {
-                    top10.poll(); // 가장 낮은 점수 제거
+            synchronized (this) {
+                for (SolveCountRankingDto solveCountRankingDto : chunk) {
+                    top10.offer(solveCountRankingDto);
+                    if (top10.size() > 10) {
+                        top10.poll();
+                    }
                 }
             }
         } catch (Exception e) {
