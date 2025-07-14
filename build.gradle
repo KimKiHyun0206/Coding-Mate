@@ -24,53 +24,64 @@ repositories {
 }
 
 dependencies {
-    //JPA
+    implementation 'org.springframework.boot:spring-boot-starter'
+
+    // JPA
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    //AOP
+    // AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop' //직접 추가
 
-    //Thymeleaf
+    // Thymeleaf
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 
-    //Security
+    // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-    //JWT
+    // JWT
     implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.5'
     runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.5'
 
-    //Spring Web
+    // Spring Web
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    //Lombok
+    // E-mail
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
-    //Database
-    //implementation 'com.mysql:mysql-connector-j:8.0.33'  // MySQL 커넥터/J 버전을 최신으로 변경
+    // Database
+    implementation 'com.mysql:mysql-connector-j:8.0.33'  // MySQL 커넥터/J 버전을 최신으로 변경
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     runtimeOnly 'com.h2database:h2'
 
-    //Test tool
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // Test tool
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
-    //Querydsl 추가
+    // Querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
     annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jakarta"
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
-    //Swagger
+    // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
-    //Redis
+    // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Spring Batch
+    implementation 'org.springframework.boot:spring-boot-starter-batch'
 }
 
 tasks.named('test') {

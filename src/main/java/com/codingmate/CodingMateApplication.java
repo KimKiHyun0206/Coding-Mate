@@ -1,6 +1,7 @@
 package com.codingmate;
 
 import com.codingmate.config.properties.JWTProperties;
+import com.codingmate.config.properties.RankingProperties;
 import com.codingmate.config.properties.RedisProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,8 @@ import java.util.TimeZone;
 @RequiredArgsConstructor
 @EnableConfigurationProperties({
         RedisProperties.class,
-        JWTProperties.class
+        JWTProperties.class,
+        RankingProperties.class
 })
 public class CodingMateApplication implements ApplicationListener<ApplicationReadyEvent> {
     private final Environment environment;

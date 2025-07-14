@@ -40,6 +40,13 @@ public enum ErrorMessage {
     REFRESH_TOKEN_REVOKED(HttpStatus.CONFLICT, "이미 사용된 리프레시 토큰입니다"),
     JTI_NOT_MATCH(HttpStatus.CONFLICT, "요청한 jti 값이 데이터베이스의 값과 일치하지 않습니다"),
 
+    //RANKING
+    NO_RANKING_EXCEPTION(HttpStatus.NO_CONTENT, "오늘자 랭킹이 존재하지 않습니다"),
+    JOB_ALREADY_EXECUTION(HttpStatus.INTERNAL_SERVER_ERROR, "이미 스케줄러가 실행되었습니다"),
+    JOB_BUILDER_BUILD_INVALID_PARAMETERS(HttpStatus.INTERNAL_SERVER_ERROR, "JobParameterBuilder가 올바르지 않은 파라미터를 생성했습니다"),
+    RANKING_ILLEGAL_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "읽어온 Rank가 List 타입이 아닙니다"),
+    RANKING_COUNT(HttpStatus.INTERNAL_SERVER_ERROR, "랭킹 카운트 중 예외가 발생했습니다"),
+
     //Redis
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis Server에서 오류가 발생했습니다"),
     FAILED_DELETE_REFRESH_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 에서 리프레시 토큰을 삭제하는 중 오류가 발생했습니다"),

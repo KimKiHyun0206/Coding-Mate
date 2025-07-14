@@ -5,7 +5,7 @@ import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.jwt.RefreshTokenOverMax;
 import com.codingmate.exception.exception.redis.FailedFindRefreshToken;
-import com.codingmate.redis.RedisRepository;
+import com.codingmate.redis.TokenRedisRepository;
 import com.codingmate.refreshtoken.domain.RefreshToken;
 import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;
 import com.codingmate.refreshtoken.dto.response.RefreshTokenResponse;
@@ -26,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 )
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
-    private final RedisRepository redisRepository;
+    private final TokenRedisRepository tokenRedisRepository;
     private final RefreshTokenReadRepository refreshTokenReadRepository;
     private final RefreshTokenWriteRepository refreshTokenWriteRepository;
 
@@ -37,13 +37,13 @@ public class RefreshTokenService {
 
     protected RefreshTokenService(
             RefreshTokenRepository refreshTokenRepository,
-            RedisRepository redisRepository,
+            TokenRedisRepository tokenRedisRepository,
             JWTProperties jwtProperties,
             RefreshTokenReadRepository refreshTokenReadRepository,
             RefreshTokenWriteRepository refreshTokenWriteRepository
     ) {
         this.refreshTokenRepository = refreshTokenRepository;
-        this.redisRepository = redisRepository;
+        this.tokenRedisRepository = tokenRedisRepository;
         this.REDIS_TOKEN_EXPIRE_DAYS = jwtProperties.refreshTokenExpirationDays();
         this.KEY_PREFIX = jwtProperties.redis().key().prefix();
         this.KEY_SUFFIX = jwtProperties.redis().key().suffix();
@@ -113,7 +113,7 @@ public class RefreshTokenService {
         String key = makeRedisKey(refreshToken.getUserId());
         String value = InstantUtil.instantToScore(refreshToken.getIssuedAt()) + " " + refreshToken.getJti();
         log.info("[RefreshTokenService] Trying save token info to Redis: Key={}, Value={}", key, value);
-        redisRepository.save(key, value);
+        tokenRedisRepository.save(key, value);
     }
 
     /**
@@ -152,7 +152,7 @@ public class RefreshTokenService {
      * */
     private void deleteFromRedis(Long id) {
         log.debug("[RefreshTokenService] deleteRefreshTokenInRedis({})", id);
-        boolean b = redisRepository.delete(makeRedisKey(id));
+        boolean b = tokenRedisRepository.delete(makeRedisKey(id));
         log.info("[RefreshTokenService] Refresh token deleted successfully: {}", b);
     }
 
@@ -163,7 +163,7 @@ public class RefreshTokenService {
      * */
     public String getJtiFromRedis(Long id) {
         log.debug("[RedisTokenService] getJtiFromRedis({})", id);
-        return redisRepository.getValue(makeRedisKey(id)).orElseThrow(
+        return tokenRedisRepository.getValue(makeRedisKey(id)).orElseThrow(
                 () -> {
                     log.warn("[RedisTokenService] Failed to find a refresh token: {}", id);
                     return new FailedFindRefreshToken(
