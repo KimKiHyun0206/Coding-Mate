@@ -13,6 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 public class RankingSchedulerTest {
@@ -30,12 +31,13 @@ public class RankingSchedulerTest {
         // then (검증: Job 실행 결과가 COMPLETED인지 확인)
         // 최신 JobExecution을 조회해서 상태 확인
         List<JobInstance> instances = jobExplorer.getJobInstances("rankingJob", 0, 1);
-        assertFalse(instances.isEmpty());
+        assertFalse(instances.isEmpty(), "Job 실행 결과가 값을 가지고 있는가?");
 
         JobInstance latestInstance = instances.get(0);
         List<JobExecution> executions = jobExplorer.getJobExecutions(latestInstance);
         JobExecution latestExecution = executions.get(0);
 
-        assertEquals(ExitStatus.COMPLETED, latestExecution.getExitStatus());
+        assertEquals(ExitStatus.COMPLETED, latestExecution.getExitStatus(), "Job이 실행되었는가?");
+        assertNotNull(latestExecution.getEndTime(), "Job이 완료되었는가?");
     }
 }
