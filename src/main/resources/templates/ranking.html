@@ -48,14 +48,15 @@
 <div class="ranking-container">
     <div class="ranking-title">🏆 랭킹 TOP 10</div>
     <table class="ranking-table">
+        <caption class="sr-only">상위 10명의 사용자 랭킹</caption>
         <thead>
         <tr>
-            <th>순위</th>
-            <th>이름</th>
-            <th>점수</th>
+            <th scope="col">순위</th>
+            <th scope="col">이름</th>
+            <th scope="col">점수</th>
         </tr>
         </thead>
-        <tbody id="ranking-body">
+        <tbody id="ranking-body" role="rowgroup" aria-label="랭킹 목록">
         <!-- JavaScript로 데이터가 삽입됩니다 -->
         </tbody>
     </table>
@@ -68,23 +69,44 @@
 
         try {
             const response = await fetch('/api/v1/rankings'); // 백엔드에서 랭킹 JSON 응답하는 API
+
+            if (!response.ok) {
+                throw new Error("에러가 발생했습니다. 다시 시도해주세요.")
+            }
+
             const data = await response.json();
 
             const tbody = document.getElementById('ranking-body');
             data.slice(0, 10).forEach((entry, index) => {
                 const row = document.createElement('tr');
 
-                row.innerHTML = `
-                    <td>${index + 1}</td>
-                    <td>${entry.name}</td>
-                    <td>${entry.score}</td>
-                `;
+                const rankCell = document.createElement('td');
+                rankCell.textContent = index + 1;
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = entry.name;
+                const scoreCell = document.createElement('td');
+                scoreCell.textContent = entry.score;
+
+                row.appendChild(rankCell);
+                row.appendChild(nameCell);
+                row.appendChild(scoreCell);
 
                 tbody.appendChild(row);
             });
 
         } catch (error) {
             console.error('랭킹 정보를 불러오는 중 오류 발생:', error);
+
+            const tbody = document.getElementById('ranking-body');
+            const errorRow = document.createElement('tr');
+            const errorCell = document.createElement('td');
+            errorCell.colSpan = 3;
+            errorCell.textContent = '랭킹 정보를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.';
+            errorCell.style.textAlign = 'center';
+            errorCell.style.color = '#666';
+            errorRow.appendChild(errorCell);
+            tbody.appendChild(errorRow);
         }
     });
 </script>
