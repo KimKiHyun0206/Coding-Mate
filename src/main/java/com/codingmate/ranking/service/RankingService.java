@@ -59,7 +59,7 @@ public class RankingService {
             log.error("예상치 못한 Redis 저장 오류", e);
             throw new FailedSaveRankingInRedisException(
                     ErrorMessage.FAILED_SAVE_RANKING_IN_REDIS,
-                    "예상치 못한 이유로 Redis에 저장하는 데 실패했습니다"
+                    "예상치 못한 오류로 Redis에 저장하는 데 실패했습니다"
             );
         }
     }
