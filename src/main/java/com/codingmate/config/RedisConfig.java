@@ -56,8 +56,9 @@ public class RedisConfig {
     // Value Operations 빈 (블랙리스트 관리에 사용 - String 타입 값)
     // ValueOperations도 RedisTemplate<String, String>에서 바로 가져올 수 있습니다.
     @Bean
-    public ValueOperations<String, String> stringValueOperations() {
-        return myStringRedisTemplate().opsForValue();
+    public ValueOperations<String, String> stringValueOperations(
+            @Qualifier("myStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
+        return redisTemplate.opsForValue();
     }
 
     // 랭킹용 Redis 저장소
@@ -71,7 +72,8 @@ public class RedisConfig {
     }
 
     @Bean
-    public ValueOperations<String, Object> objectValueOperations() {
-        return objectRedisTemplate().opsForValue();
+    public ValueOperations<String, Object> objectValueOperations(
+            @Qualifier("objectRedisTemplate") RedisTemplate<String, Object> redisTemplate) {
+        return redisTemplate.opsForValue();
     }
 }
