@@ -10,12 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
-import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -37,13 +34,13 @@ public class RankRedisWriter implements ItemWriter<SolveCountRankingDto>, StepEx
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        top10 = new PriorityQueue<>(Comparator.comparingLong(SolveCountRankingDto::score));
+        top10 = new PriorityQueue<>(Comparator.comparingLong(SolveCountRankingDto::score).reversed());
     }
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
         String key = rankKeyGenerator.getTodayRankingKey(); // 예: ranking:daily:2025-07-11
-        List<SolveCountRankingDto> sorted = new ArrayList<>(top10);
+        List<SolveCountRankingDto> sorted = new ArrayList<>(top10)  ;
         sorted.sort(Comparator.comparingLong(SolveCountRankingDto::score).reversed());
 
         redisTemplate.opsForValue().set(key, sorted, Duration.ofDays(1));
