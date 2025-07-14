@@ -20,7 +20,7 @@ public class TokenRedisRepository {
     private final ValueOperations<String, String> valueOperations;
     private final RedisTemplate<String, String> redisTemplate;
 
-    protected TokenRedisRepository(
+    public TokenRedisRepository(
             @Qualifier("stringValueOperations") ValueOperations<String, String> valueOperations,
             @Qualifier("myStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {
         this.valueOperations = valueOperations;

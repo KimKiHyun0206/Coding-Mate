@@ -55,7 +55,7 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     // Database
-    implementation 'com.mysql:mysql-connector-j:8.0.33'  // MySQL 커넥터/J 버전을 최신으로 변경
+    implementation 'com.mysql:mysql-connector-j:8.2.0'  // 보안 취약점 패치(>=8.2.0) 적용
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     runtimeOnly 'com.h2database:h2'
 
@@ -82,6 +82,7 @@ dependencies {
 
     // Spring Batch
     implementation 'org.springframework.boot:spring-boot-starter-batch'
+    testImplementation 'org.springframework.batch:spring-batch-test'
 }
 
 tasks.named('test') {

@@ -2,7 +2,7 @@ package com.codingmate.ranking.scheduler;
 
 import com.codingmate.common.annotation.Explanation;
 import com.codingmate.exception.dto.ErrorMessage;
-import com.codingmate.exception.exception.ranking.JobAlreadyExecutionException;
+import com.codingmate.exception.exception.ranking.JobAlreadyRunningException;
 import com.codingmate.exception.exception.ranking.JobBuilderBuildInvalidParametersException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public class RankingJobScheduler {
             log.info("Ranking job이 성공적으로 실행됐습니다 {}", System.currentTimeMillis());
         } catch (JobExecutionAlreadyRunningException jobExecutionAlreadyRunningException) {
             log.error("동일한 Job 인스턴스가 이미 실행 중인데, 또 다시 실행을 시도했습니다.");
-            throw new JobAlreadyExecutionException(ErrorMessage.JOB_ALREADY_EXECUTION, jobExecutionAlreadyRunningException.getMessage());
+            throw new JobAlreadyRunningException(ErrorMessage.JOB_ALREADY_EXECUTION, jobExecutionAlreadyRunningException.getMessage());
         } catch (JobParametersInvalidException jobParametersInvalidException) {
             log.error("JobParameterBuilder를 통해생성된 JobParameters가 유효하지 않습니다.");
             throw new JobBuilderBuildInvalidParametersException(ErrorMessage.JOB_BUILDER_BUILD_INVALID_PARAMETERS, jobParametersInvalidException.getMessage());
