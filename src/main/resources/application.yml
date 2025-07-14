@@ -1,21 +1,17 @@
 spring:
 
-  h2:
-    console:
-      enabled: true
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/testdb?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/sample?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: root
     password: letmein
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect # MySQL 8.x용 Dialect
         format_sql: true
         show_sql: true
     defer-datasource-initialization: true
@@ -30,6 +26,9 @@ spring:
       repositories:
         enabled: false
 
+  batch:
+    jdbc:
+      initialize-schema: always
 
 springdoc:
   swagger-ui:
