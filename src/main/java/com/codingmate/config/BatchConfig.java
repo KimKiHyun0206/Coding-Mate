@@ -41,13 +41,13 @@ public class BatchConfig {
     public Step rankingStep(
             JobRepository jobRepository,
             PlatformTransactionManager txManager,
-            RedisTemplate<String, Object> redisTemplate,
-            RankKeyGenerator rankKeyGenerator
+            RankRedisWriter rankRedisWriter,
+            SolveCountRankReader solveCountRankReader
     ) {
         return new StepBuilder("rankingStep", jobRepository)
                 .<SolveCountRankingDto, SolveCountRankingDto>chunk(10, txManager)
-                .reader(solveCountRankReader())
-                .writer(rankRedisWriter(redisTemplate, rankKeyGenerator))
+                .reader(solveCountRankReader)
+                .writer(rankRedisWriter)
                 .build();
     }
 
