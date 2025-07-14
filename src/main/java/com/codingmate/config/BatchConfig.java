@@ -20,7 +20,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 @RequiredArgsConstructor
 public class BatchConfig {
-    private final RankRedisWriter rankRedisWriter;
     private final RankingService rankingService;
 
     @Bean
@@ -39,11 +38,16 @@ public class BatchConfig {
     }
 
     @Bean
-    public Step rankingStep(JobRepository jobRepository, PlatformTransactionManager txManager) {
+    public Step rankingStep(
+            JobRepository jobRepository,
+            PlatformTransactionManager txManager,
+            RedisTemplate<String, Object> redisTemplate,
+            RankKeyGenerator rankKeyGenerator
+    ) {
         return new StepBuilder("rankingStep", jobRepository)
                 .<SolveCountRankingDto, SolveCountRankingDto>chunk(10, txManager)
                 .reader(solveCountRankReader())
-                .writer(rankRedisWriter)
+                .writer(rankRedisWriter(redisTemplate, rankKeyGenerator))
                 .build();
     }
 
