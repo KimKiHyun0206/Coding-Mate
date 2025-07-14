@@ -1,6 +1,8 @@
 package com.codingmate.ranking.batch;
 
 import com.codingmate.common.annotation.Explanation;
+import com.codingmate.exception.dto.ErrorMessage;
+import com.codingmate.exception.exception.ranking.RankingCountException;
 import com.codingmate.ranking.dto.SolveCountRankingDto;
 import com.codingmate.ranking.service.RankKeyGenerator;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -20,7 +23,6 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 @Slf4j
-@Component
 @RequiredArgsConstructor
 @Explanation(
         responsibility = "RankReader가 반환한 List를 Redis에 저장한다.",
@@ -53,11 +55,16 @@ public class RankRedisWriter implements ItemWriter<SolveCountRankingDto>, StepEx
 
     @Override
     public void write(Chunk<? extends SolveCountRankingDto> chunk) throws Exception {
-        for (SolveCountRankingDto user : chunk) {
-            top10.offer(user);
-            if (top10.size() > 10) {
-                top10.poll(); // 가장 낮은 점수 제거
+        try {
+            for (SolveCountRankingDto user : chunk) {
+                top10.offer(user);
+                if (top10.size() > 10) {
+                    top10.poll(); // 가장 낮은 점수 제거
+                }
             }
+        } catch (Exception e) {
+            log.error("랭킹 카운트 중에 에러가 발생했습니다.", e);
+            throw new RankingCountException(ErrorMessage.RANKING_COUNT, e.getMessage());
         }
     }
 }
