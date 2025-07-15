@@ -1,58 +1,62 @@
 spring:
-
+  # 데이터베이스 연결 설정
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/sample?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
-    username: root
-    password: letmein
-
+    driver-class-name: com.mysql.cj.jdbc.Driver       # 사용하는 데이터베이스 드라이버
+    url: jdbc:mysql://localhost:3306/sample?serverTimezone=Asia/Seoul&characterEncoding=UTF-8 # 데이터베이스 URL
+    username: root                                    # 데이터베이스 유저 이름
+    password: letmein                                 # 데이터베이스 유저의 비밀번호
+  # 스프링 JPA 설정
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update                               # DB 테이블 생성 전략 설정
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect # MySQL 8.x용 Dialect
-        format_sql: true
-        show_sql: true
-    defer-datasource-initialization: true
+        format_sql: true                             # 쿼리 로그를 정렬해서 출력한다
+        show_sql: true                               # 실행되는 SQL 쿼리를 콘솔에 출력한다. 프로덕션 환경에서는 false로 변경해야 함.
+    defer-datasource-initialization: true            # SQL 스크립트 초기화를 JPA 앤티티 매니저 초기화 이후로 지연시킨다. 이는 data.sql이 있어서 필요하다.
   sql:
     init:
-    # mode: always
-
+    # mode: always                                    # SQL 초기화 스크립트를 언제 실행할지 결정한다.
+  # Redis 설정
   data:
     redis:
-      port: 6379
-      host: localhost
+      port: 6379        # 기본 포트 6397
+      host: localhost   # 로컬에서 실행하기에 localhost 사용
       repositories:
-        enabled: false
-
+        enabled: false  # Spring Data Redis의 자동 Repository 기능 비활성화
+  # 스프링 배치 설정
   batch:
     jdbc:
-      initialize-schema: always
+      initialize-schema: always     # 배치 테이블을 항상 생성하려고 시도한다
 
+# Swagger 사용 설정
 springdoc:
   swagger-ui:
-    path: /swagger-ui.html # 스웨거 접근 경로
+    path: /swagger-ui.html                      # 스웨거 접근 경로
   api-docs:
-    path: /api-docs # openAPI 접근 경로. default 값은 /v3/api-docs 이다.
-  show-actuator: true # Spring Actuator의 endpoint까지 보여줄 것인지?
+    path: /api-docs                             # openAPI 접근 경로. default 값은 /v3/api-docs 이다.
+  show-actuator: true                           # Spring Actuator의 endpoint까지 보여줄 것인지?
   default-consumes-media-type: application/json # request media type 의 기본 값
   default-produces-media-type: application/json # response media type 의 기본 값
-  paths-to-match: # 해당 패턴에 매칭되는 controller만 swagger-ui에 노출한다.
+  paths-to-match:                               # 해당 패턴에 매칭되는 controller만 swagger-ui에 노출한다.
     - /api/v1/**
 
+# JWT 토큰 설정
 jwt:
   #HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
   #echo 'silvernine-tech-spring-boot-jwt-tutorial-secret-silvernine-tech-spring-boot-jwt-tutorial-secret'|base64
   secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
-  access-token-header: Authorization
-  access-token-validity-in-hour: 3
-  refresh-token-cookie: code-mate-ref
-  refresh-token-expiration-days: 60
-  redis:
+  access-token-header: Authorization    # 액세스 토큰 헤더
+  access-token-validity-in-hour: 3      # 액세스 토큰 유효기간 (시간)
+  refresh-token-cookie: code-mate-ref   # 리프레시 토큰 쿠키 키
+  refresh-token-expiration-days: 60     # 리프레시 토큰 유효기간 (일)
+  redis:                                # Redis
     key:
-      prefix: programmer
-      suffix: token_rts
+      prefix: programmer                # 레디스 저장에 필요한 키 값 중 접두어
+      suffix: token_rts                 # 레디스 저장에 필요한 키 값 중 접미어
+
+# 랭킹 Redis 저장 설정
 ranking:
-  daily: daily
-  key: ranking
+  daily: daily                          # 레디스 저장에 필요한 키 값 중 날짜를 나타내는 값
+  key: ranking                          # 레디스 저장에 필요한 키 값 중 랭킹을 저장하는 것을 나타내는 값
