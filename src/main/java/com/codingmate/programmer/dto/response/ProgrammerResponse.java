@@ -1,8 +1,11 @@
 package com.codingmate.programmer.dto.response;
 
+import com.codingmate.auth.domain.Authority;
 import com.codingmate.programmer.domain.Programmer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
+
+import java.util.Set;
 
 /**
  * 사용자의 살세 정보를 응답하기 위한 DTO
@@ -40,7 +43,7 @@ public record ProgrammerResponse(
         String tip,
 
         @Schema(description = "프로그래머의 권한 (예: ROLE_USER, ROLE_ADMIN)", example = "ROLE_USER")
-        String authority
+        Set<Authority> authority
 ) {
     /**
      * Programmer 엔티티를 사용하여 ProgrammerResponse를 생성합니다.
@@ -58,7 +61,7 @@ public record ProgrammerResponse(
                 .name(programmer.getName().getName())
                 .email(programmer.getEmail().getEmail())
                 .tip(programmer.getTip())
-                .authority(programmer.getAuthority().getAuthorityName())
+                .authority(programmer.getAuthorities())
                 .build();
     }
 }

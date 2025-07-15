@@ -13,5 +13,5 @@ import java.util.Optional;
  * */
 @Repository
 public interface DefaultProgrammerRepository extends JpaRepository<Programmer, Long> {
-    Optional<Programmer> findById(Long id);
+    Optional<Programmer> findOneWithAuthoritiesByLoginId(String id);
 }

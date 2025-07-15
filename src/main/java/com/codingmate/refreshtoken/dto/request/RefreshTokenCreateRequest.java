@@ -13,7 +13,7 @@ import java.time.Instant;
  * <li>token: 리프레쉬 토큰 전문</li>
  * <li>jti: 리프레쉬 토큰의 jti</li>
  * <li>issuedAt: 리프레쉬 토큰이 발급된 시간</li>
- * <li>userId: 리프레쉬 토큰의 사용자 아이디</li>
+ * <li>username: 리프레쉬 토큰의 사용자 아이디</li>
  *
  * @author duskafka
  * */
@@ -22,27 +22,26 @@ public record RefreshTokenCreateRequest(
         String token,
         String jti,
         Instant issuedAt,
-        Long userId
+        String username
 ) {
-    public static RefreshTokenCreateRequest of(String token, String jti, Instant issuedAt, Long userId) {
+    public static RefreshTokenCreateRequest of(String token, String jti, Instant issuedAt, String username) {
         return RefreshTokenCreateRequest.builder()
                 .token(token)
                 .jti(jti)
                 .issuedAt(issuedAt)
-                .userId(userId)
+                .username(username)
                 .build();
     }
 
     public static RefreshTokenCreateRequest of(
             RefreshTokenIssueResponse refreshToken,
-            Long id
+            String username
     ) {
-
         return RefreshTokenCreateRequest.builder()
                 .token(refreshToken.refreshToken())
                 .jti(refreshToken.jti())
                 .issuedAt(refreshToken.issuedAt())
-                .userId(id)
+                .username(username)
                 .build();
     }
 }

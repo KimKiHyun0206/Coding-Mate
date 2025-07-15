@@ -18,10 +18,10 @@ import static com.codingmate.refreshtoken.domain.QRefreshToken.refreshToken;
 public class RefreshTokenWriteRepository {
     private final JPAQueryFactory queryFactory;
 
-    public long revokeAllToken(Long userId) {
+    public long revokeAllToken(String username) {
         return queryFactory.update(refreshToken)
                 .where(
-                        refreshToken.userId.eq(userId),
+                        refreshToken.username.eq(username),
                         refreshToken.isRevoked.eq(false)
                 )
                 .set(refreshToken.isRevoked, true)

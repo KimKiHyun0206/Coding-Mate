@@ -12,6 +12,7 @@ import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 //TODO follow 기능 추가 염두해둘 것
@@ -70,20 +71,24 @@ public class Programmer extends BaseEntity {
     @Column(name = "tip", length = 2000)
     private String tip;
 
-    @ManyToOne
-    @JoinColumn(name = "authority")
-    private Authority authority;
+    @ManyToMany
+    @JoinTable(
+            name = "programmer_authority",
+            joinColumns = {@JoinColumn(name = "programmer_id", referencedColumnName = "programmer_id")},
+            inverseJoinColumns = {@JoinColumn(name = "authority_name", referencedColumnName = "authority_name")}
+    )
+    private Set<Authority> authorities;
 
     @OneToMany(mappedBy = "programmer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Like> likedAnswers = new ArrayList<>();
 
-    public static Programmer toEntity(ProgrammerCreateRequest request, Authority authority) {
+    public static Programmer toEntity(ProgrammerCreateRequest request, Set<Authority> authorities) {
         return Programmer.builder()
                 .email(new Email(request.email()))
                 .name(new Name(request.name()))
                 .githubId(request.githubId())
                 .password(request.password())
-                .authority(authority)
+                .authorities(authorities)
                 .loginId(request.loginId())
                 .tip("팁이 있다면 공유해주세요")
                 .build();

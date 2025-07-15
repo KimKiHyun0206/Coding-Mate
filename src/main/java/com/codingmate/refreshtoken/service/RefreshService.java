@@ -1,8 +1,8 @@
 package com.codingmate.refreshtoken.service;
 
 import com.codingmate.auth.dto.response.TokenResponse;
+import com.codingmate.auth.service.UserDetailLoginService;
 import com.codingmate.jwt.TokenProvider;
-import com.codingmate.programmer.service.ProgrammerService;
 import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;
 import com.codingmate.refreshtoken.dto.response.RefreshTokenIssueResponse;
 import com.codingmate.refreshtoken.service.validate.JtiValidator;
@@ -10,6 +10,9 @@ import com.codingmate.util.JwtUtil;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 
@@ -22,7 +25,6 @@ import org.springframework.stereotype.Service;
  *
  * @author 김기현
  * @see RefreshTokenService
- * @see ProgrammerService
  * @see TokenProvider
  * */
 @Slf4j
@@ -30,9 +32,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshService {
     private final TokenProvider tokenProvider;
-    private final ProgrammerService programmerService;
     private final RefreshTokenService refreshTokenService;
     private final JtiValidator jtiValidator;
+    private final UserDetailLoginService userDetailLoginService;
 
     /**
      * 주어진 리프레시 토큰을 사용하여 액세스 토큰과 리프레시 토큰을 갱신합니다.
@@ -47,29 +49,33 @@ public class RefreshService {
         tokenProvider.validateToken(oldRefreshToken);
 
         String tokenJti = JwtUtil.getJti(oldRefreshToken);
-        Long programmerId = JwtUtil.getIdFromSubject(oldRefreshToken);
-        String redisJti = refreshTokenService.getJtiFromRedis(programmerId);
+        String username = JwtUtil.getUsername(oldRefreshToken);
+        String redisJti = refreshTokenService.getJtiFromRedis(username);
 
         jtiValidator.validateJti(
                 tokenJti,
                 redisJti,
-                programmerId
+                username
+        );
+
+        UserDetails userDetails = userDetailLoginService.loadUserByUsername(username);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
         );
 
         log.debug("[RefreshService] Successfully retrieved refresh token from Redis: {}", redisJti.substring(20));
 
-        String newAccessToken = tokenProvider.createAccessToken(
-                programmerId,
-                programmerService.getProgrammerRole(programmerId)   //토큰 생성에 필요한 ROLE을 데이터베이스에서 조회
-        );
+        String newAccessToken = tokenProvider.createAccessToken(authentication);
 
-        RefreshTokenIssueResponse newRefreshToken = tokenProvider.createRefreshToken(programmerId);
+        RefreshTokenIssueResponse newRefreshToken = tokenProvider.createRefreshToken(username);
         log.debug("[RefreshService] New access token and refresh token generated.");
 
         replaceOldRefreshToken(
-                programmerId,
+                username,
                 oldRefreshToken,
-                RefreshTokenCreateRequest.of(newRefreshToken, programmerId)
+                RefreshTokenCreateRequest.of(newRefreshToken, username)
         );
 
         log.info("[RefreshService] Tokens successfully refreshed. New Access Token Length: {}, New Refresh Token Length: {}",
@@ -91,7 +97,7 @@ public class RefreshService {
      * @param request 데이터베이스에 리프레시 토큰을 저장하기 위해 필요한 객체
      * */
     private void replaceOldRefreshToken(
-            Long oldKey,
+            String oldKey,
             String oldRefreshToken,
             RefreshTokenCreateRequest request
     ) {

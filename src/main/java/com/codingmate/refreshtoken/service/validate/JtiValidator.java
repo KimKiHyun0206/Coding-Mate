@@ -29,17 +29,17 @@ public class JtiValidator {
      *
      * @param tokenJti 사용자의 쿠키에서 가져온 토큰의 jti
      * @param redisJti redis에 저장되어있는 jti
-     * @param programmerId 사용자의 쿠키에서 가져온 토큰의 programmerId
+     * @param username 사용자의 쿠키에서 가져온 토큰의 programmerId
      * */
     public void validateJti(
             String tokenJti,
             String redisJti,
-            Long programmerId
+            String username
     ) {
-        log.debug("[RefreshService] validateJti({}, {}, {})", tokenJti, redisJti, programmerId);
+        log.debug("[RefreshService] validateJti({}, {}, {})", tokenJti, redisJti, username);
 
         validateJtiEquality(tokenJti, redisJti);
-        validateJtiReusability(tokenJti, programmerId);
+        validateJtiReusability(tokenJti, username);
         log.info("[RefreshService] jti not revoked");
     }
 
@@ -60,10 +60,10 @@ public class JtiValidator {
      *
      * @exception RefreshTokenIsRevoked 이미 사용된 jti라면 예외를 발생시킨다
      * */
-    private void validateJtiReusability(String jti, Long userId) {
+    private void validateJtiReusability(String jti, String username) {
         if (refreshTokenService.isUsedJti(jti)) {
-            log.warn("[RefreshService] Reused JTI. All tokens revoked for user: {}", userId);
-            refreshTokenService.revokeAllToken(userId);
+            log.warn("[RefreshService] Reused JTI. All tokens revoked for user: {}", username);
+            refreshTokenService.revokeAllToken(username);
             throw new RefreshTokenIsRevoked(
                     ErrorMessage.REFRESH_TOKEN_REVOKED,
                     "요청한 리프레시 토큰은 이미 사용된 토큰입니다. 보안 상 이유로 모든 토큰을 무효화합니다."

@@ -21,6 +21,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -29,9 +32,9 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
     private final ProgrammerService programmerService;
     private final RefreshService refreshService;
-    private final LoginService loginService;
     private final TokenService tokenService;
     private final RefreshTokenService refreshTokenService;
+    private final AuthenticationManager authenticationManager;
 
     private final String ACCESS_TOKEN_HEADER_NAME;
     private final String REFRESH_TOKEN_COOKIE_NAME;
@@ -42,14 +45,16 @@ public class AuthController {
             LoginService loginService,
             TokenService tokenService,
             JWTProperties jwtProperties,
-            RefreshTokenService refreshTokenService) {
+            RefreshTokenService refreshTokenService,
+            AuthenticationManager authenticationManager
+    ) {
         this.programmerService = programmerService;
         this.refreshService = refreshService;
-        this.loginService = loginService;
         this.tokenService = tokenService;
         this.ACCESS_TOKEN_HEADER_NAME = jwtProperties.accessTokenHeader();
         this.REFRESH_TOKEN_COOKIE_NAME = jwtProperties.refreshTokenCookie();
         this.refreshTokenService = refreshTokenService;
+        this.authenticationManager = authenticationManager;
     }
 
 
@@ -63,14 +68,17 @@ public class AuthController {
             @RequestBody LoginRequest loginRequest,
             HttpServletResponse response
     ) {
-        var programmer = loginService.login(loginRequest.loginId(), loginRequest.password());
-        var tokens = tokenService.generateToken(programmer.id(), programmer.authority());
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.loginId(), loginRequest.password())
+        );
+
+        var tokens = tokenService.generateToken(authentication);
 
         refreshTokenService.create(RefreshTokenCreateRequest.of(
                 tokens.refreshToken(),
                 tokens.jti(),
                 tokens.instant(),
-                programmer.id()
+                authentication.getName()
         ));
 
         var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, tokens.refreshToken());
@@ -143,7 +151,7 @@ public class AuthController {
             @CookieValue(name = "refresh-token") String refreshToken,
             HttpServletResponse response
     ) {
-        log.info("REFRESH TOKEN ID {}", JwtUtil.getIdFromSubject(refreshToken));
+        log.info("REFRESH TOKEN ID {}", JwtUtil.getUsername(refreshToken));
         var tokenDto = refreshService.refreshTokens(refreshToken);
         var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, tokenDto.refreshToken());
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());

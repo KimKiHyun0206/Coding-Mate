@@ -2,13 +2,16 @@ package com.codingmate.programmer.service;
 
 import com.codingmate.answer.repository.AnswerReadRepository;
 import com.codingmate.answer.repository.AnswerWriteRepository;
+import com.codingmate.auth.domain.Authority;
 import com.codingmate.auth.service.AuthorityFinder;
+import com.codingmate.programmer.domain.Programmer;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingmate.programmer.dto.response.MyPageResponse;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingmate.exception.exception.programmer.NotFoundProgrammerException;
+import com.codingmate.programmer.dto.response.ProgrammerResponse;
 import com.codingmate.programmer.repository.DefaultProgrammerRepository;
 import com.codingmate.programmer.repository.ProgrammerReadRepository;
 import com.codingmate.programmer.repository.ProgrammerWriteRepository;
@@ -17,6 +20,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Programmer의 CRUD를 담당하는 서비스
@@ -55,10 +61,12 @@ public class ProgrammerService {
         }
         log.debug("[ProgrammerService] Login ID {} is available.", request.loginId());
 
+        Set<Authority> authorities = new HashSet<>();
+        authorities.add(authorityFinder.getUserAuthority("ROLE_USER"));
 
         writeRepository.create(
                 request,
-                authorityFinder.getUserAuthority("ROLE_USER")
+                authorities
         );
 
         log.info("[ProgrammerService] Programmer created successfully with loginId: {}", request.loginId());
@@ -114,16 +122,27 @@ public class ProgrammerService {
     }
 
     @Transactional(readOnly = true)
-    public String getProgrammerRole(Long id) {
-        log.info("[ProgrammerService] getProgrammerRole({})", id);
+    public ProgrammerResponse findByLoginId(String loginId) {
+        log.info("[ProgrammerService] findByLoginId({})", loginId);
+        return ProgrammerResponse.of(readRepository.readByLoginId(loginId).orElseThrow(() -> {
+            log.warn("[ProgrammerService] loginId read failed: Programmer not found with loginId: {}", loginId);
+            return new NotFoundProgrammerException(
+                    ErrorMessage.INVALID_ID,
+                    String.format("%d는 존재하지 않는 loginId입니다.", loginId));
+        }));
+    }
 
-        log.debug("[ProgrammerService] Searching for programmer with ID: {}", id);
-        return readRepository.readProgrammerRole(id)
+    @Transactional(readOnly = true)
+    public Set<Authority> getProgrammerRole(String username) {
+        log.info("[ProgrammerService] getProgrammerRole({})", username);
+
+        log.debug("[ProgrammerService] Searching for programmer with ID: {}", username);
+        return readRepository.readProgrammerRole(username)
                 .orElseThrow(() -> {
-                    log.warn("[ProgrammerService] Programmer not found by ID: {}", id);
+                    log.warn("[ProgrammerService] Programmer not found by ID: {}", username);
                     return new NotFoundProgrammerException(
                             ErrorMessage.NOT_FOUND_PROGRAMMER,
-                            String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", id)
+                            String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", username)
                     );
                 });
     }

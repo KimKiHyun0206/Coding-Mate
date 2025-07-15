@@ -20,12 +20,12 @@ import static com.codingmate.refreshtoken.domain.QRefreshToken.refreshToken;
 public class RefreshTokenReadRepository {
     private final JPAQueryFactory queryFactory;
 
-    public long countRefreshToken(Long userId) {
+    public long countRefreshToken(String username) {
         Long count = queryFactory
                 .select(refreshToken.count())
                 .from(refreshToken)
                 .where(
-                        refreshToken.userId.eq(userId),
+                        refreshToken.username.eq(username),
                         refreshToken.isRevoked.eq(false)
                 )
                 .fetchOne();
