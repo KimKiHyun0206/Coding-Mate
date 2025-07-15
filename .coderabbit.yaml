@@ -2,6 +2,12 @@
 language: "ko-KR" # 한국말로 설정
 early_access: false
 reviews:
+  allowed_base_branches:
+    - main
+    - develop
+    - feature/.*
+    - release/.*
+    - hotfix/.*
   profile: "assertive"
   request_changes_workflow: true # 코드래빗이 리뷰 끝나면 알아서 PR 승인하게끔
   high_level_summary: true
