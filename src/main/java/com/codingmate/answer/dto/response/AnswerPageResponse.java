@@ -7,6 +7,22 @@ import lombok.Builder;
 
 import java.util.Objects;
 
+/**
+ * 단일 답변 조회에 사용되는 응답 DTO
+ *
+ * <li>id: 조회한 풀이의 고유 ID</li>
+ * <li>code: 조회한 풀이의 코드</li>
+ * <li>backjoonId: 조회한 풀이의 백준 번호</li>
+ * <li>title: 조회한 풀이의 제목</li>
+ * <li>explanation: 조회한 풀이의 설명</li>
+ * <li>programmerName: 조회한 풀이의 작성자명</li>
+ * <li>languageType: 조회한 풀이의 언어 타입</li>
+ * <li>likeCount: 조회한 풀이의 좋아요 수</li>
+ * <li>isRequesterIsOwner: 조회한 풀이가 요청자의 풀이인지 알려준다</li>
+ * <li>isLiked: 요청자가 좋아요를 눌렀는지 보여준다</li>
+ *
+ * @author duskafka
+ * */
 @Builder
 @Schema(description = "단일 답변 조회 또는 답변 목록 페이지 조회 시 사용되는 응답 DTO")
 public record AnswerPageResponse(

@@ -3,6 +3,16 @@ package com.codingmate.programmer.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 
+/**
+ * 사용자 정보 수정을 위한 DTO
+ *
+ * <li>githubId: 사용자의 깃허브 아이디</li>
+ * <li>name: 사용자의 이름</li>
+ * <li>email: 사용자의 이메일</li>
+ * <li>tip: 사용자 팁</li>
+ *
+ * @author duskafka
+ * */
 @Schema(description = "프로그래머 정보 업데이트 요청 DTO")
 public record ProgrammerUpdateRequest(
         @Schema(description = "업데이트할 GitHub ID (선택 사항)", example = "updated_github_user", nullable = true)

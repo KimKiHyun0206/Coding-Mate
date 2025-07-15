@@ -2,11 +2,19 @@ package com.codingmate.programmer.dto.response;
 
 import com.codingmate.programmer.domain.Programmer;
 import lombok.Builder;
-
-import com.codingmate.programmer.domain.Programmer;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
 
+/**
+ * 사용자의 프로필(마이페이지)를 응답하기 위한 DTO
+ *
+ * <li>githubId: 사용자의 깃허브 아이디</li>
+ * <li>name: 사용자의 이름</li>
+ * <li>email: 사용자의 이메일</li>
+ * <li>numberOfAnswer: 사용자가 답변한 풀이의 수</li>
+ * <li>tip: 사용자의 팁</li>
+ *
+ * @author duskafka
+ * */
 @Builder
 @Schema(description = "사용자의 마이페이지 정보 응답 DTO")
 public record MyPageResponse(
