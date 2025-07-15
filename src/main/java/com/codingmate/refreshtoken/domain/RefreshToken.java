@@ -7,6 +7,20 @@ import lombok.*;
 import java.time.Duration;
 import java.time.Instant;
 
+
+/**
+ * 리프레쉬 토큰 블랙리스트를 구현하기 위한 도메인.
+ *
+ * <ul>
+ *     <li>id: 리프레쉬 토큰의 PK</li>
+ *     <li>token: 리프레쉬 토큰 전문</li>
+ *     <li>jti: 리프래쉬 토큰을 구분하기 위한 UUID</li>
+ *     <li>issuedAt: 발급된 시간</li>
+ *     <li>expiredAt: 유효기간</li>
+ *     <li>isRevoked: 토큰이 사용되었는지</li>
+ *     <li>userId: 발급한 사용자의 PK</li>
+ * </ul>
+ * */
 @Entity
 @Table(name = "refresh_token_info",
         indexes = {

@@ -11,6 +11,28 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 
+
+/**
+ * 백준 문제에 대한 사용자 답변을 나타내는 도메인 엔티티.
+ *
+ * <ul>
+ *     <li>id: Answer의 PK</li>
+ *     <li>backJoonId: 백준 문제의 번호</li>
+ *     <li>title: 사용자가 작성한 풀이 제목</li>
+ *     <li>code: 사용자가 작성한 풀이</li>
+ *     <li>explanation: 사용자가 작성한 풀이에 대한 설명</li>
+ *     <li>languageType: 사용자가 작성한 풀이의 언어</li>
+ *     <li>programmer: 작성한 사용자</li>
+ *     <li>likeCount: 좋아요를 받은 수</li>
+ *     <li>likes: 좋아요를 누른 사람에 대한 정보</li>
+ * </ul>
+ *
+ * @author duskafka
+ * @see Like
+ * @see Programmer
+ * @see BaseEntity
+ * @since 1.0
+ * */
 @Entity
 @Table(name = "answer")
 @Getter
