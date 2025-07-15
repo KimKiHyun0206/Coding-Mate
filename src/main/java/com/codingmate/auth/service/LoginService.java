@@ -31,8 +31,8 @@ public class LoginService {
      * @param loginId  사용자 로그인 ID
      * @param password 사용자 비밀번호
      * @return 로그인에 성공하면 해당 Programmer의 정보를 담은 ProgrammerResponse 객체를 반환합니다.
-     * @throws com.codingmate.exception.exception.programmer.LoginIdNotMatchException 요청한 {@code loginId}에 해당하는 사용자를 찾을 수 없을 경우 발생합니다.
-     * @throws com.codingmate.exception.exception.programmer.PasswordNotMatchException 요청한 {@code password}가 해당 사용자의 비밀번호와 일치하지 않을 경우 발생합니다.
+     * @throws LoginIdNotMatchException 요청한 {@code loginId}에 해당하는 사용자를 찾을 수 없을 경우 발생합니다.
+     * @throws PasswordNotMatchException 요청한 {@code password}가 해당 사용자의 비밀번호와 일치하지 않을 경우 발생합니다.
      */
     @Transactional(readOnly = true)
     public ProgrammerResponse login(String loginId, String password) {

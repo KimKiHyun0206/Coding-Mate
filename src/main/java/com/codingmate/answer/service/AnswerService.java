@@ -46,7 +46,7 @@ public class AnswerService {
      * @param programmerId Answer를 작성할 Programmer의 ID
      * @param request      생성할 Answer의 내용을 담은 DTO
      * @return 생성된 Answer의 ID를 포함하는 응답 DTO
-     * @throws com.codingmate.exception.exception.programmer.NotFoundProgrammerException 지정된 {@code programmerId}를 가진 Programmer를 찾을 수 없을 경우 발생합니다.
+     * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 Programmer를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional
     public AnswerCreateResponse create(Long programmerId, AnswerCreateRequest request) {
@@ -77,7 +77,7 @@ public class AnswerService {
      * @param answerId   조회할 Answer의 ID
      * @param programmerId 현재 요청을 보낸 Programmer의 ID (좋아요 여부 확인용)
      * @return Answer 상세 정보와 좋아요 여부를 포함하는 응답 DTO
-     * @throws com.codingmate.exception.exception.answer.NotFoundAnswerException 지정된 {@code answerId}를 가진 Answer를 찾을 수 없을 경우 발생합니다.
+     * @throws NotFoundAnswerException 지정된 {@code answerId}를 가진 Answer를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional(readOnly = true)
     public AnswerPageResponse read(Long answerId, Long programmerId) {
@@ -141,7 +141,7 @@ public class AnswerService {
      * @param programmerId 수정 요청을 보낸 Programmer의 ID (권한 확인용)
      * @param answerId     수정할 Answer의 ID
      * @param request      업데이트할 내용을 담은 DTO
-     * @throws com.codingmate.exception.exception.answer.NotFoundAnswerException 지정된 {@code answerId}를 가진 Answer를 찾을 수 없거나, 수정 권한이 없을 경우 발생합니다.
+     * @throws NotFoundAnswerException 지정된 {@code answerId}를 가진 Answer를 찾을 수 없거나, 수정 권한이 없을 경우 발생합니다.
      */
     @Transactional
     public void update(Long programmerId, Long answerId, AnswerUpdateRequest request) {
@@ -166,8 +166,8 @@ public class AnswerService {
      *
      * @param programmerId 삭제 요청을 보낸 Programmer의 ID
      * @param answerId     삭제할 Answer의 ID
-     * @throws com.codingmate.exception.exception.answer.NotFoundAnswerException 지정된 {@code answerId}를 가진 Answer를 찾을 수 없을 경우 발생합니다.
-     * @throws com.codingmate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException 삭제 요청을 보낸 Programmer가 해당 Answer의 작성자가 아닐 경우 발생합니다.
+     * @throws NotFoundAnswerException 지정된 {@code answerId}를 가진 Answer를 찾을 수 없을 경우 발생합니다.
+     * @throws AnswerAndProgrammerDoNotMatchException 삭제 요청을 보낸 Programmer가 해당 Answer의 작성자가 아닐 경우 발생합니다.
      */
     @Transactional
     public void delete(Long programmerId, Long answerId) {
