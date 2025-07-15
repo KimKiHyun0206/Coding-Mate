@@ -59,6 +59,7 @@ public class Answer extends BaseEntity {
                 .languageType(request.languageType())
                 .programmer(programmer)
                 .backJoonId(request.backjoonId())
+                .likeCount(0)
                 .build();
     }
 

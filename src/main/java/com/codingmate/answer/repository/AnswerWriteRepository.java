@@ -21,11 +21,12 @@ import static com.codingmate.answer.domain.QAnswer.answer;
 public class AnswerWriteRepository {
     private final JPAQueryFactory queryFactory;
 
-    @Transactional
     public long update(Long programmerId, Long answerId, AnswerUpdateRequest dto) {
         return queryFactory.update(answer)
-                .where(answer.id.eq(answerId))
-                .where(answer.programmer.id.eq(programmerId))
+                .where(
+                        answer.id.eq(answerId),
+                        answer.programmer.id.eq(programmerId)
+                )
                 .set(answer.code, dto.code() == null ? null : dto.code())
                 .set(answer.languageType, dto.languageType() == null ? null : dto.languageType())
                 .set(answer.explanation, dto.explanation() == null ? null : dto.explanation())
@@ -33,7 +34,6 @@ public class AnswerWriteRepository {
                 .execute();
     }
 
-    @Transactional
     public long deleteByProgrammerId(Long id) {
         return queryFactory.delete(answer)
                 .where(answer.programmer.id.eq(id))

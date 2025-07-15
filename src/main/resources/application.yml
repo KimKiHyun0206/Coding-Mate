@@ -1,27 +1,23 @@
 spring:
 
-  h2:
-    console:
-      enabled: true
-
   datasource:
-    url: jdbc:h2:tcp://localhost/~/querydsl
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/sample?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: root
+    password: letmein
 
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect # MySQL 8.x용 Dialect
         format_sql: true
         show_sql: true
     defer-datasource-initialization: true
   sql:
     init:
-      # mode: always
+    # mode: always
 
   data:
     redis:
@@ -30,6 +26,9 @@ spring:
       repositories:
         enabled: false
 
+  batch:
+    jdbc:
+      initialize-schema: always
 
 springdoc:
   swagger-ui:
@@ -43,9 +42,17 @@ springdoc:
     - /api/v1/**
 
 jwt:
-  header: Coding-Mate-Auth
-  refresh: Coding-Mate-Auth-Ref
   #HS512 알고리즘을 사용할 것이기 때문에 512bit, 즉 64byte 이상의 secret key를 사용해야 한다.
   #echo 'silvernine-tech-spring-boot-jwt-tutorial-secret-silvernine-tech-spring-boot-jwt-tutorial-secret'|base64
   secret: c2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQtc2lsdmVybmluZS10ZWNoLXNwcmluZy1ib290LWp3dC10dXRvcmlhbC1zZWNyZXQK
-  token-validity-in-seconds: 86400
+  access-token-header: Authorization
+  access-token-validity-in-hour: 3
+  refresh-token-cookie: code-mate-ref
+  refresh-token-expiration-days: 60
+  redis:
+    key:
+      prefix: programmer
+      suffix: token_rts
+ranking:
+  daily: daily
+  key: ranking
