@@ -10,6 +10,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * JWT 토큰이 없거나 권한이 없어서 요청이 거부된 경우 사용되는 핸들러
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {

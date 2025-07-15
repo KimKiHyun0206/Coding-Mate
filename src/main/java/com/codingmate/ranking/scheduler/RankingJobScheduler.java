@@ -1,6 +1,5 @@
 package com.codingmate.ranking.scheduler;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.ranking.JobAlreadyRunningException;
 import com.codingmate.exception.exception.ranking.JobBuilderBuildInvalidParametersException;
@@ -15,14 +14,16 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+/**
+ * 매일 정오가 되면 랭킹을 갱신하는 스케줄러
+ *
+ * <li>중복 실행을 방지한다</li>
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@Explanation(
-        responsibility = "매일 정오가 되면 랭킹을 갱신하는 스케줄러",
-        detail = "매일 정오에 실행되고, 중복 실행을 방지했다.",
-        lastReviewed = "2025.07.13"
-)
 public class RankingJobScheduler {
 
     private final JobLauncher jobLauncher;

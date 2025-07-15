@@ -11,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.GenericFilterBean;
-
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -20,6 +19,13 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 
+/**
+ * 이 애플리케이션에서 모든 요청에 대해서 기본적으로 수행될 JWT 필터
+ * <li>헤더에서 토큰을 가져와 유효한 자격을 가지고 있다면 SecurityContext에 저장한다</li>
+ * <li>애플리케이션은 무상태로 구성되었기 때문에 이 저장 정보는 한 스레드에서만 가지고 있는다</li>
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public class JwtFilter extends GenericFilterBean { // 모든 요청에 대해 동일한 로직을 수행하는 일반 필터

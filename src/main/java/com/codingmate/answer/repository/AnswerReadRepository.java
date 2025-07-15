@@ -4,9 +4,7 @@ import com.codingmate.answer.domain.Answer;
 import com.codingmate.answer.domain.vo.LanguageType;
 import com.codingmate.answer.dto.response.AnswerListResponse;
 import com.codingmate.answer.dto.response.QAnswerListResponse;
-import com.codingmate.common.annotation.Explanation;
 import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AccessLevel;
@@ -15,21 +13,22 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 import static com.codingmate.answer.domain.QAnswer.answer;
 
+/**
+ * Answer을 데이터베이스에서 조회하기 위한 레포지토리.
+ *
+ * <li>Querydsl을 사용하여 성능 최적화</li>
+ * <li>반환은 Optional로 감싸서 반환하도록 함. 이는 서비스 계층에서 예외 처리를 쉽게 하기 위한 전략임</li>
+ *
+ * @author duskafka
+ * */
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Explanation(
-        responsibility = "Answer Query",
-        detail = "성능 최적화를 위해 Querydsl을 사용",
-        domain = "Answer",
-        lastReviewed = "2025.06.05"
-)
 public class AnswerReadRepository {
     private final JPAQueryFactory queryFactory;
 

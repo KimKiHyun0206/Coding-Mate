@@ -5,8 +5,11 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-//http://localhost:8080/swagger-ui/index.html
+/**
+ * Swagger를 사용하여 문서화를 하기 위한 Config.
+ * <p><a href="http://localhost:8080/swagger-ui/index.html">테스트 페이지</a></p>
+ * @author duskafka
+ * */
 @Configuration
 public class SwaggerConfig {
 

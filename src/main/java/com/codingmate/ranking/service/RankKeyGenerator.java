@@ -5,6 +5,11 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
+/**
+ * Redis에서 Ranking 조회를 위해 필요한 키를 생성해준다
+ *
+ * @author duskafka
+ * */
 @Component
 public class RankKeyGenerator {
 

@@ -1,6 +1,5 @@
 package com.codingmate.ranking.batch;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.ranking.RankingCountException;
 import com.codingmate.ranking.dto.SolveCountRankingDto;
@@ -19,13 +18,13 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.PriorityQueue;
 
+/**
+ * {@code SolveCountRankReader}가 읽은 정보를 Redis에 저장하는 Writer
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @RequiredArgsConstructor
-@Explanation(
-        responsibility = "RankReader가 반환한 List를 Redis에 저장한다.",
-        detail = "프로퍼티에서 얻은 키로 Redis에 데이터를 저장한다.",
-        lastReviewed = "2025.07.13"
-)
 public class RankRedisWriter implements ItemWriter<SolveCountRankingDto>, StepExecutionListener {
 
     private final RedisTemplate<String, Object> redisTemplate;

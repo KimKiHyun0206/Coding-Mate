@@ -1,28 +1,26 @@
 package com.codingmate.programmer.repository;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.programmer.domain.Programmer;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 import static com.codingmate.auth.domain.QAuthority.authority;
 import static com.codingmate.programmer.domain.QProgrammer.programmer;
 
+/**
+ * Programmer를 데이터베이스에서 읽기 위한 레포지토리
+ * <li>Querydsl을 사용하여 쿼리 최적화</li>
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Explanation(
-        responsibility = "Programmer Query",
-        detail = "쿼리 최적화를 위해 Querydsl 사용",  //클래스 분리 요함
-        domain = "Programmer",
-        lastReviewed = "2025.06.05"
-)
 public class ProgrammerReadRepository {
     private final JPAQueryFactory queryFactory;
 
@@ -55,7 +53,7 @@ public class ProgrammerReadRepository {
     /**
      * @implSpec fetchJoin으로 지연로딩 방지
      * */
-    public Optional<String> readProgrammerRole (Long programmerId) {
+    public Optional<String> readProgrammerRole(Long programmerId) {
         Programmer result = queryFactory.selectFrom(programmer)
                 .where(programmer.id.eq(programmerId))
                 .leftJoin(programmer.authority, authority)

@@ -1,6 +1,5 @@
 package com.codingmate.refreshtoken.service;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.jwt.RefreshTokenOverMax;
@@ -17,13 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 리프레쉬 토큰 관리를 위한 CRUD 서비스
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Service
-@Explanation(
-        responsibility = "리프레쉬 토큰 관리(CRUD)",
-        domain = "RefreshToken",
-        lastReviewed = "2025.06.05"
-)
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenRedisRepository tokenRedisRepository;

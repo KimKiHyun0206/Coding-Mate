@@ -1,17 +1,17 @@
 package com.codingmate.util;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.config.properties.JWTProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
+/**
+ * 쿠키 생성 및 삭제를 위한 쿠키 유틸
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Component
-@Explanation(
-        responsibility = "쿠키 생성 및 삭제",
-        lastReviewed = "2025.06.05"
-)
 public class CookieUtil {
     private static final long ONE_DAY_IN_SECONDS = 24 * 60 * 60;
     private static int REFRESH_TOKEN_EXPIRE_DAY;

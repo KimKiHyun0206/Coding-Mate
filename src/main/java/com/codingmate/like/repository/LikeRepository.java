@@ -8,6 +8,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+/**
+ * Like를 데이터베이스에서 조회하기 위한 레포지토리
+ *
+ * @author duskafka
+ * */
 @Repository
 public interface LikeRepository extends JpaRepository<Like, Long> {
     // 특정 프로그래머가 특정 답변에 좋아요를 눌렀는지 확인 (existsBy...는 쿼리 최적화)

@@ -1,6 +1,5 @@
 package com.codingmate.jwt;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.jwt.ExpiredTokenException;
@@ -25,14 +24,13 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 토큰 발급을 위한 서비스
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Component
-@Explanation(
-        responsibility = "JWT 토큰 생성",
-        detail = "토큰 발급 외에 토근 검증도 한다",  //클래스 분리 요함
-        domain = "Authority",
-        lastReviewed = "2025.06.05"
-)
 public class TokenProvider {
     private final String AUTHORITIES_KEY;           // JWT 클레임에서 권한 정보를 추출할 때 사용하는 키
     private final Key KEY;                          // JWT 서명에 사용되는 Secret Key

@@ -13,6 +13,15 @@ import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
+/**
+ * Redis 연결을 설정하기 위한 Configuration
+ *
+ * <li>myStringRedisTemplate: 리프레쉬 토큰을 저장하기 위한 RedisTemplate</li>
+ * <li>objectRedisTemplate: 랭킹을 저장하기 위한 RedisTemplate</li>
+ * <li>현재 Object를 저장하는 것은 랭킹이며, String을 저장하는 것은 리프레쉬 토큰이다. 추후 추가될 수 있다.</li>
+ *
+ * @author duskafka
+ * */
 @Configuration
 @EnableCaching
 public class RedisConfig {

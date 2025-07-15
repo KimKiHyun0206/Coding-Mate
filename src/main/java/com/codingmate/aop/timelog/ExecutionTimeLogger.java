@@ -6,6 +6,14 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+/**
+ * Spring AOP를 사용해서 로깅 기능을 구현한 클래스
+ *
+ * <li>애노테이션 기반 AOP</li>
+ * <li>메소드 시작과 끝에 로깅</li>
+ *
+ * @author duskafka
+ * */
 @Aspect
 @Component
 @Slf4j

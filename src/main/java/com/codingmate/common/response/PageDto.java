@@ -5,9 +5,13 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-
 import java.util.List;
 
+/**
+ * {@code Pageable}로 조회하여 {@code Page<?>}로 리턴하기 위해서 필요한 DTO
+ *
+ * @author duskafka
+ * */
 @Data
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class PageDto<T> {

@@ -1,23 +1,23 @@
 package com.codingmate.refreshtoken.service.validate;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.jwt.JitNotMatch;
 import com.codingmate.exception.exception.jwt.RefreshTokenIsRevoked;
-
 import com.codingmate.refreshtoken.service.RefreshTokenService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/**
+ * 리프레쉬 토큰의 jti를 검증하기 위한 클래스
+ *
+ * <li>검증을 통과하지 못한다면 예외 발생</li>
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Service
-@Explanation(
-        responsibility = "리프레쉬 토큰의 jti를 검증",
-        domain = "RefreshToken",
-        lastReviewed = "2025.06.08"
-)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JtiValidator {
     private final RefreshTokenService refreshTokenService;

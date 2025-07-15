@@ -1,23 +1,22 @@
 package com.codingmate.refreshtoken.repository;
 
-import com.codingmate.common.annotation.Explanation;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
 
 import static com.codingmate.refreshtoken.domain.QRefreshToken.refreshToken;
 
+/**
+ * RefreshToken 엔티티를 읽어오기 위한 레포지토리
+ *
+ * <li>쿼리 최적화를 위해 Querydsl을 사용함</li>
+ * <li>반환값은 간단하게 long, boolean을 사용함</li>
+ *
+ * @author duskafka
+ * */
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Explanation(
-        responsibility = "RefreshToken Query",
-        detail = "쿼리 최적화를 위해 Querydsl 사용",
-        domain = "RefreshToken",
-        lastReviewed = "2025.06.05"
-)
 public class RefreshTokenReadRepository {
     private final JPAQueryFactory queryFactory;
 

@@ -1,24 +1,22 @@
 package com.codingmate.ranking.repository;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.ranking.dto.QSolveCountRankingDto;
 import com.codingmate.ranking.dto.SolveCountRankingDto;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
 
 import static com.codingmate.answer.domain.QAnswer.answer;
 import static com.codingmate.programmer.domain.QProgrammer.programmer;
 
+/**
+ * 데이터베이스에 저장된 Programmer들 중에서 상위 10명의 풀이 작성자를 읽어오는 레포지토리
+ *
+ * @author duskafka
+ * */
 @Repository
 @RequiredArgsConstructor
-@Explanation(
-        responsibility = "데이터베이스에 저장된 Programmer들 중에서 상위 10명의 풀이 작성자를 읽어온다.",
-        detail = "가져오는 값은 programmer_id, programmer_name, count이다.",
-        lastReviewed = "2025.07.13"
-)
 public class RankingReadRepository {
     private final JPAQueryFactory queryFactory;
 

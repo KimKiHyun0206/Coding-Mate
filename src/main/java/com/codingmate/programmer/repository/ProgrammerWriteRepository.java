@@ -1,7 +1,6 @@
 package com.codingmate.programmer.repository;
 
 import com.codingmate.auth.domain.Authority;
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.programmer.domain.Programmer;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.dto.request.ProgrammerUpdateRequest;
@@ -12,21 +11,19 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 import static com.codingmate.programmer.domain.QProgrammer.programmer;
 
+/**
+ * 데이터베이스에 Programmer를 쓰기 위한 레포지토리
+ *
+ * <li>쿼리 최적화를 위해 Querydsl을 사용</li>
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Explanation(
-        responsibility = "Programmer Command",
-        detail = "쿼리 최적화를 위해 Querydsl 사용",  //클래스 분리 요함
-        domain = "Programmer",
-        lastReviewed = "2025.06.05"
-)
 public class ProgrammerWriteRepository {
     private final JPAQueryFactory queryFactory;
     private final EntityManager em;

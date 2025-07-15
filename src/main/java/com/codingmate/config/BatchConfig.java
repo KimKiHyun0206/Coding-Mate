@@ -17,6 +17,16 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/**
+ * Spring Batch 설정을 설정하기 위한 Configuration
+ *
+ * <li>SolveCountRankReader: 데이터베이스에서 랭킹을 조회하는 Reader</li>
+ * <li>RankRedisWriter: 읽어온 정보를 Redis에 저장하는 Writer</li>
+ * <li>Step</li>
+ * <li>Job</li>
+ *
+ * @author duskafka
+ * */
 @Configuration
 @RequiredArgsConstructor
 public class BatchConfig {
