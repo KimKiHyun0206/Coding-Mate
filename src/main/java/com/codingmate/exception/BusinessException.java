@@ -3,6 +3,13 @@ package com.codingmate.exception;
 import com.codingmate.exception.dto.ErrorMessage;
 import lombok.Getter;
 
+/**
+ * 애플리케이션에서 발생하는 예외들을 래핑해서 {@code GlobalExceptionHandler}에서 차리하기 위한 예외.
+ *
+ * <ul>
+ *     <li>애플리케이션에서 발생할 수 있는 모든 예외는 이 클래스를 상속한다.</li>
+ * </ul>
+ * */
 @Getter
 public class BusinessException extends RuntimeException {
     private final ErrorMessage errorMessage;

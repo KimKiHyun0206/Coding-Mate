@@ -5,10 +5,9 @@ import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.jwt.ExpiredTokenException;
 import com.codingmate.exception.exception.jwt.IllegalTokenException;
-import com.codingmate.exception.exception.jwt.TokenSecutiryException;
+import com.codingmate.exception.exception.jwt.TokenSecurityException;
 import com.codingmate.exception.exception.jwt.UnsupportedTokenException;
 import com.codingmate.refreshtoken.dto.response.RefreshTokenIssueResponse;
-import com.codingmate.util.DateUtil;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -155,7 +154,7 @@ public class TokenProvider {
      *
      * @param token 유효성을 검증할 JWT 토큰.
      * @return 토큰이 유효하면 {@code true}를 반환합니다.
-     * @throws TokenSecutiryException 잘못된 JWT 서명이거나 보안 문제가 있을 경우 발생.
+     * @throws TokenSecurityException 잘못된 JWT 서명이거나 보안 문제가 있을 경우 발생.
      * @throws ExpiredTokenException JWT 토큰의 유효 기간이 만료되었을 경우 발생.
      * @throws UnsupportedTokenException 지원되지 않는 형식의 JWT 토큰일 경우 발생.
      * @throws IllegalTokenException JWT 토큰이 잘못되었거나 유효하지 않은 인자를 포함할 경우 발생.
@@ -168,7 +167,7 @@ public class TokenProvider {
             return true;
         } catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
             log.warn("[TokenProvider] Invalid JWT signature or malformed JWT token. Token: {}, Error: {}", token, e.getMessage());
-            throw new TokenSecutiryException(ErrorMessage.SECURITY_TOKEN, "Invalid JWT signature or malformed token.");
+            throw new TokenSecurityException(ErrorMessage.SECURITY_TOKEN, "Invalid JWT signature or malformed token.");
         } catch (ExpiredJwtException e) {
             log.warn("[TokenProvider] Expired JWT token. Token: {}, Error: {}", token, e.getMessage());
             throw new ExpiredTokenException(ErrorMessage.EXPIRED_JWT, "JWT token has expired.");
