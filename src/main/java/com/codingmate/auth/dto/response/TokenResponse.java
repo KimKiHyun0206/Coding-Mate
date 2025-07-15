@@ -5,6 +5,16 @@ import lombok.Builder;
 
 import java.time.Instant;
 
+/**
+ * 토큰에 대한 정보를 응답하기 위한 DTO.
+ * <li>이 DTO는 응답에 쓰이는 것이 아니라 TokenProvider에서 컨트롤러로 응답하기 위한 DTO이다.</li>
+ * <li>accessToken: 액세스 토큰</li>
+ * <li>refreshToken: 리프레쉬 토큰</li>
+ * <li>jti: 토큰의 JTI로 리프래쉬 토큰 블랙리스트에 사용</li>
+ * <li>instant: 토큰이 발급된 시간</li>
+ *
+ * @author duskafka
+ * */
 @Builder
 @Schema(description = "인증/인가 응답으로 전달되는 토큰 정보 DTO")
 public record TokenResponse(

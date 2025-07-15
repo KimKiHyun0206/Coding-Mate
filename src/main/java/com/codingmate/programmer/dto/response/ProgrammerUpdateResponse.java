@@ -3,7 +3,18 @@ package com.codingmate.programmer.dto.response;
 import com.codingmate.programmer.domain.Programmer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
-
+/**
+ * 프로그래머 정보 수정에 성공했을 때 응답하는 DTO
+ *
+ * <li>ADMIN API 에서만 사용해야 함</li>
+ * <li>githubId: 사용자의 깃허브 아이디</li>
+ * <li>name: 사용자의 이름</li>
+ * <li>email: 사용자의 이메일</li>
+ * <li>tip: 사용자가 작성한 팁</li>
+ *
+ *
+ * @author duskafka
+ * */
 @Builder
 @Schema(description = "프로그래머 정보 업데이트 성공 응답 DTO")
 public record ProgrammerUpdateResponse(

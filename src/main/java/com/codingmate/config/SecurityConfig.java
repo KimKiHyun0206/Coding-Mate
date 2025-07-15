@@ -18,6 +18,20 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 
+/**
+ * Spring Security 보안 설정을 위한 Configuration
+ *
+ * <li>무상태</li>
+ * <li>CORS 같은 출처의 리소스만 허용</li>
+ * <li>JWT를 사용하여 보안을 구성함</li>
+ *
+ * @author duskafka
+ * @see JwtSecurityConfig
+ * @see CorsFilter
+ * @see TokenProvider
+ * @see JwtAuthenticationEntryPoint
+ * @see JwtAccessDeniedHandler
+ * */
 @EnableWebSecurity
 @EnableMethodSecurity
 @Configuration

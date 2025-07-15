@@ -10,6 +10,11 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * JWT 토큰을 가지고 요청을 했지만 유효한 권한 증명이 없어 요청이 거부되었을 때 호출되는 클래스
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {

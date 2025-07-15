@@ -1,6 +1,5 @@
 package com.codingmate.auth.service;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.programmer.dto.response.ProgrammerResponse;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.programmer.LoginIdNotMatchException;
@@ -13,14 +12,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 사용자 로그인을 위한 서비스
+ *
+ * <li>스프링 시큐리티가 지원하는 로그인을 사용하지 않기 때문에 구현함</li>
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Explanation(
-        responsibility = "사용자 로그인",
-        domain = "Programmer, Authority",
-        lastReviewed = "2025.06.05"
-)
 public class LoginService {
     private final ProgrammerReadRepository programmerReadRepository;
     private final PasswordEncoder passwordEncoder;

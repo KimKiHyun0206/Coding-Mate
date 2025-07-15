@@ -2,6 +2,11 @@ package com.codingmate.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * JWT 토큰 프로퍼티를 가지는 클래스
+ *
+ * @author duskafka
+ * */
 @ConfigurationProperties(prefix = "jwt")
 public record JWTProperties(
         //JWT 토큰이 HTTP 헤더에 담길 때 사용될 헤더 이름 (예: Authorization)

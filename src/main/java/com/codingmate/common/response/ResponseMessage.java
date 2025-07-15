@@ -3,6 +3,11 @@ package com.codingmate.common.response;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+/**
+ * 서버 응답 상태 코드를 가지는 열거형
+ *
+ * @author duskafka
+ * */
 @Getter
 public enum ResponseMessage {
 

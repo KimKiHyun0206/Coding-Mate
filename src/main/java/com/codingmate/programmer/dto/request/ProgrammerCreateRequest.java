@@ -4,6 +4,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
+/**
+ * 사용자 생성을 위한 DTO
+ *
+ * <li>loginId: 사용자가 사용할 로그인 아이디</li>
+ * <li>githubId: 사용자의 깃허브 아이디</li>
+ * <li>password: 사용자의 비밀번호로 데이터베이스에는 암호화되어 저장</li>
+ * <li>name: 사용자의 이름</li>
+ * <li>email: 사용자의 이메일</li>
+ *
+ * @author duskafka
+ * */
 @Schema(description = "새로운 프로그래머 계정 생성 요청 DTO")
 public record ProgrammerCreateRequest(
         @Schema(description = "로그인 시 사용할 사용자 ID (중복 불가능)", example = "new_coder123")

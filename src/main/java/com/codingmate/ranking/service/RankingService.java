@@ -1,6 +1,5 @@
 package com.codingmate.ranking.service;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.ranking.NoRankingException;
 import com.codingmate.exception.exception.redis.FailedSaveRankingInRedisException;
@@ -16,13 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Ranking 정보를 조회하고 업데이트하는 서비스
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Explanation(
-        responsibility = "Ranking 정보를 조회하고 업데이트하는 서비스",
-        lastReviewed = "2025.07.13"
-)
 public class RankingService {
     private final RankingReadRepository readRepository;
     private final RankingRedisRepository redisRepository;

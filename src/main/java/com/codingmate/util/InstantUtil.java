@@ -1,17 +1,18 @@
 package com.codingmate.util;
 
-import com.codingmate.common.annotation.Explanation;
 import lombok.experimental.UtilityClass;
-
 import java.time.Instant;
 
+
+/**
+ * 리프레쉬 토큰에 사용되는 Score를 변환하는 유틸 클래스
+ *
+ * <li>Instant를 Score로 바꾼다</li>
+ * <li>Score를 Instant로 바꾼다</li>
+ *
+ * @author duskafka
+ * */
 @UtilityClass
-@Explanation(
-        responsibility = "리프레쉬 토큰에 사용되는 Score를 변환",
-        detail = "Instant를 Score로 바꾸고, Score를 Instant로 바꾼다",
-        domain = "RefreshToken",
-        lastReviewed = "2025.06.05"
-)
 public class InstantUtil {
 
     /**

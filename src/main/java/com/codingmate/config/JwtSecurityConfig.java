@@ -10,6 +10,11 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+/**
+ * Jwt를 사용해서 보안 설정을 하기 위한 Configuration
+ *
+ * @author duskafka
+ * */
 @Configuration
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JwtSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {

@@ -1,6 +1,5 @@
 package com.codingmate.redis;
 
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.ranking.RankingIllegalTypeException;
 import com.codingmate.ranking.dto.SolveCountRankingDto;
@@ -13,13 +12,16 @@ import org.springframework.stereotype.Repository;
 import java.time.Duration;
 import java.util.List;
 
+/**
+ * Redis에 저장된 Ranking을 조작하는 레포지토리
+ *
+ * <li>Redis에 Ranking을 저장하는데 이를 조회하고 저장하는 역할을 한다.</li>
+ * <li>기본적인 생성, 조회, 삭제 메소드만 존재한다</li>
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Repository
-@Explanation(
-        responsibility = "Redis에 저장된 Ranking 조작",
-        detail = "Redis에 Ranking을 저장하는데 이를 조회하고 저장하는 역할을 한다.",
-        lastReviewed = "2025.07.13"
-)
 public class RankingRedisRepository {
     private final ValueOperations<String, Object> valueOperations;
     private final RedisTemplate<String, Object> redisTemplate;

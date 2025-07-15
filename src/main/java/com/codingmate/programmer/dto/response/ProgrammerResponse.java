@@ -4,6 +4,20 @@ import com.codingmate.programmer.domain.Programmer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+/**
+ * 사용자의 살세 정보를 응답하기 위한 DTO
+ *
+ * <li>ADMIN API에서만 사용해야 한다</li>
+ * <li>id: 사용자의 PK</li>
+ * <li>loginId: 사용자의 로그인 아이디</li>
+ * <li>githubId: 사용자의 깃허브 아이디</li>
+ * <li>name: 사용자의 이름</li>
+ * <li>email: 사용자의 이메일</li>
+ * <li>tip: 사용자의 팁</li>
+ * <li>authority: 사용자가 가진 권한</li>
+ *
+ * @author duskafka
+ * */
 @Builder
 @Schema(description = "프로그래머 상세 정보 응답 DTO")
 public record ProgrammerResponse(

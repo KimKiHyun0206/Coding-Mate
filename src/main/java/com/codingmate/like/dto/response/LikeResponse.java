@@ -3,8 +3,12 @@ package com.codingmate.like.dto.response;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+/**
+ * 좋아요 수를 응답하는 DTO
+ *
+ * @author duskafka
+ * */
 @Builder
-@Schema(description = "좋아요(추천) 수를 응답하는 DTO")
 public record LikeResponse(
         @Schema(description = "좋아요(추천) 수", example = "50")
         Integer likeCount

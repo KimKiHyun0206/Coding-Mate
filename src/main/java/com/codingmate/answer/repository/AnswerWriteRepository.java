@@ -1,23 +1,23 @@
 package com.codingmate.answer.repository;
 
 import com.codingmate.answer.dto.request.AnswerUpdateRequest;
-import com.codingmate.common.annotation.Explanation;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import static com.codingmate.answer.domain.QAnswer.answer;
 
+/**
+ * 데이터베이스에 Answer를 저장하거나 수정하기 위한 레포지토리
+ *
+ * <li>Querydsl을 사용하여 성능 최적화</li>
+ * <li>리턴값은 엔티티를 리턴하지 않고 변경 사항을 알 수 있는 정보를 리턴한다</li>
+ *
+ * @author duskafka
+ * */
 @Repository
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Explanation(
-        responsibility = "Answer Command",
-        detail = "Querydsl을 사용",
-        domain = "Answer",
-        lastReviewed = "2025.06.05"
-)
 public class AnswerWriteRepository {
     private final JPAQueryFactory queryFactory;
 

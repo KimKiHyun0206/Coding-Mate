@@ -1,7 +1,6 @@
 package com.codingmate.refreshtoken.service;
 
 import com.codingmate.auth.dto.response.TokenResponse;
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.jwt.TokenProvider;
 import com.codingmate.programmer.service.ProgrammerService;
 import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;
@@ -22,18 +21,12 @@ import org.springframework.stereotype.Service;
  * 그리고 {@code ProgrammerService}에서는 요청한 사용자의 role을 조회하기 위해서 사용하며, {@code TokenProvider}에서 토큰이 유효한지 검증합니다.
  *
  * @author 김기현
- * @version 1.0.0
  * @see RefreshTokenService
  * @see ProgrammerService
  * @see TokenProvider
  * */
 @Slf4j
 @Service
-@Explanation(
-        responsibility = "리프레쉬 토큰을 재발급",
-        domain = "RefreshToken",
-        lastReviewed = "2025.06.05"
-)
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshService {
     private final TokenProvider tokenProvider;

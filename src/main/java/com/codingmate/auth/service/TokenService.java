@@ -1,21 +1,20 @@
 package com.codingmate.auth.service;
 
 import com.codingmate.auth.dto.response.TokenResponse;
-import com.codingmate.common.annotation.Explanation;
 import com.codingmate.jwt.TokenProvider;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/**
+ * 로그인 후 액세스 토큰과 리프레쉬 토큰을 생성하기 위한 서비스
+ *
+ * @author duskafka
+ * */
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
-@Explanation(
-        responsibility = "토큰 생성",
-        domain = "RefreshToken, Authority, Programmer",
-        lastReviewed = "2025.06.05"
-)
 public class TokenService {
     private final TokenProvider tokenProvider;
 

@@ -5,6 +5,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * 비밀번호 인코더를 설정하기 위한 Configuration
+ *
+ * @author duskafka
+ * */
 @Configuration
 public class PasswordSecurityConfig {
     @Bean

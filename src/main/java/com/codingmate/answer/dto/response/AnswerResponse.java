@@ -5,6 +5,20 @@ import com.codingmate.programmer.dto.response.ProgrammerResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+/**
+ * 단일 답변 조회 시 사용되는 응답 DTO
+ *
+ * <li>ADMIN API에서만 사용해야 한다.</li>
+ * <li>id: 풀이의 PK</li>
+ * <li>backjoonId: 풀이의 백준 번호</li>
+ * <li>title: 풀이의 제목</li>
+ * <li>code: 풀이의 코드</li>
+ * <li>explanation: 풀이 설명</li>
+ * <li>programmerResponse: 풀이를 작성한 사용자에 대한 정보</li>
+ * <li>languageType: 풀이의 언어 타입</li>
+ *
+ * @author duskafka
+ * */
 @Builder
 @Schema(description = "단일 답변 조회 시 사용되는 응답 DTO")
 public record AnswerResponse(

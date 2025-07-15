@@ -4,6 +4,17 @@ import com.codingmate.programmer.domain.Programmer;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 
+/**
+ * 새로운 사용자가 생성되었음을 응답하는 DTO
+ *
+ * <li>ADMIN API 에서만 사용해야 함</li>
+ * <li>githubId: 사용자의 깃허브 아이디</li>
+ * <li>name: 사용자의 이름</li>
+ * <li>email: 사용자의 이메일</li>
+ * <li>tip: 사용자의 팁</li>
+ *
+ * @author duskafka
+ * */
 @Builder
 @Schema(description = "새로운 프로그래머 계정 생성 성공 응답 DTO")
 public record ProgrammerCreateResponse(
