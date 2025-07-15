@@ -1,16 +1,17 @@
 package com.codingmate.answer.domain.vo;
 
-import com.codingmate.common.annotation.Explanation;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 프로그래밍 언어를 구분하는 열거형
+ *
+ * <p>백준 문제 풀이에서 사용 가능한 프로그래밍 언어를 정의한다. 각 언어는 고유한 식별자와 표시명을 가진다.</p>
+ *
+ * @author duskafka
+ */
 @Getter
 @RequiredArgsConstructor
-@Explanation(
-        responsibility = "Answer에 저장할 언어 타입을 지정해줍니다",
-        domain = "Answer",
-        lastReviewed = "2025.06.05"
-)
 public enum LanguageType {
     JAVA("Java"),
     C("C"),

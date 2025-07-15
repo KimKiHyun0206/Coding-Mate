@@ -6,6 +6,17 @@ import com.codingmate.programmer.domain.Programmer;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * 좋아요를 누른 기록을 관리하기 위한 도메인
+ *
+ * <li>id: Like의 PK</li>
+ * <li>programmer: 좋아요를 누른 사용자</li>
+ * <li>answer: 좋아요가 등록된 문제</li>
+ *
+ * @author duskafka
+ * @see Programmer
+ * @see Answer
+ * */
 @Entity
 @Getter
 @ToString(exclude = {"programmer", "answer"})

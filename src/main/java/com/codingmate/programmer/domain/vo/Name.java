@@ -1,6 +1,5 @@
 package com.codingmate.programmer.domain.vo;
 
-import com.codingmate.common.annotation.Explanation;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,15 +7,17 @@ import lombok.NoArgsConstructor;
 
 import java.util.regex.Pattern;
 
+/**
+ * Programmer 엔티티에서 name이 유효한지 검증하는 VO
+ *
+ * <li>한글이어야 하마 최소 1자 최대 5자까지 허용한다</li>
+ *
+ * @author duskafka
+ * @see com.codingmate.programmer.domain.Programmer
+ * */
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Explanation(
-        responsibility = "이름 체크",
-        detail = "이름이 한글로 저장되도록 체크한다",
-        domain = "Programmer",
-        lastReviewed = "2025.06.05"
-)
 public class Name {
     private static final String NAME_REGEX = "^[ㄱ-ㅎ가-힣]{1,5}$";
     private String name;
