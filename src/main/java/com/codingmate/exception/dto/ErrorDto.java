@@ -5,6 +5,11 @@ import org.springframework.validation.FieldError;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 에러가 발생했을 때 에러를 응답하기 위한 DTO
+ *
+ * @author duskafka
+ * */
 public class ErrorDto {
     private final int status;
     private final String message;

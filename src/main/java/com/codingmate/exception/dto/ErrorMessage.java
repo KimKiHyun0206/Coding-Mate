@@ -5,6 +5,11 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
+/**
+ * 에러가 발생했을 때 HTTP 상태 코드와 메시지를 반환하는 열거형
+ *
+ * @author duskafka
+ * */
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public enum ErrorMessage {

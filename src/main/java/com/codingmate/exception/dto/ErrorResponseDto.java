@@ -1,13 +1,17 @@
 package com.codingmate.exception.dto;
 
 import lombok.AccessLevel;
-import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDateTime;
 
+/**
+ * 에러가 발생했을 때 GlobalExceptionHandler에서 응답에 사용하는 DTO
+ *
+ * @author duskafka
+ * */
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class ErrorResponseDto {
