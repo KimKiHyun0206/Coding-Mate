@@ -34,9 +34,9 @@ public class AnswerWriteRepository {
                 .execute();
     }
 
-    public long deleteByProgrammerId(Long id) {
+    public long deleteByLoginId(String loginId) {
         return queryFactory.delete(answer)
-                .where(answer.programmer.id.eq(id))
+                .where(answer.programmer.loginId.eq(loginId))
                 .execute();
     }
 }

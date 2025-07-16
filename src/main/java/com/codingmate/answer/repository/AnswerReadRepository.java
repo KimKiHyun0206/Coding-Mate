@@ -59,10 +59,15 @@ public class AnswerReadRepository {
 
         // 1. 실제 데이터를 조회하는 쿼리 실행
         List<AnswerListResponse> content = queryFactory
-                .select(new QAnswerListResponse(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
+                .select(new QAnswerListResponse(
+                        answer.id,
+                        answer.backJoonId,
+                        answer.title,
+                        answer.programmer.name.name,
+                        answer.languageType)
+                )
                 .from(answer)
                 .join(answer.programmer) // join을 .from() 바로 아래에 두는 것이 일반적
-                .fetchJoin()
                 .where(
                         languageTypeEq(languageType), // 조건 메서드 사용
                         backjoonIdEq(backjoonId)     // 조건 메서드 사용
@@ -100,10 +105,17 @@ public class AnswerReadRepository {
 
 
     public Page<AnswerListResponse> readAllByProgrammerId(LanguageType languageType, Long backjoonId, String loginId, Pageable pageable) {
-        List<AnswerListResponse> content = queryFactory.select(new QAnswerListResponse(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
+        List<AnswerListResponse> content = queryFactory.select(
+                        new QAnswerListResponse(
+                                answer.id,
+                                answer.backJoonId,
+                                answer.title,
+                                answer.programmer.name.name,
+                                answer.languageType
+                        )
+                )
                 .from(answer)
                 .join(answer.programmer)
-                .fetchJoin()
                 .where(
                         answer.programmer.loginId.eq(loginId),
                         languageTypeEq(languageType),
