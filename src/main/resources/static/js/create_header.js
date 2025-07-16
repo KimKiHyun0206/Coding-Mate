@@ -5,7 +5,7 @@ function create_header() {
     };
 
     if (authToken) {
-        headers['Authorization'] = `${authToken}`;
+        headers['Authorization'] = `Bearer ${authToken}`;
     }
 
     return headers
