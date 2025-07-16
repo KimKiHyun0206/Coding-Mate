@@ -43,7 +43,7 @@ public class TokenProvider {
             JWTProperties jwtProperties
     ) {
         this.AUTHORITIES_KEY = jwtProperties.authorityKey();
-        this.ACCESS_TOKEN_VALIDATE_HOUR = jwtProperties.accessTokenValidityInHour();
+        this.ACCESS_TOKEN_VALIDATE_HOUR = Duration.ofHours(jwtProperties.accessTokenValidityInHour()).toMillis();
         this.REFRESH_TOKEN_VALIDATE_DAY = jwtProperties.refreshTokenExpirationDays();
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.secret());    // Secret 값을 Base64 디코딩하여 HMAC SHA 키로 변환합니다.
         this.KEY = Keys.hmacShaKeyFor(keyBytes);
