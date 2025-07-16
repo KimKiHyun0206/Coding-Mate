@@ -42,45 +42,38 @@ public class RefreshService {
      * @param oldRefreshToken 갱신할 기존 리프레시 토큰
      * @return 새로 발급된 액세스 토큰과 리프레시 토큰을 담은 TokenResponse
      */
-    public TokenResponse refreshTokens(String oldRefreshToken) {
+    public TokenResponse renewTokens(String oldRefreshToken) {
         log.debug("[RefreshService] refreshTokens({})", oldRefreshToken);
-        log.info("[RefreshService] Refresh token renewal request for: {}", oldRefreshToken);
 
+        // 1. 토큰 유효성 검사 및 사용자 정보 추출
         tokenProvider.validateToken(oldRefreshToken);
 
         String tokenJti = JwtUtil.getJti(oldRefreshToken);
         String username = JwtUtil.getUsername(oldRefreshToken);
         String redisJti = refreshTokenService.getJtiFromRedis(username);
 
+        // 2. jti 비교로 토큰 일치 여부 검증
         jtiValidator.validateJti(
                 tokenJti,
                 redisJti,
                 username
         );
 
-        UserDetails userDetails = userDetailLoginService.loadUserByUsername(username);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDetails,
-                null,
-                userDetails.getAuthorities()
-        );
+        // 3. 인증 정보 구성
+        Authentication authentication = createAuthentication(username);
 
-        log.debug("[RefreshService] Successfully retrieved refresh token from Redis: {}", redisJti.substring(20));
-
+        // 4. 새로운 토큰 생성
         String newAccessToken = tokenProvider.createAccessToken(authentication);
-
         RefreshTokenIssueResponse newRefreshToken = tokenProvider.createRefreshToken(username);
-        log.debug("[RefreshService] New access token and refresh token generated.");
 
-        replaceOldRefreshToken(
+        // 5. 기존 리프레쉬 토큰 제거 및 새로운 토큰 저장
+        updateRefreshTokenInRedis(
                 username,
                 oldRefreshToken,
                 RefreshTokenCreateRequest.of(newRefreshToken, username)
         );
 
-        log.info("[RefreshService] Tokens successfully refreshed. New Access Token Length: {}, New Refresh Token Length: {}",
-                newAccessToken.length(), newRefreshToken.refreshToken().length());
-
+        log.info("[RefreshService] 리프레쉬 토큰을 사용하여 액세스 토큰 재발급에 성공했습니다.");
         return TokenResponse.of(
                 newAccessToken,
                 newRefreshToken.refreshToken(),
@@ -89,6 +82,16 @@ public class RefreshService {
         );
     }
 
+    private Authentication createAuthentication(String username) {
+        UserDetails userDetails = userDetailLoginService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        );
+    }
+
+
     /**
      * 기존의 리프레시 토큰에 대한 정보를 지우고 새로운 리프레시 토큰 정보를 저장하기 위한 메소드.
      *
@@ -96,18 +99,18 @@ public class RefreshService {
      * @param oldRefreshToken 이전의 리프레쉬 토큰
      * @param request 데이터베이스에 리프레시 토큰을 저장하기 위해 필요한 객체
      * */
-    private void replaceOldRefreshToken(
+    private void updateRefreshTokenInRedis(
             String oldKey,
             String oldRefreshToken,
             RefreshTokenCreateRequest request
     ) {
-        log.debug("[RefreshService] renewToken({}, {})", oldKey, request.token().substring(0, 20));    //20자만 로깅함
+        log.debug("[RefreshService] updateRefreshTokenInRedis({}, {})", oldKey, request.token().substring(0, 20));    //20자만 로깅함
         //1. 기존 토큰 제거
         refreshTokenService.revokeToken(oldRefreshToken);
-        log.debug("[RefreshService] Old refresh token deleted from Redis.");
 
         //2. 새로운 토큰 저장
         refreshTokenService.create(request);    //생성하며 레디스에도 저장함
-        log.debug("[RefreshService] New refresh token saved to Redis.");
+
+        log.info("[RefreshService] Redis에 새로운 리프레쉬 토큰 저장에 성공했습니다.");
     }
 }
