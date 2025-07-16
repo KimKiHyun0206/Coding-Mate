@@ -197,6 +197,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', async function () {
         console.log('DOMContentLoaded 시작');
+        await check_and_refresh_token_for_nav_bar();
         try {
             const responseData = await fetchDataWithAuth('/api/v1/programmer/me');
             console.log('받아온 데이터:', responseData);
