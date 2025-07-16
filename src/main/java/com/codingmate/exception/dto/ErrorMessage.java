@@ -28,6 +28,7 @@ public enum ErrorMessage {
     LOGIN_FAIL(HttpStatus.BAD_REQUEST, "ID/PW 가 일치하지 않습니다"),
     WRONG_ID(HttpStatus.BAD_REQUEST, "ID 가 일치하지 않습니다"),
     WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "Password 가 일치하지 않습니다"),
+    UPDATE_FAILED(HttpStatus.NOT_FOUND, "업데이트에 실패했습니다."),
 
     //ANSWER
     NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "요청한 ANSWER 를 찾을 수 없습니다"),
