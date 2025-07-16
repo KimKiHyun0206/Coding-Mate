@@ -13,6 +13,7 @@ import com.codingmate.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -31,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 public class AnswerController {
     private final AnswerService answerService;
 
+    @RolesAllowed("hasRole('ROLE_USER')")
     @Operation(summary = "풀이 생성", description = "새로운 풀이를 생성한다")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "풀이 생성 성공."),
@@ -39,13 +43,14 @@ public class AnswerController {
     @PostMapping
     public ResponseEntity<ResponseDto<AnswerCreateResponse>> create(
             @RequestBody AnswerCreateRequest answerCreateRequest,
-            HttpServletRequest request
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long idFromToken = JwtUtil.getId(request);
-
         return ResponseDto.toResponseEntity(
                 ResponseMessage.CREATED,
-                answerService.create(idFromToken, answerCreateRequest)
+                answerService.create(
+                        userDetails.getUsername(),
+                        answerCreateRequest
+                )
         );
     }
 
@@ -59,10 +64,12 @@ public class AnswerController {
     @GetMapping("/{answerId}")
     public ResponseEntity<ResponseDto<AnswerPageResponse>> read(
             @PathVariable(name = "answerId") Long id,
-            HttpServletRequest request
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long idFromToken = JwtUtil.getId(request);
-        var answerPageDto = answerService.read(id, idFromToken);
+        var answerPageDto = answerService.read(
+                id,
+                userDetails.getUsername()
+        );
 
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
@@ -84,11 +91,15 @@ public class AnswerController {
     ) {
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
-                answerService.readAllToListResponse(language, backjoonId, pageable)
+                answerService.readAllToListResponse(
+                        language,
+                        backjoonId,
+                        pageable
+                )
         );
     }
 
-
+    @RolesAllowed("hasRole('ROLE_USER')")
     @Operation(summary = "요청한 유저가 작성한 풀이 조회", description = "자신이 작성한 풀이만 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "풀이 조회 성공."),
@@ -98,18 +109,21 @@ public class AnswerController {
     public ResponseEntity<ResponseDto<Page<AnswerListResponse>>> readByProgrammer(
             @RequestParam(name = "language", required = false) LanguageType language,
             @RequestParam(name = "backjoonId", required = false) Long backjoonId,
-            HttpServletRequest request,
-            @PageableDefault(size = 20) Pageable pageable
+            @PageableDefault(size = 20) Pageable pageable,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long idFromToken = JwtUtil.getId(request);
-
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
-                answerService.readAllByProgrammerId(language, backjoonId, idFromToken, pageable)
+                answerService.readAllByProgrammerId(
+                        language,
+                        backjoonId,
+                        userDetails.getUsername(),
+                        pageable
+                )
         );
     }
 
-
+    @RolesAllowed("hasRole('ROLE_USER')")
     @Operation(summary = "풀이 수정", description = "작성된 풀이를 수정합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "풀이 수정 성공."),
@@ -118,16 +132,15 @@ public class AnswerController {
     })
     @PatchMapping("/{answerId}")
     public ResponseEntity<?> update(
-            HttpServletRequest request,
             @RequestBody AnswerUpdateRequest answerUpdateRequest,
-            @PathVariable(name = "answerId") Long answerId
+            @PathVariable(name = "answerId") Long answerId,
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        Long idFromToken = JwtUtil.getId(request);
-        answerService.update(idFromToken, answerId, answerUpdateRequest);
+        answerService.update(userDetails.getUsername(), answerId, answerUpdateRequest);
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
-
+    @RolesAllowed("hasRole('ROLE_USER')")
     @Operation(summary = "풀이 삭제", description = "작성된 풀이를 id값으로 풀이 삭제")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "풀이 삭제 성공."),
@@ -136,9 +149,11 @@ public class AnswerController {
             @ApiResponse(responseCode = "404", description = "유효한 풀이 ID가 아닙니다.")
     })
     @DeleteMapping("/{answerId}")
-    public ResponseEntity<?> delete(@PathVariable(name = "answerId") Long answerId, HttpServletRequest request) {
-        Long idFromToken = JwtUtil.getId(request);
-        answerService.delete(idFromToken, answerId);
+    public ResponseEntity<?> delete(
+            @PathVariable(name = "answerId") Long answerId,
+            @AuthenticationPrincipal UserDetails userDetails
+    ) {
+        answerService.delete(userDetails.getUsername(), answerId);
 
         return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT);
     }

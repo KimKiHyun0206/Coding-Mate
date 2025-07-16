@@ -1,5 +1,6 @@
 package com.codingmate.programmer.repository;
 
+import com.codingmate.auth.domain.Authority;
 import com.codingmate.programmer.domain.Programmer;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.AccessLevel;
@@ -8,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.Set;
 
 import static com.codingmate.auth.domain.QAuthority.authority;
 import static com.codingmate.programmer.domain.QProgrammer.programmer;
@@ -44,7 +46,7 @@ public class ProgrammerReadRepository {
         return Optional.ofNullable(
                 queryFactory.selectFrom(programmer)
                         .where(programmer.loginId.eq(loginId))
-                        .leftJoin(programmer.authority, authority)
+                        .leftJoin(programmer.authorities, authority)
                         .fetchJoin()
                         .fetchOne()
         );
@@ -53,13 +55,13 @@ public class ProgrammerReadRepository {
     /**
      * @implSpec fetchJoin으로 지연로딩 방지
      * */
-    public Optional<String> readProgrammerRole(Long programmerId) {
+    public Optional<Set<Authority>> readProgrammerRole(String username) {
         Programmer result = queryFactory.selectFrom(programmer)
-                .where(programmer.id.eq(programmerId))
-                .leftJoin(programmer.authority, authority)
+                .where(programmer.loginId.eq(username))
+                .leftJoin(programmer.authorities, authority)
                 .fetchJoin()
                 .fetchOne();
-        return result.getAuthority().getAuthorityName().describeConstable();
+        return Optional.ofNullable(result.getAuthorities());
     }
 
     //TODO 로그인 아이디와 비밀번호를 바꾸는 로직은 DTO 에서는 null-safe patch update DTO을 사용하도록 함.

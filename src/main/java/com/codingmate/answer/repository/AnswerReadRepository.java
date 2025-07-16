@@ -46,10 +46,10 @@ public class AnswerReadRepository {
      * @implNote fetchOne은 null을 반환할 수 있다.
      * @implSpec answer.count를 사용해서 숫자를 가져오도록 한다.
      * */
-    public long countProgrammerWroteAnswer(Long programmerId) {
+    public long countProgrammerWroteAnswer(String loginId) {
         Long count = queryFactory.select(answer.count())
                 .from(answer)
-                .where(answer.programmer.id.eq(programmerId))
+                .where(answer.programmer.loginId.eq(loginId))
                 .fetchOne();
         return count != null ? count : 0L;
     }
@@ -59,10 +59,15 @@ public class AnswerReadRepository {
 
         // 1. 실제 데이터를 조회하는 쿼리 실행
         List<AnswerListResponse> content = queryFactory
-                .select(new QAnswerListResponse(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
+                .select(new QAnswerListResponse(
+                        answer.id,
+                        answer.backJoonId,
+                        answer.title,
+                        answer.programmer.name.name,
+                        answer.languageType)
+                )
                 .from(answer)
                 .join(answer.programmer) // join을 .from() 바로 아래에 두는 것이 일반적
-                .fetchJoin()
                 .where(
                         languageTypeEq(languageType), // 조건 메서드 사용
                         backjoonIdEq(backjoonId)     // 조건 메서드 사용
@@ -99,13 +104,20 @@ public class AnswerReadRepository {
     }
 
 
-    public Page<AnswerListResponse> readAllByProgrammerId(LanguageType languageType, Long backjoonId, Long programmerId, Pageable pageable) {
-        List<AnswerListResponse> content = queryFactory.select(new QAnswerListResponse(answer.id, answer.backJoonId, answer.title, answer.programmer.name.name, answer.languageType))
+    public Page<AnswerListResponse> readAllByProgrammerId(LanguageType languageType, Long backjoonId, String loginId, Pageable pageable) {
+        List<AnswerListResponse> content = queryFactory.select(
+                        new QAnswerListResponse(
+                                answer.id,
+                                answer.backJoonId,
+                                answer.title,
+                                answer.programmer.name.name,
+                                answer.languageType
+                        )
+                )
                 .from(answer)
                 .join(answer.programmer)
-                .fetchJoin()
                 .where(
-                        answer.programmer.id.eq(programmerId),
+                        answer.programmer.loginId.eq(loginId),
                         languageTypeEq(languageType),
                         backjoonIdEq(backjoonId)
                 )

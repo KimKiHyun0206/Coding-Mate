@@ -35,14 +35,13 @@ public class JwtUtil {
         return (Long) getAllClaims(token).get("id");
     }
 
-    public static Long getIdFromSubject(String refreshToken) {
-        return Long.valueOf(
-                Jwts.parser()
-                        .setSigningKey(SECRET)
-                        .parseClaimsJws(refreshToken)
-                        .getBody()
-                        .getSubject()
-        );
+    public static String getUsername(String refreshToken) {
+        return Jwts.parser()
+                .setSigningKey(SECRET)
+                .parseClaimsJws(refreshToken)
+                .getBody()
+                .getSubject();
+
     }
 
     public static String getJti(String refreshToken) {

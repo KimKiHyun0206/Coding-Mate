@@ -63,11 +63,11 @@ public record AnswerPageResponse(
          * Answer 엔티티와 추가 정보를 사용하여 AnswerPageResponse를 생성합니다.
          *
          * @param answer              응답으로 변환할 Answer 엔티티
-         * @param requestProgrammerId 현재 요청을 보낸 프로그래머의 ID (로그인하지 않은 경우 null)
+         * @param username 현재 요청을 보낸 프로그래머의 ID (로그인하지 않은 경우 null)
          * @param isLiked             현재 요청을 보낸 프로그래머가 이 답변을 추천했는지 여부
          * @return AnswerPageResponse 객체
          */
-        public static AnswerPageResponse of(Answer answer, Long requestProgrammerId, Boolean isLiked) {
+        public static AnswerPageResponse of(Answer answer, String username, Boolean isLiked) {
                 return AnswerPageResponse.builder()
                         .id(answer.getId())
                         .backjoonId(answer.getBackJoonId())
@@ -78,7 +78,7 @@ public record AnswerPageResponse(
                         .programmerId(answer.getProgrammer().getId())
                         .languageType(answer.getLanguageType())
                         .programmerName(answer.getProgrammer().getName().getName())
-                        .isRequesterIsOwner(Objects.equals(requestProgrammerId, answer.getProgrammer().getId()))
+                        .isRequesterIsOwner(Objects.equals(username, answer.getProgrammer().getLoginId()))
                         .isLiked(isLiked)
                         .build();
         }

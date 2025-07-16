@@ -4,6 +4,7 @@ import com.codingmate.programmer.domain.Programmer;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import javax.swing.text.html.Option;
 import java.util.Optional;
 
 /**
@@ -13,5 +14,8 @@ import java.util.Optional;
  * */
 @Repository
 public interface DefaultProgrammerRepository extends JpaRepository<Programmer, Long> {
-    Optional<Programmer> findById(Long id);
+    Optional<Programmer> findOneWithAuthoritiesByLoginId(String id);
+    Optional<Programmer> findByLoginId(String loginId);
+    boolean existsByLoginId(String loginId);
+    void deleteByLoginId(String loginId);
 }

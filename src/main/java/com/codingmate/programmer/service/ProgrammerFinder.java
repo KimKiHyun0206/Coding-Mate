@@ -29,4 +29,13 @@ public class ProgrammerFinder {
                         "프로그래머를 찾을 수 없습니다.")
                 );
     }
+
+    @Transactional(readOnly = true)
+    public Programmer read(String loginId){
+        return programmerRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new NotFoundProgrammerException(
+                ErrorMessage.NOT_FOUND_PROGRAMMER,
+                "프로그래머를 찾을 수 없습니다.")
+        );
+    }
 }

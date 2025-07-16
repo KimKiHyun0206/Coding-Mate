@@ -5,6 +5,7 @@ import com.codingmate.jwt.TokenProvider;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,16 +22,11 @@ public class TokenService {
     /**
      * 사용자 ID와 권한을 기반으로 Access Token과 Refresh Token을 생성합니다.
      *
-     * @param id 토큰을 생성할 사용자의 ID
-     * @param authority 토큰에 포함될 사용자의 권한
      * @return 생성된 Access Token과 Refresh Token을 담은 TokenDto
      */
-    public TokenResponse generateToken(Long id, String authority) {
-        log.debug("[TokenService] generateToken - Request to generate tokens for user ID: {}, authority: {}", id, authority);
-
-        log.info("[TokenService] Generating new access and refresh tokens for user ID: {}", id);
-        String accessToken = tokenProvider.createAccessToken(id, authority);
-        var refreshTokenResult = tokenProvider.createRefreshToken(id);
+    public TokenResponse generateToken(Authentication authentication){
+        String accessToken = tokenProvider.createAccessToken(authentication);
+        var refreshTokenResult = tokenProvider.createRefreshToken(authentication.getName());
 
         var tokenDto = new TokenResponse(
                 accessToken,
@@ -39,7 +35,7 @@ public class TokenService {
                 refreshTokenResult.issuedAt()
         );
 
-        log.info("[TokenService] Tokens successfully generated for user ID: {}", id);
+        log.info("[TokenService] Tokens successfully generated for username: {}", authentication.getName());
         log.debug("[TokenService] Generated Access Token (prefix): {}, Refresh Token (prefix): {}",
                 accessToken.substring(20), // 앞부분만 로깅
                 refreshTokenResult.refreshToken().substring(20)

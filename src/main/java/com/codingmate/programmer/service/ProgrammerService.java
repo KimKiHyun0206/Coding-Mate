@@ -2,6 +2,7 @@ package com.codingmate.programmer.service;
 
 import com.codingmate.answer.repository.AnswerReadRepository;
 import com.codingmate.answer.repository.AnswerWriteRepository;
+import com.codingmate.auth.domain.Authority;
 import com.codingmate.auth.service.AuthorityFinder;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.dto.request.ProgrammerUpdateRequest;
@@ -9,6 +10,7 @@ import com.codingmate.programmer.dto.response.MyPageResponse;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingmate.exception.exception.programmer.NotFoundProgrammerException;
+import com.codingmate.programmer.dto.response.ProgrammerResponse;
 import com.codingmate.programmer.repository.DefaultProgrammerRepository;
 import com.codingmate.programmer.repository.ProgrammerReadRepository;
 import com.codingmate.programmer.repository.ProgrammerWriteRepository;
@@ -17,6 +19,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Programmer의 CRUD를 담당하는 서비스
@@ -55,10 +60,12 @@ public class ProgrammerService {
         }
         log.debug("[ProgrammerService] Login ID {} is available.", request.loginId());
 
+        Set<Authority> authorities = new HashSet<>();
+        authorities.add(authorityFinder.getUserAuthority("ROLE_USER"));
 
         writeRepository.create(
                 request,
-                authorityFinder.getUserAuthority("ROLE_USER")
+                authorities
         );
 
         log.info("[ProgrammerService] Programmer created successfully with loginId: {}", request.loginId());
@@ -88,42 +95,47 @@ public class ProgrammerService {
     /**
      * 특정 프로그래머의 마이페이지 정보를 조회합니다.
      *
-     * @param programmerId 조회할 프로그래머의 ID
+     * @param username 조회할 프로그래머의 ID
      * @return 프로그래머의 마이페이지 정보를 담은 응답 DTO
      * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional(readOnly = true)
-    public MyPageResponse getProgrammerMyPageInfo(Long programmerId) {
-        log.info("[ProgrammerService] getProgrammerMyPageInfo({})", programmerId);
-
-        log.debug("[ProgrammerService] Searching for programmer with ID: {}", programmerId);
-        var programmer = defaultProgrammerRepository.findById(programmerId)
-                .orElseThrow(() -> {
-                    log.warn("[ProgrammerService] MyPage info failed: Programmer not found with ID: {}", programmerId);
-                    return new NotFoundProgrammerException(
-                            ErrorMessage.INVALID_ID,
-                            String.format("%d는 존재하지 않는 ProgrammerID입니다.", programmerId));
-                });
-        log.debug("[ProgrammerService] Programmer found: {}. Counting answers...", programmerId);
-
-        long writtenAnswersCount = answerReadRepository.countProgrammerWroteAnswer(programmerId);
-        log.debug("[ProgrammerService] Programmer {} has written {} answers.", programmerId, writtenAnswersCount);
-        log.info("[ProgrammerService] Successfully retrieved MyPage info for programmerId: {}", programmerId);
-
-        return MyPageResponse.of(programmer, writtenAnswersCount);
+    public MyPageResponse getProgrammerMyPageInfo(String username) {
+        log.info("[ProgrammerService] getProgrammerMyPageInfo({})", username);
+        return defaultProgrammerRepository.findByLoginId(username)
+                .map(programmer -> {
+                    long answersCount = answerReadRepository.countProgrammerWroteAnswer(username);
+                    log.info("[ProgrammerService] 사용자를 찾았으며 사용자가 작성한 풀이의 수는 {} 입니다.", answersCount);
+                    return MyPageResponse.of(programmer, answersCount);
+                })
+                .orElseThrow(() -> new NotFoundProgrammerException(
+                        ErrorMessage.NOT_FOUND_PROGRAMMER,
+                        String.format("사용자 '%s'를 찾을 수 없습니다.", username)
+                ));
     }
 
     @Transactional(readOnly = true)
-    public String getProgrammerRole(Long id) {
-        log.info("[ProgrammerService] getProgrammerRole({})", id);
+    public ProgrammerResponse findByLoginId(String loginId) {
+        log.info("[ProgrammerService] findByLoginId({})", loginId);
+        return ProgrammerResponse.of(readRepository.readByLoginId(loginId).orElseThrow(() -> {
+            log.warn("[ProgrammerService] loginId read failed: Programmer not found with loginId: {}", loginId);
+            return new NotFoundProgrammerException(
+                    ErrorMessage.INVALID_ID,
+                    String.format("%d는 존재하지 않는 loginId입니다.", loginId));
+        }));
+    }
 
-        log.debug("[ProgrammerService] Searching for programmer with ID: {}", id);
-        return readRepository.readProgrammerRole(id)
+    @Transactional(readOnly = true)
+    public Set<Authority> getProgrammerRole(String username) {
+        log.info("[ProgrammerService] getProgrammerRole({})", username);
+
+        log.debug("[ProgrammerService] Searching for programmer with ID: {}", username);
+        return readRepository.readProgrammerRole(username)
                 .orElseThrow(() -> {
-                    log.warn("[ProgrammerService] Programmer not found by ID: {}", id);
+                    log.warn("[ProgrammerService] Programmer not found by ID: {}", username);
                     return new NotFoundProgrammerException(
                             ErrorMessage.NOT_FOUND_PROGRAMMER,
-                            String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", id)
+                            String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", username)
                     );
                 });
     }
@@ -131,53 +143,53 @@ public class ProgrammerService {
     /**
      * 특정 프로그래머의 정보를 업데이트합니다.
      *
-     * @param programmerId 업데이트할 프로그래머의 ID
+     * @param username 업데이트할 프로그래머의 ID
      * @param request      업데이트할 내용을 담은 DTO
      * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional
-    public void update(Long programmerId, ProgrammerUpdateRequest request) {
-        log.info("[ProgrammerService] update({}, {})", programmerId, request);
+    public void update(String username, ProgrammerUpdateRequest request) {
+        log.info("[ProgrammerService] update({}, {})", username, request);
 
-        log.debug("[ProgrammerService] Update request details for programmerId {}: {}", programmerId, request);
+        log.debug("[ProgrammerService] Update request details for programmerId {}: {}", username, request);
 
-        long changedRows = writeRepository.update(programmerId, request);
+        long changedRows = writeRepository.update(username, request);
         if (changedRows == 0) { // 변경된 행이 0개인 경우 (찾지 못한 경우)
-            log.warn("[ProgrammerService] Update failed: Programmer not found with ID: {}. No rows changed.", programmerId);
+            log.warn("[ProgrammerService] Update failed: Programmer not found with ID: {}. No rows changed.", username);
             throw new NotFoundProgrammerException(
                     ErrorMessage.NOT_FOUND_PROGRAMMER,
-                    String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", programmerId)
+                    String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", username)
             );
         }
-        log.info("[ProgrammerService] Programmer with ID {} updated successfully. Changed rows: {}", programmerId, changedRows);
+        log.info("[ProgrammerService] Programmer with ID {} updated successfully. Changed rows: {}", username, changedRows);
     }
 
     /**
      * 특정 프로그래머 계정을 삭제합니다.
      * 계정 삭제 시, 해당 프로그래머가 작성한 모든 답변도 함께 삭제됩니다.
      *
-     * @param programmerId 삭제할 프로그래머의 ID
+     * @param username 삭제할 프로그래머의 ID
      * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional
-    public void delete(Long programmerId) {
-        log.info("[ProgrammerService] delete({})", programmerId);
+    public void delete(String username) {
+        log.info("[ProgrammerService] delete({})", username);
 
-        log.debug("[ProgrammerService] Checking existence for programmer ID: {}", programmerId);
-        boolean isExist = defaultProgrammerRepository.existsById(programmerId);
+        log.debug("[ProgrammerService] Checking existence for programmer ID: {}", username);
+        boolean isExist = defaultProgrammerRepository.existsByLoginId(username);
         if (isExist) {
-            log.debug("[ProgrammerService] Programmer with ID {} exists. Proceeding with deletion.", programmerId);
+            log.debug("[ProgrammerService] Programmer with ID {} exists. Proceeding with deletion.", username);
 
-            long deletedAnswersCount = answerWriteRepository.deleteByProgrammerId(programmerId);
-            log.info("[ProgrammerService] Programmer ID {} related answers {} were deleted.", programmerId, deletedAnswersCount);
+            long deletedAnswersCount = answerWriteRepository.deleteByLoginId(username);
+            log.info("[ProgrammerService] Programmer ID {} related answers {} were deleted.", username, deletedAnswersCount);
 
-            defaultProgrammerRepository.deleteById(programmerId);
-            log.info("[ProgrammerService] Programmer with ID {} deleted successfully.", programmerId);
+            defaultProgrammerRepository.deleteByLoginId(username);
+            log.info("[ProgrammerService] Programmer with ID {} deleted successfully.", username);
         } else {
-            log.warn("[ProgrammerService] Delete failed: Programmer not found with ID: {}. No action taken.", programmerId);
+            log.warn("[ProgrammerService] Delete failed: Programmer not found with ID: {}. No action taken.", username);
             throw new NotFoundProgrammerException(
                     ErrorMessage.NOT_FOUND_PROGRAMMER,
-                    String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 삭제를 진행할 수 없습니다.", programmerId)
+                    String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 삭제를 진행할 수 없습니다.", username)
             );
         }
     }

@@ -18,14 +18,14 @@ import java.time.Instant;
  *     <li>issuedAt: 발급된 시간</li>
  *     <li>expiredAt: 유효기간</li>
  *     <li>isRevoked: 토큰이 사용되었는지</li>
- *     <li>userId: 발급한 사용자의 PK</li>
+ *     <li>username: 발급한 사용자의 로그인 아이디</li>
  * </ul>
  * */
 @Entity
 @Table(name = "refresh_token_info",
         indexes = {
                 @Index(name = "ref_jti_idx", columnList = "jti", unique = true),
-                @Index(name = "ref_user_revoke_idx", columnList = "user_id, is_revoked")
+                @Index(name = "ref_user_revoke_idx", columnList = "username, is_revoked")
         }
 )
 @Builder(access = AccessLevel.PRIVATE)
@@ -58,8 +58,8 @@ public class RefreshToken {
     private boolean isRevoked = false; // 기본값은 false (폐기되지 않음)
 
     // 이 토큰이 속한 사용자 ID (인덱싱을 고려하면 성능에 좋음)
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "username", nullable = false)
+    private String username;
 
     public static RefreshToken toEntity(RefreshTokenCreateRequest request, int expireDay) {
         return RefreshToken.builder()
@@ -67,7 +67,7 @@ public class RefreshToken {
                 .jti(request.jti())
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plus(Duration.ofDays(expireDay)))
-                .userId(request.userId())
+                .username(request.username())
                 .build();
     }
 

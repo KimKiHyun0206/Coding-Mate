@@ -17,7 +17,7 @@ import java.time.Instant;
  * <li>issuedAt: 리프레쉬 토큰의 발급 시간</li>
  * <li>expiredAt: 리프레쉬 토큰의 유효 시간</li>
  * <li>isRevoked: 리프레쉬 토큰이 사용되어서 유효한지</li>
- * <li>userId: 리프레쉬 토큰의 사용자 아이디</li>
+ * <li>username: 리프레쉬 토큰의 사용자 아이디</li>
  *
  * @author duskafka
  * */
@@ -29,7 +29,7 @@ public record RefreshTokenResponse(
         Instant issuedAt,
         Instant expiresAt,
         boolean isRevoked,
-        Long userId
+        String username
 ) {
     public static RefreshTokenResponse of(RefreshToken refreshToken) {
         return RefreshTokenResponse.builder()
@@ -39,7 +39,7 @@ public record RefreshTokenResponse(
                 .issuedAt(refreshToken.getIssuedAt())
                 .expiresAt(refreshToken.getExpiresAt())
                 .isRevoked(refreshToken.isRevoked())
-                .userId(refreshToken.getUserId())
+                .username(refreshToken.getUsername())
                 .build();
     }
 }

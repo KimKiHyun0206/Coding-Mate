@@ -1,5 +1,6 @@
 package com.codingmate.jwt;
 
+import com.codingmate.auth.domain.Authority;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.jwt.ExpiredTokenException;
@@ -42,42 +43,31 @@ public class TokenProvider {
             JWTProperties jwtProperties
     ) {
         this.AUTHORITIES_KEY = jwtProperties.authorityKey();
-        this.ACCESS_TOKEN_VALIDATE_HOUR = jwtProperties.accessTokenValidityInHour();
+        this.ACCESS_TOKEN_VALIDATE_HOUR = Duration.ofHours(jwtProperties.accessTokenValidityInHour()).toMillis();
         this.REFRESH_TOKEN_VALIDATE_DAY = jwtProperties.refreshTokenExpirationDays();
         byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.secret());    // Secret 값을 Base64 디코딩하여 HMAC SHA 키로 변환합니다.
         this.KEY = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    /**
-     * 사용자 ID와 역할을 포함하는 Access Token을 생성합니다.
-     * 클레임(claims)에는 사용자 ID와 권한 정보가 포함되며, JWT 만료 시간 등이 설정됩니다.
-     *
-     * @param userId Access Token에 포함될 사용자 ID.
-     * @param role Access Token에 포함될 사용자 역할 (권한).
-     * @return 생성된 Access Token 문자열.
-     */
-    public String createAccessToken(Long userId, String role) {
-        log.debug("[TokenProvider] createAccessToken({}, {})", userId, role);
 
-        Instant issuedAt = Instant.now();
-        Claims claims = createAccessTokenClaims(userId, role);
+    public String createAccessToken(Authentication authentication) {
+        Claims claims = Jwts.claims().setSubject(authentication.getName());
 
-        String token = Jwts.builder()
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        claims.put("auth", roles);
+
+        Date now = new Date();
+        Date expiry = new Date(now.getTime() + ACCESS_TOKEN_VALIDATE_HOUR);
+
+        return Jwts.builder()
                 .setClaims(claims)
-                .setIssuedAt(Date.from(issuedAt))
-                .setExpiration(Date.from(issuedAt.plus(Duration.ofHours(ACCESS_TOKEN_VALIDATE_HOUR))))
-                .signWith(KEY, SignatureAlgorithm.HS256)
+                .setIssuedAt(now)
+                .setExpiration(expiry)
+                .signWith(SignatureAlgorithm.HS256, KEY)
                 .compact();
-
-        log.info("[TokenProvider] Access Token created for userId: {}", userId);
-        return token;
-    }
-
-    private Claims createAccessTokenClaims(Long userId, String role) {
-        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
-        claims.put(AUTHORITIES_KEY, role);
-        claims.put("id", userId);
-        return claims;
     }
 
 
@@ -85,16 +75,16 @@ public class TokenProvider {
      * 사용자 ID를 포함하는 Refresh Token을 생성합니다.
      * Refresh Token은 주로 Access Token의 갱신에 사용됩니다.
      *
-     * @param userId Refresh Token에 포함될 사용자 ID.
+     * @param username Refresh Token에 포함될 사용자 ID.
      * @return 생성된 Refresh Token 문자열.
      */
-    public RefreshTokenIssueResponse createRefreshToken(Long userId) {
-        log.debug("[TokenProvider] createRefreshToken({})", userId);
+    public RefreshTokenIssueResponse createRefreshToken(String username) {
+        log.debug("[TokenProvider] createRefreshToken({})", username);
 
         Instant issuedAt = Instant.now();
         String jti = UUID.randomUUID().toString();
 
-        Claims claims = createRefreshTokenClaims(userId, jti);
+        Claims claims = createRefreshTokenClaims(username, jti);
 
         Date issuedAtDate = Date.from(issuedAt);
         Date expirationDate = Date.from(issuedAt.plus(Duration.ofDays(REFRESH_TOKEN_VALIDATE_DAY)));
@@ -106,13 +96,13 @@ public class TokenProvider {
                 .signWith(KEY, SignatureAlgorithm.HS256)
                 .compact();
 
-        log.info("[TokenProvider] Refresh Token created for userId: {}. Token length: {}", userId, refreshToken.length());
+        log.info("[TokenProvider] Refresh Token created for username: {}. Token length: {}", username, refreshToken.length());
 
         return RefreshTokenIssueResponse.of(refreshToken, jti, issuedAt);
     }
 
-    private Claims createRefreshTokenClaims(Long userId, String jti) {
-        Claims claims = Jwts.claims().setSubject(String.valueOf(userId));
+    private Claims createRefreshTokenClaims(String username, String jti) {
+        Claims claims = Jwts.claims().setSubject(String.valueOf(username));
         claims.put("jti", jti);
         return claims;
     }

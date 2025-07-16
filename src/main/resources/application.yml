@@ -8,7 +8,7 @@ spring:
   # 스프링 JPA 설정
   jpa:
     hibernate:
-      ddl-auto: update                               # DB 테이블 생성 전략 설정
+      ddl-auto: create                               # DB 테이블 생성 전략 설정
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect # MySQL 8.x용 Dialect
@@ -17,7 +17,7 @@ spring:
     defer-datasource-initialization: true            # SQL 스크립트 초기화를 JPA 앤티티 매니저 초기화 이후로 지연시킨다. 이는 data.sql이 있어서 필요하다.
   sql:
     init:
-    # mode: always                                    # SQL 초기화 스크립트를 언제 실행할지 결정한다.
+     mode: always                                    # SQL 초기화 스크립트를 언제 실행할지 결정한다.
   # Redis 설정
   data:
     redis:
@@ -51,10 +51,12 @@ jwt:
   access-token-validity-in-hour: 3      # 액세스 토큰 유효기간 (시간)
   refresh-token-cookie: code-mate-ref   # 리프레시 토큰 쿠키 키
   refresh-token-expiration-days: 60     # 리프레시 토큰 유효기간 (일)
+  authority-key: auth                   # 액세스 토큰에서 권한을 가져올 키
   redis:                                # Redis
     key:
       prefix: programmer                # 레디스 저장에 필요한 키 값 중 접두어
       suffix: token_rts                 # 레디스 저장에 필요한 키 값 중 접미어
+    max-token: 3                        # 최대로 발급 가능한 토큰의 수
 
 # 랭킹 Redis 저장 설정
 ranking:

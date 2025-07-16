@@ -61,7 +61,7 @@ public class RefreshTokenService {
     public RefreshTokenResponse create(RefreshTokenCreateRequest request) {
         log.debug("[RefreshTokenService] create({})", request);
 
-        validateMaxTokenCount(request.userId());
+        validateMaxTokenCount(request.username());
 
         var entity = RefreshToken.toEntity(request, REDIS_TOKEN_EXPIRE_DAYS);
 
@@ -78,7 +78,7 @@ public class RefreshTokenService {
      *
      * @exception RefreshTokenOverMax 리프레쉬 토큰이 이미 최대값까지 발급되어있을 때 발생시키는 예외
      * */
-    private void validateMaxTokenCount(Long programmerId){
+    private void validateMaxTokenCount(String programmerId){
         log.debug("[RefreshTokenService] Checking token count for user: {}", programmerId);
         long count = refreshTokenReadRepository.countRefreshToken(programmerId);
         log.info("[RefreshTokenService] Token count: {}", count);
@@ -109,7 +109,7 @@ public class RefreshTokenService {
     private void saveInRedis(RefreshToken refreshToken) {
         log.debug("[RefreshTokenService] saveInRedis({})", refreshToken);
 
-        String key = makeRedisKey(refreshToken.getUserId());
+        String key = makeRedisKey(refreshToken.getUsername());
         String value = InstantUtil.instantToScore(refreshToken.getIssuedAt()) + " " + refreshToken.getJti();
         log.info("[RefreshTokenService] Trying save token info to Redis: Key={}, Value={}", key, value);
         tokenRedisRepository.save(key, value);
@@ -141,30 +141,30 @@ public class RefreshTokenService {
      * */
     private void removeAndRevoke(RefreshToken refreshToken){
         refreshToken.revoke();
-        deleteFromRedis(refreshToken.getUserId());
+        deleteFromRedis(refreshToken.getUsername());
     }
 
     /**
      * Redis에서 토큰 값을 지우기 위한 메소드
      *
-     * @param id redis에서 삭제할 키 값
+     * @param username redis에서 삭제할 키 값
      * */
-    private void deleteFromRedis(Long id) {
-        log.debug("[RefreshTokenService] deleteRefreshTokenInRedis({})", id);
-        boolean b = tokenRedisRepository.delete(makeRedisKey(id));
+    private void deleteFromRedis(String username) {
+        log.debug("[RefreshTokenService] deleteRefreshTokenInRedis({})", username);
+        boolean b = tokenRedisRepository.delete(makeRedisKey(username));
         log.info("[RefreshTokenService] Refresh token deleted successfully: {}", b);
     }
 
     /**
-     * @param id key를 조합하는데 필요한 id
+     * @param username key를 조합하는데 필요한 값
      * @implNote makeRedisKey 메소드를 사용해서 키 형태로 만든다.
      * @return Redis에 저장된 jti
      * */
-    public String getJtiFromRedis(Long id) {
-        log.debug("[RedisTokenService] getJtiFromRedis({})", id);
-        return tokenRedisRepository.getValue(makeRedisKey(id)).orElseThrow(
+    public String getJtiFromRedis(String username) {
+        log.debug("[RedisTokenService] getJtiFromRedis({})", username);
+        return tokenRedisRepository.getValue(makeRedisKey(username)).orElseThrow(
                 () -> {
-                    log.warn("[RedisTokenService] Failed to find a refresh token: {}", id);
+                    log.warn("[RedisTokenService] Failed to find a refresh token: {}", username);
                     return new FailedFindRefreshToken(
                             ErrorMessage.FAILED_DELETE_REFRESH_TOKEN,
                             "요청한 토큰으로 Redis에서 토큰을 찾지 못했습니다"
@@ -176,12 +176,12 @@ public class RefreshTokenService {
     /**
      * 한 유저가 발급한 모든 리프레쉬 토큰을 무효화하기 위한 메소드.
      *
-     * @param programmerId 무효화할 토큰의 주인
+     * @param username 무효화할 토큰의 주인
      * */
     @Transactional
-    public void revokeAllToken(Long programmerId){
-        log.debug("[RefreshTokenService] revokeAllToken({})", programmerId);
-        long l = refreshTokenWriteRepository.revokeAllToken(programmerId);
+    public void revokeAllToken(String username){
+        log.debug("[RefreshTokenService] revokeAllToken({})", username);
+        long l = refreshTokenWriteRepository.revokeAllToken(username);
         log.info("[RefreshTokenService] {} tokens revoked successfully", l);
     }
 
@@ -189,7 +189,7 @@ public class RefreshTokenService {
         return token.length() <= 20 ? token : token.substring(0, 20) + "...";
     }
 
-    private String makeRedisKey(Long userId) {
-        return KEY_PREFIX + userId + KEY_SUFFIX;
+    private String makeRedisKey(String username) {
+        return KEY_PREFIX + username + KEY_SUFFIX;
     }
 }
