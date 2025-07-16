@@ -11,6 +11,8 @@ import org.springframework.batch.core.JobParametersBuilder;
 import org.springframework.batch.core.JobParametersInvalidException;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -29,8 +31,21 @@ public class RankingJobScheduler {
     private final JobLauncher jobLauncher;
     private final Job rankingJob;
 
+    private boolean applicationStarted = false;
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void onApplicationReady() {
+        this.applicationStarted = true;
+    }
+
+
     @Scheduled(cron = "0 0 12 * * ?") // 매일 정오
     public void runRankingJob() throws Exception {
+        if (!applicationStarted) {
+            log.info("애플리케이션 시작 직후이므로 첫 실행은 건너뜁니다.");
+            return;
+        }
+
         JobParameters params = new JobParametersBuilder()
                 .addLong("run.id", System.currentTimeMillis()) // 중복 실행 방지용
                 .toJobParameters();
@@ -47,5 +62,3 @@ public class RankingJobScheduler {
         }
     }
 }
-
-
