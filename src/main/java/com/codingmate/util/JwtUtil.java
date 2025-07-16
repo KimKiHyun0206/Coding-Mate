@@ -25,16 +25,6 @@ public class JwtUtil {
         JwtUtil.ACCESS_TOKEN_HEADER = jwtProperties.accessTokenHeader();
     }
 
-    public static Long getId(HttpServletRequest request) {
-        String token = request.getHeader(ACCESS_TOKEN_HEADER);
-        if (token == null || token.equals("null")) return null;
-        return Long.parseLong(getAllClaims(token).get("id").toString());
-    }
-
-    public static Long getId(String token) {
-        return (Long) getAllClaims(token).get("id");
-    }
-
     public static String getUsername(String refreshToken) {
         return Jwts.parser()
                 .setSigningKey(SECRET)
