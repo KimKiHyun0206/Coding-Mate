@@ -51,22 +51,15 @@ public class AnswerService {
     public AnswerCreateResponse create(String username, AnswerCreateRequest request) {
         log.debug("[AnswerService] create({}, {})", username, request.toString());
 
-        log.info("[AnswerService] Attempting to read Programmer: {}", username);
         var writer = defaultProgrammerRepository.findByLoginId(username)
-                .orElseThrow(() -> {
-                    log.warn("[AnswerService] Programmer not found with ID: {}", username);
-                    return new NotFoundProgrammerException(
-                            ErrorMessage.NOT_FOUND_PROGRAMMER,
-                            String.format("ID %d를 가진 Programmer를 찾을 수 없습니다.", username)
-                    );
-                });
-        log.debug("[AnswerService] Programmer found: {}", writer.getId());
-        //log.trace("[AnswerService] Programmer details: {}", writer.toString());
+                .orElseThrow(() -> new NotFoundProgrammerException(
+                        ErrorMessage.NOT_FOUND_PROGRAMMER,
+                        String.format("요청한 사용자(%s)를 찾을 수 없습니다.", username)
+                ));
 
-        log.info("[AnswerService] Saving new Answer for programmer ID: {}", writer.getId());
         var createdResult = defaultAnswerRepository.save(Answer.toEntity(request, writer));
-        log.debug("[AnswerService] Answer created: {}", createdResult.getId());
 
+        log.info("[AnswerService] 풀이 생성 완료: answerId={}, username={}", createdResult.getId(), username);
         return new AnswerCreateResponse(createdResult.getId());
     }
 
@@ -82,17 +75,16 @@ public class AnswerService {
     public AnswerPageResponse read(Long answerId, String username) {
         log.debug("[AnswerService] read({})", username);
         return readRepository.read(answerId)
-                .map(answer -> AnswerPageResponse.of(
-                        answer,
-                        username,
-                        likeRepository.existsByProgrammerAndAnswer(answer.getProgrammer(), answer)
-                )).orElseThrow(() ->{
-                    log.warn("[AnswerService] 풀이 {}를 찾지 못했습니다.", answerId);
-                    return new NotFoundAnswerException(
-                            ErrorMessage.NOT_FOUND_ANSWER,
-                            String.format("요청한 ID %s를 가진 풀이를 찾지 못했습니다.", answerId)
-                    );
-                });
+                .map(answer -> {
+                    boolean isLiked = likeRepository.existsByProgrammerAndAnswer(answer.getProgrammer(), answer);
+                    var response = AnswerPageResponse.of(answer, username, isLiked);
+
+                    log.info("[AnswerService] 풀이 조회 성공: answerId={}, byUser={}", answerId, username);
+                    return response;
+                }).orElseThrow(() -> new NotFoundAnswerException(
+                        ErrorMessage.NOT_FOUND_ANSWER,
+                        String.format("요청한 풀이(%d)를 찾을 수 없습니다.", answerId)
+                ));
     }
 
     /**
@@ -104,10 +96,14 @@ public class AnswerService {
      * @return 필터링된 Answer 목록의 페이지 응답 DTO
      */
     @Transactional(readOnly = true)
-    public Page<AnswerListResponse> readAllToListResponse(LanguageType languageType, Long backjoonId, Pageable pageable) {
+    public Page<AnswerListResponse> readAllToListResponse(
+            LanguageType languageType,
+            Long backjoonId,
+            Pageable pageable
+    ) {
         log.debug("[AnswerService] readAllToListResponse({}, {})", languageType, backjoonId);
         var result = readRepository.readAll(languageType, backjoonId, pageable);
-        log.debug("[AnswerService] Answer list fetched. Total elements: {}, Page size: {}", result.getTotalElements(), result.getSize());
+        log.info("[AnswerService] 풀이 페이지 읽기 성공: pageSize={}", result.getSize());
 
         return result;
     }
@@ -122,10 +118,15 @@ public class AnswerService {
      * @return 필터링된 Answer 목록의 페이지 응답 DTO
      */
     @Transactional(readOnly = true)
-    public Page<AnswerListResponse> readAllByProgrammerId(LanguageType languageType, Long backjoonId, String loginId, Pageable pageable) {
+    public Page<AnswerListResponse> readAllByProgrammerId(
+            LanguageType languageType,
+            Long backjoonId,
+            String loginId,
+            Pageable pageable
+    ) {
         log.debug("[AnswerService] readAllByProgrammerId({}, {})", languageType, backjoonId);
         var result = readRepository.readAllByProgrammerId(languageType, backjoonId, loginId, pageable);
-        log.debug("[AnswerService] Answer list fetched. Total elements: {}, Page size: {}", result.getTotalElements(), result.getSize());
+        log.info("[AnswerService] 풀이 페이지 읽기 성공: pageSize={}", result.getSize());
 
         return result;
     }
@@ -142,17 +143,14 @@ public class AnswerService {
     public void update(String username, Long answerId, AnswerUpdateRequest request) {
         log.debug("[AnswerService] update({}, {})", username, answerId);
 
-        log.debug("[AnswerService] Attempting to update answer with ID: {}", answerId);
-        long changedRowNumber = writeRepository.update(username, answerId, request);
-
-        if (changedRowNumber != 1) {
-            log.warn("[AnswerService] Answer update failed: No answer found or authorized for answerId: {} and programmerId: {}. Changed rows: {}", answerId, username, changedRowNumber);
+        if (writeRepository.update(username, answerId, request) != 1) {
             throw new NotFoundAnswerException(
                     ErrorMessage.NOT_FOUND_ANSWER,
-                    String.format("요청한 Answer ID %d를 찾을 수 없거나, 수정 권한이 없습니다.", answerId)
+                    String.format("요청한 풀이(%d)를 찾을 수 없거나, 수정 권한이 없습니다.", answerId)
             );
         }
-        log.info("[AnswerService] Successfully updated answer with ID: {}. Changed rows: {}", answerId, changedRowNumber);
+
+        log.info("[AnswerService] 풀이 업데이트가 성공적으로 수행되었습니다: answerId={}, programmer={}", answerId, username);
     }
 
     /**
@@ -168,27 +166,20 @@ public class AnswerService {
     public void delete(String username, Long answerId) {
         log.debug("[AnswerService] delete({}, {})", username, answerId);
 
-        log.info("[AnswerService] Attempting to delete answer with ID: {}", answerId);
-        log.debug("[AnswerService] Retrieving answer with ID: {}", answerId);
         var answer = readRepository.read(answerId)
-                .orElseThrow(() -> {
-                    log.warn("[AnswerService] Answer deletion failed: Answer not found with ID: {}", answerId);
-                    return new NotFoundAnswerException(
-                            ErrorMessage.NOT_FOUND_ANSWER,
-                            String.format("요청한 Id %d를 가진 Answer가 존재하지 않습니다.", answerId));
-                });
-        log.debug("[AnswerService] Answer with ID {} found. Author: {}", answer.getId(), answer.getProgrammer().getId());
+                .orElseThrow(() -> new NotFoundAnswerException(
+                        ErrorMessage.NOT_FOUND_ANSWER,
+                        String.format("요청한 풀이(%d)를 찾을 수 없습니다.", answerId)
+                ));
 
-        log.info("[AnswerService] Verifying if programmer {} owns answer {}.", username, answerId);
-        if (answer.getProgrammer().getLoginId().equals(username)) {
-            log.info("[AnswerService] Programmer {} is authorized to delete answer {}. Proceeding with deletion.", username, answerId);
+        String writerUsername = answer.getProgrammer().getLoginId();
+        if (writerUsername.equals(username)) {
             defaultAnswerRepository.delete(answer);
-            log.info("[AnswerService] Answer with ID {} deleted successfully by programmer {}.", answerId, username);
+            log.info("[AnswerService] 풀이가 삭제되었습니다: answerId={}, username={}", answerId, username);
         } else {
-            log.warn("[AnswerService] Answer deletion failed: Programmer {} does not own answer {}. Unauthorized attempt.", username, answerId);
             throw new AnswerAndProgrammerDoNotMatchException(
                     ErrorMessage.ANSWER_AND_PROGRAMMER_DO_NOT_MATCH,
-                    String.format("Programmer ID %d가 삭제 요청한 Answer ID %d는 요청자가 작성한 Answer가 아닙니다.", username, answerId)
+                    String.format("사용자(%s)가 삭제 요청한 풀이(%d)는 요청자가 작성한 풀이가 아닙니다.", username, answerId)
             );
         }
     }
