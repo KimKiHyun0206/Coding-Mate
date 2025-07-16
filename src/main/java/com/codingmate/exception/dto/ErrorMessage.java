@@ -46,9 +46,6 @@ public enum ErrorMessage {
     REFRESH_TOKEN_REVOKED(HttpStatus.CONFLICT, "이미 사용된 리프레시 토큰입니다"),
     JTI_NOT_MATCH(HttpStatus.CONFLICT, "요청한 jti 값이 데이터베이스의 값과 일치하지 않습니다"),
 
-    // REFRESH TOKEN
-    NOT_FOUND_REFRESH_TOKEN(HttpStatus.NOT_FOUND, "데이터베이스에서 요청한 리프레쉬 토큰을 찾지 못했습니다"),
-
     //RANKING
     NO_RANKING_EXCEPTION(HttpStatus.NO_CONTENT, "오늘자 랭킹이 존재하지 않습니다"),
     JOB_ALREADY_EXECUTION(HttpStatus.INTERNAL_SERVER_ERROR, "이미 스케줄러가 실행되었습니다"),
