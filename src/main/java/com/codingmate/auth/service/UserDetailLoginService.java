@@ -3,6 +3,7 @@ package com.codingmate.auth.service;
 import com.codingmate.programmer.domain.Programmer;
 import com.codingmate.programmer.repository.DefaultProgrammerRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserDetailLoginService implements UserDetailsService {
@@ -23,14 +25,14 @@ public class UserDetailLoginService implements UserDetailsService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.debug("[UserDetailLoginService] loadUserByUsername({})", username);
         return defaultProgrammerRepository.findOneWithAuthoritiesByLoginId(username)
                 .map(this::createUser)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
     }
 
     private User createUser(Programmer programmer) {
-
-        return new org.springframework.security.core.userdetails.User(
+        return new User(
                 programmer.getLoginId(),
                 programmer.getPassword(),
                 createAuthorities(programmer)

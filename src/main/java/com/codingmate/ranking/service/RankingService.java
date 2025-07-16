@@ -19,7 +19,7 @@ import java.util.List;
  * Ranking 정보를 조회하고 업데이트하는 서비스
  *
  * @author duskafka
- * */
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,33 +30,37 @@ public class RankingService {
 
     @Transactional(readOnly = true)
     public List<SolveCountRankingDto> refreshRanking() {
+        log.debug("[RankingService] refreshRanking()");
         List<SolveCountRankingDto> ranking = getRanking();
 
         saveInRedis(ranking);
 
+        log.info("[RankingService] 랭킹이 정상적으로 갱신되었습니다.");
         return ranking;
     }
 
     @Transactional(readOnly = true)
     public List<SolveCountRankingDto> getRanking() {
+        log.debug("[RankingService] getRanking()");
         List<SolveCountRankingDto> ranking = readRepository.getTop10();
 
         checkRankingListNotEmpty(ranking, "Database");
 
+        log.info("[RankingService] 데이터베이스에서 랭킹 조회에 성공했습니다.");
         return ranking;
     }
 
     public void saveInRedis(List<SolveCountRankingDto> ranking) {
+        log.debug("[RankingService] saveInRedis({})", ranking.size());
         try {
             redisRepository.save(rankKeyGenerator.getTodayRankingKey(), ranking);
+            log.info("[RankingService] Redis에 랭킹 저장에 성공했습니다: size={}", ranking.size());
         } catch (RedisConnectionFailureException | RedisSystemException e) {
-            log.warn("Redis 연결 또는 시스템 오류로 저장 실패", e);
             throw new FailedSaveRankingInRedisException(
                     ErrorMessage.FAILED_SAVE_RANKING_IN_REDIS,
                     "연결 또는 시스템 오류로 Redis에 저장하는 데 실패했습니다"
             );
         } catch (Exception e) {
-            log.error("예상치 못한 Redis 저장 오류", e);
             throw new FailedSaveRankingInRedisException(
                     ErrorMessage.FAILED_SAVE_RANKING_IN_REDIS,
                     "예상치 못한 오류로 Redis에 저장하는 데 실패했습니다"
@@ -65,17 +69,21 @@ public class RankingService {
     }
 
     public List<SolveCountRankingDto> getRankingFromRedis() {
+        log.debug("[RankingService] getRankingFromRedis()");
         List<SolveCountRankingDto> ranking = redisRepository.getRanking(rankKeyGenerator.getTodayRankingKey());
 
         checkRankingListNotEmpty(ranking, "Redis");
 
+        log.info("[RankingService] Redis에서 랭킹 조회에 성공했습니다.");
         return ranking;
     }
 
     private void checkRankingListNotEmpty(List<SolveCountRankingDto> ranking, String source) {
         if (ranking == null || ranking.isEmpty()) {
-            log.warn("{}에서 Ranking을 조회했지만 Ranking이 존재하지 않습니다.", source);
-            throw new NoRankingException(ErrorMessage.NO_RANKING_EXCEPTION, "오늘자 랭킹이 존재하지 않습니다.");
+            throw new NoRankingException(
+                    ErrorMessage.NO_RANKING_EXCEPTION,
+                    "오늘자 랭킹이 존재하지 않습니다."
+            );
         }
         log.info("{}에서 Ranking 조회 size: {}", source, ranking.size());
     }
