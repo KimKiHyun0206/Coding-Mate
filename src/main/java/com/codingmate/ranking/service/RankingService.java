@@ -81,7 +81,7 @@ public class RankingService {
     private void checkRankingListNotEmpty(List<SolveCountRankingDto> ranking, String source) {
         if (ranking == null || ranking.isEmpty()) {
             throw new NoRankingException(
-                    ErrorMessage.NO_RANKING_EXCEPTION,
+                    ErrorMessage.NO_RANKING,
                     "오늘자 랭킹이 존재하지 않습니다."
             );
         }

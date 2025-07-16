@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 /**
  * 에러가 발생했을 때 HTTP 상태 코드와 메시지를 반환하는 열거형
  *
+ * <li>열거형의 접미어로 Exception을 붙이지 않는다.</li>
+ *
  * @author duskafka
  * */
 @Getter
@@ -47,7 +49,7 @@ public enum ErrorMessage {
     JTI_NOT_MATCH(HttpStatus.CONFLICT, "요청한 jti 값이 데이터베이스의 값과 일치하지 않습니다"),
 
     //RANKING
-    NO_RANKING_EXCEPTION(HttpStatus.NO_CONTENT, "오늘자 랭킹이 존재하지 않습니다"),
+    NO_RANKING(HttpStatus.NO_CONTENT, "오늘자 랭킹이 존재하지 않습니다"),
     JOB_ALREADY_EXECUTION(HttpStatus.INTERNAL_SERVER_ERROR, "이미 스케줄러가 실행되었습니다"),
     JOB_BUILDER_BUILD_INVALID_PARAMETERS(HttpStatus.INTERNAL_SERVER_ERROR, "JobParameterBuilder가 올바르지 않은 파라미터를 생성했습니다"),
     RANKING_ILLEGAL_TYPE(HttpStatus.INTERNAL_SERVER_ERROR, "읽어온 Rank가 List 타입이 아닙니다"),

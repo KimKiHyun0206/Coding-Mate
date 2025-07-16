@@ -36,7 +36,7 @@ public class SolveCountRankReader implements ItemReader<SolveCountRankingDto> {
                     }
                     delegate = new IteratorItemReader<>(result.iterator());
                 } catch (Exception e) {
-                    throw new NoRankingException(ErrorMessage.NO_RANKING_EXCEPTION, "Reader에서 Ranking 조회에 실패했습니다");
+                    throw new NoRankingException(ErrorMessage.NO_RANKING, "Reader에서 Ranking 조회에 실패했습니다");
                 }
             }
         }
