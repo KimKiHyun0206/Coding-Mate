@@ -6,7 +6,6 @@ import com.codingmate.common.response.ResponseMessage;
 import com.codingmate.auth.dto.request.LoginRequest;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
-import com.codingmate.auth.service.LoginService;
 import com.codingmate.programmer.service.ProgrammerService;
 import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;
 import com.codingmate.refreshtoken.service.RefreshService;
@@ -42,7 +41,6 @@ public class AuthController {
     public AuthController(
             ProgrammerService programmerService,
             RefreshService refreshService,
-            LoginService loginService,
             TokenService tokenService,
             JWTProperties jwtProperties,
             RefreshTokenService refreshTokenService,
