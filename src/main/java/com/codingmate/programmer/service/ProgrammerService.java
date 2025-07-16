@@ -102,22 +102,16 @@ public class ProgrammerService {
     @Transactional(readOnly = true)
     public MyPageResponse getProgrammerMyPageInfo(String username) {
         log.info("[ProgrammerService] getProgrammerMyPageInfo({})", username);
-
-        log.debug("[ProgrammerService] Searching for programmer with ID: {}", username);
-        var programmer = defaultProgrammerRepository.findByLoginId(username)
-                .orElseThrow(() -> {
-                    log.warn("[ProgrammerService] MyPage info failed: Programmer not found with ID: {}", username);
-                    return new NotFoundProgrammerException(
-                            ErrorMessage.INVALID_ID,
-                            String.format("%d는 존재하지 않는 ProgrammerID입니다.", username));
-                });
-        log.debug("[ProgrammerService] Programmer found: {}. Counting answers...", username);
-
-        long writtenAnswersCount = answerReadRepository.countProgrammerWroteAnswer(username);
-        log.debug("[ProgrammerService] Programmer {} has written {} answers.", username, writtenAnswersCount);
-        log.info("[ProgrammerService] Successfully retrieved MyPage info for programmerId: {}", username);
-
-        return MyPageResponse.of(programmer, writtenAnswersCount);
+        return defaultProgrammerRepository.findByLoginId(username)
+                .map(programmer -> {
+                    long answersCount = answerReadRepository.countProgrammerWroteAnswer(username);
+                    log.info("[ProgrammerService] 사용자를 찾았으며 사용자가 작성한 풀이의 수는 {} 입니다.", answersCount);
+                    return MyPageResponse.of(programmer, answersCount);
+                })
+                .orElseThrow(() -> new NotFoundProgrammerException(
+                        ErrorMessage.NOT_FOUND_PROGRAMMER,
+                        String.format("사용자 '%s'를 찾을 수 없습니다.", username)
+                ));
     }
 
     @Transactional(readOnly = true)

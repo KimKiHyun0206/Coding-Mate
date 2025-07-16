@@ -80,23 +80,19 @@ public class AnswerService {
      */
     @Transactional(readOnly = true)
     public AnswerPageResponse read(Long answerId, String username) {
-        log.debug("[AnswerService] read({}, {})", answerId, username);
-
-        log.info("[AnswerService] Attempting to read Answer with ID: {} for programmer ID: {}", answerId, username);
-        var answer = readRepository.read(answerId)
-                .orElseThrow(() -> {
-                    log.warn("[AnswerService] Answer not found with ID: {}", answerId);
+        log.debug("[AnswerService] read({})", username);
+        return readRepository.read(answerId)
+                .map(answer -> AnswerPageResponse.of(
+                        answer,
+                        username,
+                        likeRepository.existsByProgrammerAndAnswer(answer.getProgrammer(), answer)
+                )).orElseThrow(() ->{
+                    log.warn("[AnswerService] 풀이 {}를 찾지 못했습니다.", answerId);
                     return new NotFoundAnswerException(
-                            ErrorMessage.NOT_FOUND_ANSWER, // ErrorMessage의 상수가 NOT_FOUND_ANSWER_EXCEPTION 이라면
-                            String.format("요청한 ID %d를 가진 Answer를 찾을 수 없습니다", answerId)
+                            ErrorMessage.NOT_FOUND_ANSWER,
+                            String.format("요청한 ID %s를 가진 풀이를 찾지 못했습니다.", answerId)
                     );
                 });
-        log.debug("[AnswerService] Answer found: {}", answer.getId()); // 또는 answer.getTitle() 등 핵심 필드
-
-        boolean isLiked = likeRepository.existsByProgrammerAndAnswer(answer.getProgrammer(), answer);
-        log.debug("[AnswerService] Programmer {}'s like status for answer {}: {}", username, answerId, isLiked);
-
-        return AnswerPageResponse.of(answer, username, isLiked);
     }
 
     /**
