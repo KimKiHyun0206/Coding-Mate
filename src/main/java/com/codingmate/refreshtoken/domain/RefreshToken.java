@@ -25,7 +25,7 @@ import java.time.Instant;
 @Table(name = "refresh_token_info",
         indexes = {
                 @Index(name = "ref_jti_idx", columnList = "jti", unique = true),
-                @Index(name = "ref_user_revoke_idx", columnList = "user_id, is_revoked")
+                @Index(name = "ref_user_revoke_idx", columnList = "username, is_revoked")
         }
 )
 @Builder(access = AccessLevel.PRIVATE)
