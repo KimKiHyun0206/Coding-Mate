@@ -11,16 +11,16 @@ import com.codingmate.exception.dto.ErrorMessage;
  *     <li>따라서 3개보다 더 많은 기기에서 로그인하려고 시도할 경우 로그인이 제한된다.</li>
  * </ul>
  * */
-public class RefreshTokenOverMax extends BusinessException {
-    public RefreshTokenOverMax(ErrorMessage message) {
+public class RefreshTokenOverMaxException extends BusinessException {
+    public RefreshTokenOverMaxException(ErrorMessage message) {
         super(message);
     }
 
-    public RefreshTokenOverMax(ErrorMessage message, String reason) {
+    public RefreshTokenOverMaxException(ErrorMessage message, String reason) {
         super(message, reason);
     }
 
-    public RefreshTokenOverMax(String reason) {
+    public RefreshTokenOverMaxException(String reason) {
         super(reason);
     }
 }

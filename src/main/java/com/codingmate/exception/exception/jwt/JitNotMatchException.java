@@ -11,16 +11,16 @@ import com.codingmate.exception.dto.ErrorMessage;
  *     <li>이전에 발급한 jti가 사용자가 토큰 갱신을 요청할 때 사용한 jti가 맞지 않을 때 발생한다.</li>
  * </ul>
  * */
-public class JitNotMatch extends BusinessException {
-    public JitNotMatch(ErrorMessage message) {
+public class JitNotMatchException extends BusinessException {
+    public JitNotMatchException(ErrorMessage message) {
         super(message);
     }
 
-    public JitNotMatch(ErrorMessage message, String reason) {
+    public JitNotMatchException(ErrorMessage message, String reason) {
         super(message, reason);
     }
 
-    public JitNotMatch(String reason) {
+    public JitNotMatchException(String reason) {
         super(reason);
     }
 }

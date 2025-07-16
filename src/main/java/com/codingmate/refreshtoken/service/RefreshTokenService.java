@@ -3,8 +3,8 @@ package com.codingmate.refreshtoken.service;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.jwt.NotFoundRefreshTokenException;
-import com.codingmate.exception.exception.jwt.RefreshTokenOverMax;
-import com.codingmate.exception.exception.redis.FailedFindRefreshToken;
+import com.codingmate.exception.exception.jwt.RefreshTokenOverMaxException;
+import com.codingmate.exception.exception.redis.FailedFindRefreshTokenException;
 import com.codingmate.redis.TokenRedisRepository;
 import com.codingmate.refreshtoken.domain.RefreshToken;
 import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;
@@ -75,12 +75,12 @@ public class RefreshTokenService {
     /**
      * 발급된 토큰이 몇 개인지 보고 최대치를 넘겼다면 예외를 발생시킵니다.
      *
-     * @throws RefreshTokenOverMax 리프레쉬 토큰이 이미 최대값까지 발급되어있을 때 발생시키는 예외
+     * @throws RefreshTokenOverMaxException 리프레쉬 토큰이 이미 최대값까지 발급되어있을 때 발생시키는 예외
      */
     private void validateMaxTokenCount(String programmerId) {
         log.debug("[RefreshTokenService] validateMaxTokenCount({})", programmerId);
         if (refreshTokenReadRepository.countRefreshToken(programmerId) > MAX_TOKEN) {
-            throw new RefreshTokenOverMax(
+            throw new RefreshTokenOverMaxException(
                     ErrorMessage.REFRESH_TOKEN_OVER_MAX,
                     String.format("최대 %d개의 토큰을 초과하여 발급이 불가능합니다.", MAX_TOKEN)
             );
@@ -165,7 +165,7 @@ public class RefreshTokenService {
     public String getJtiFromRedis(String username) {
         log.debug("[RedisTokenService] getJtiFromRedis({})", username);
         return tokenRedisRepository.getValue(makeRedisKey(username)).orElseThrow(
-                () -> new FailedFindRefreshToken(
+                () -> new FailedFindRefreshTokenException(
                         ErrorMessage.FAILED_DELETE_REFRESH_TOKEN,
                         "요청한 토큰으로 Redis에서 토큰을 찾지 못했습니다"
                 )

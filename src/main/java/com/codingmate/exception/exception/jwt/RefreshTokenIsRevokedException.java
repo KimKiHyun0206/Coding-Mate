@@ -11,16 +11,16 @@ import com.codingmate.exception.dto.ErrorMessage;
  *     <li>이 오류가 발생하면 토큰이 탈취당하여 액세스 토큰과 리프래쉬 토큰을 갱신하는 데 사용되었다는 의미.</li>
  * </ul>
  * */
-public class RefreshTokenIsRevoked extends BusinessException {
-    public RefreshTokenIsRevoked(ErrorMessage message) {
+public class RefreshTokenIsRevokedException extends BusinessException {
+    public RefreshTokenIsRevokedException(ErrorMessage message) {
         super(message);
     }
 
-    public RefreshTokenIsRevoked(ErrorMessage message, String reason) {
+    public RefreshTokenIsRevokedException(ErrorMessage message, String reason) {
         super(message, reason);
     }
 
-    public RefreshTokenIsRevoked(String reason) {
+    public RefreshTokenIsRevokedException(String reason) {
         super(reason);
     }
 }

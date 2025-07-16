@@ -1,8 +1,8 @@
 package com.codingmate.refreshtoken.service.validate;
 
 import com.codingmate.exception.dto.ErrorMessage;
-import com.codingmate.exception.exception.jwt.JitNotMatch;
-import com.codingmate.exception.exception.jwt.RefreshTokenIsRevoked;
+import com.codingmate.exception.exception.jwt.JitNotMatchException;
+import com.codingmate.exception.exception.jwt.RefreshTokenIsRevokedException;
 import com.codingmate.refreshtoken.service.RefreshTokenService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -46,25 +46,25 @@ public class JtiValidator {
     /**
      * jti가 동일한지 검사하고, 만약 동일하지 않다면 예외를 발생시킵니다.
      *
-     * @exception JitNotMatch jti가 일치하지 않을 때 발생시키는 예외
+     * @exception JitNotMatchException jti가 일치하지 않을 때 발생시키는 예외
      * */
     private void validateJtiEquality(String tokenJti, String redisJti) {
         if (!tokenJti.equals(redisJti)) {
             log.warn("[RefreshService] JTI mismatch: token = {}, redis = {}", tokenJti, redisJti);
-            throw new JitNotMatch(ErrorMessage.JTI_NOT_MATCH, "jti가 일치하지 않습니다");
+            throw new JitNotMatchException(ErrorMessage.JTI_NOT_MATCH, "jti가 일치하지 않습니다");
         }
     }
 
     /**
      * jti가 재사용되는지 검증합니다. 만약 재사용되는 jti라면 유저의 모든 리프레쉬 토큰을 revoke합니다.
      *
-     * @exception RefreshTokenIsRevoked 이미 사용된 jti라면 예외를 발생시킨다
+     * @exception RefreshTokenIsRevokedException 이미 사용된 jti라면 예외를 발생시킨다
      * */
     private void validateJtiReusability(String jti, String username) {
         if (refreshTokenService.isUsedJti(jti)) {
             log.warn("[RefreshService] Reused JTI. All tokens revoked for user: {}", username);
             refreshTokenService.revokeAllToken(username);
-            throw new RefreshTokenIsRevoked(
+            throw new RefreshTokenIsRevokedException(
                     ErrorMessage.REFRESH_TOKEN_REVOKED,
                     "요청한 리프레시 토큰은 이미 사용된 토큰입니다. 보안 상 이유로 모든 토큰을 무효화합니다."
             );
