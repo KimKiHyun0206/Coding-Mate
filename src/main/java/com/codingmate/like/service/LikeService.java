@@ -31,16 +31,16 @@ public class LikeService {
      * 이미 좋아요를 눌렀다면 좋아요를 취소하고, 누르지 않았다면 좋아요를 추가합니다.
      * 트랜잭션 내에서 프로그래머와 답변을 조회하고, 좋아요 상태를 처리하며, 답변의 좋아요 수를 업데이트합니다.
      *
-     * @param programmerId 좋아요를 누르거나 취소할 프로그래머의 ID
+     * @param username 좋아요를 누르거나 취소할 프로그래머의 ID
      * @param answerId 좋아요 대상이 되는 답변의 ID
      * @return 현재 답변의 총 좋아요 수를 포함하는 {@link LikeResponse} DTO
      */
     @Transactional
-    public LikeResponse toggleLike(Long programmerId, Long answerId) {
-        log.debug("[LikeService] toggleLike({}, {})", programmerId, answerId);
+    public LikeResponse toggleLike(String username, Long answerId) {
+        log.debug("[LikeService] toggleLike({}, {})", username, answerId);
         log.debug("[LikeService] Starting toggleLike transaction.");
 
-        var programmer = programmerFinder.read(programmerId);
+        var programmer = programmerFinder.read(username);
         log.debug("[LikeService] Found Programmer: {}", programmer.getId());
 
         var answer = answerFinder.read(answerId);

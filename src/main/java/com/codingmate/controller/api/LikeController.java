@@ -5,11 +5,14 @@ import com.codingmate.common.response.ResponseMessage;
 import com.codingmate.util.JwtUtil;
 import com.codingmate.like.dto.response.LikeResponse;
 import com.codingmate.like.service.LikeService;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -19,14 +22,15 @@ import org.springframework.web.bind.annotation.*;
 public class LikeController {
     private final LikeService likeService;
 
+    @RolesAllowed("hasRole('ROLE_USER')")
     @PostMapping("/{answerId}")
     public ResponseEntity<ResponseDto<LikeResponse>> vote(
-            HttpServletRequest request,
+            @AuthenticationPrincipal UserDetails userDetails,
             @PathVariable(name = "answerId") Long answerId
     ) {
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
-                likeService.toggleLike(JwtUtil.getId(request), answerId)
+                likeService.toggleLike(userDetails.getUsername(), answerId)
         );
     }
 }

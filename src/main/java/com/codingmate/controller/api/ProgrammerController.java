@@ -9,11 +9,14 @@ import com.codingmate.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -37,6 +40,7 @@ public class ProgrammerController {
     }
 
 
+    @RolesAllowed("hasRole('ROLE_USER')")
     @Operation(summary = "마이페이지", description = "마이페이지 정보를 불러옵니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "마이페이지 로딩 성공."),
@@ -44,14 +48,14 @@ public class ProgrammerController {
             @ApiResponse(responseCode = "404", description = "유효한 요청이 아닙니다.")
     })
     @GetMapping("/me")
-    public ResponseEntity<ResponseDto<MyPageResponse>> myPage(HttpServletRequest request) {
+    public ResponseEntity<ResponseDto<MyPageResponse>> myPage(@AuthenticationPrincipal UserDetails userDetails) {
         return ResponseDto.toResponseEntity(
                 ResponseMessage.SUCCESS,
-                programmerService.getProgrammerMyPageInfo(JwtUtil.getId(request))
+                programmerService.getProgrammerMyPageInfo(userDetails.getUsername())
         );
     }
 
-
+    @RolesAllowed("hasRole('ROLE_USER')")
     @Operation(summary = "유저 정보 수정", description = "유저 정보 수정을 시도합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "수정 성공."),
@@ -61,9 +65,9 @@ public class ProgrammerController {
     @PatchMapping("/me")
     public ResponseEntity<?> update(
             @RequestBody ProgrammerUpdateRequest programmerUpdateRequest,
-            HttpServletRequest request
+            @AuthenticationPrincipal UserDetails userDetails
     ) {
-        programmerService.update(JwtUtil.getId(request), programmerUpdateRequest);
+        programmerService.update(userDetails.getUsername(), programmerUpdateRequest);
 
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }

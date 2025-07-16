@@ -15,6 +15,7 @@ import com.codingmate.util.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -114,15 +117,15 @@ public class AuthController {
         return ResponseDto.toResponseEntity(ResponseMessage.SUCCESS);
     }
 
-
+    @RolesAllowed("hasRole('ROLE_USER')")
     @Operation(summary = "회원 탈퇴", description = "회원 탈퇴를 시도합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공."),
             @ApiResponse(responseCode = "401", description = "유효한 사용자가 아니기에 탈퇴하지 못했습니다.")
     })
     @DeleteMapping("/me")
-    public ResponseEntity<?> withdrawal(HttpServletRequest request) {
-        programmerService.delete(JwtUtil.getId(request));
+    public ResponseEntity<?> withdrawal(@AuthenticationPrincipal UserDetails userDetails) {
+        programmerService.delete(userDetails.getUsername());
         return ResponseDto.toResponseEntity(ResponseMessage.NO_CONTENT);
     }
 

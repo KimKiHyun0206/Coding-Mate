@@ -41,9 +41,9 @@ public class ProgrammerWriteRepository {
         return ProgrammerResponse.of(entity);
     }
 
-    public long update(Long programmerId, ProgrammerUpdateRequest dto) {
+    public long update(String loginId, ProgrammerUpdateRequest dto) {
         return queryFactory.update(programmer)
-                .where(programmer.id.eq(programmerId))
+                .where(programmer.loginId.eq(loginId))
                 .set(programmer.name.name, dto.name() == null ? null : dto.name())
                 .set(programmer.email.email, dto.email() == null ? null : dto.email())
                 .set(programmer.githubId, dto.githubId() == null ? null : dto.githubId())
