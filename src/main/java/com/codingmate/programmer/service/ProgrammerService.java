@@ -4,7 +4,6 @@ import com.codingmate.answer.repository.AnswerReadRepository;
 import com.codingmate.answer.repository.AnswerWriteRepository;
 import com.codingmate.auth.domain.Authority;
 import com.codingmate.auth.service.AuthorityFinder;
-import com.codingmate.programmer.domain.Programmer;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingmate.programmer.dto.response.MyPageResponse;
@@ -187,7 +186,7 @@ public class ProgrammerService {
         if (isExist) {
             log.debug("[ProgrammerService] Programmer with ID {} exists. Proceeding with deletion.", username);
 
-            long deletedAnswersCount = answerWriteRepository.deleteByProgrammerId(username);
+            long deletedAnswersCount = answerWriteRepository.deleteByLoginId(username);
             log.info("[ProgrammerService] Programmer ID {} related answers {} were deleted.", username, deletedAnswersCount);
 
             defaultProgrammerRepository.deleteByLoginId(username);
