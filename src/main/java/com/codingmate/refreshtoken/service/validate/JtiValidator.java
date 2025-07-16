@@ -1,8 +1,8 @@
 package com.codingmate.refreshtoken.service.validate;
 
 import com.codingmate.exception.dto.ErrorMessage;
-import com.codingmate.exception.exception.jwt.JitNotMatchException;
 import com.codingmate.exception.exception.jwt.RefreshTokenIsRevokedException;
+import com.codingmate.exception.exception.jwt.UnMatchJTIException;
 import com.codingmate.refreshtoken.service.RefreshTokenService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -46,12 +46,12 @@ public class JtiValidator {
     /**
      * jti가 동일한지 검사하고, 만약 동일하지 않다면 예외를 발생시킵니다.
      *
-     * @exception JitNotMatchException jti가 일치하지 않을 때 발생시키는 예외
+     * @exception UnMatchJTIException jti가 일치하지 않을 때 발생시키는 예외
      * */
     private void validateJtiEquality(String tokenJti, String redisJti) {
         if (!tokenJti.equals(redisJti)) {
             log.warn("[RefreshService] JTI mismatch: token = {}, redis = {}", tokenJti, redisJti);
-            throw new JitNotMatchException(ErrorMessage.JTI_NOT_MATCH, "jti가 일치하지 않습니다");
+            throw new UnMatchJTIException(ErrorMessage.UN_MATCH_JTI, "jti가 일치하지 않습니다");
         }
     }
 
