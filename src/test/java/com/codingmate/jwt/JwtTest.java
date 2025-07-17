@@ -15,7 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class JwtTest {
 
     @Autowired
-    private TokenProvider tokenProvider;
+    private TokenValidator tokenValidator;
 
 
 
@@ -24,6 +24,6 @@ public class JwtTest {
     public void expiredTokenTest() {
         //언제 것일지 모르는 오래된 토큰
         String effectivePeriodToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxcXEiLCJhdXRoIjoiUk9MRV9VU0VSIiwiaWQiOjE5MDIsImV4cCI6MTc0NzAzMjMxMH0.plvPRjkKzG43pJbxl0JlLTKh0ufFCI8NcntDiVLPqq37E_MnJzxXzuQKtNzTCsy6T44rwm7QdCQSaU2qMu9byA";
-        Assertions.assertThrows(ExpiredTokenException.class, () -> tokenProvider.validateToken(effectivePeriodToken));
+        Assertions.assertThrows(ExpiredTokenException.class, () -> tokenValidator.validateToken(effectivePeriodToken));
     }
 }

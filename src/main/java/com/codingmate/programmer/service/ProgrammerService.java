@@ -4,6 +4,7 @@ import com.codingmate.answer.repository.AnswerReadRepository;
 import com.codingmate.answer.repository.AnswerWriteRepository;
 import com.codingmate.auth.domain.Authority;
 import com.codingmate.auth.service.AuthorityFinder;
+import com.codingmate.exception.exception.programmer.ProgrammerUpdateFailedException;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingmate.programmer.dto.response.MyPageResponse;
@@ -27,7 +28,7 @@ import java.util.Set;
  * Programmer의 CRUD를 담당하는 서비스
  *
  * @author duskafka
- * */
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
@@ -48,60 +49,52 @@ public class ProgrammerService {
      */
     @Transactional
     public void create(ProgrammerCreateRequest request) {
-        log.info("[ProgrammerService] create({})", request.loginId());
+        log.debug("[ProgrammerService] create({})", request.loginId());
 
-        log.debug("[ProgrammerService] Create request details: {}", request);
         if (readRepository.isExistLoginId(request.loginId())) {
-            log.warn("[ProgrammerService] Create failed: Duplicate login ID detected. loginId: {}", request.loginId());
             throw new DuplicateProgrammerLoginIdException(
                     ErrorMessage.DUPLICATE_PROGRAMMER,
                     "요청한 Id는 이미 존재하는 Id입니다"
             );
         }
-        log.debug("[ProgrammerService] Login ID {} is available.", request.loginId());
 
         Set<Authority> authorities = new HashSet<>();
         authorities.add(authorityFinder.getUserAuthority("ROLE_USER"));
+        writeRepository.create(request, authorities);
 
-        writeRepository.create(
-                request,
-                authorities
-        );
-
-        log.info("[ProgrammerService] Programmer created successfully with loginId: {}", request.loginId());
+        log.info("[ProgrammerService] 사용자 계정이 성공적으로 생성되었습니다: username={}", request.loginId());
     }
 
     /**
      * 주어진 로그인 ID의 사용 가능 여부를 확인합니다.
      *
-     * @param loginId 확인할 로그인 ID
+     * @param loginId 중복 여부를 확인할 로그인 ID
      * @throws DuplicateProgrammerLoginIdException 요청한 {@code loginId}가 이미 존재하여 사용할 수 없을 경우 발생합니다.
      */
     @Transactional(readOnly = true)
     public void checkLoginIdAvailability(String loginId) {
-        log.info("[ProgrammerService] checkLoginIdAvailability({})", loginId);
+        log.debug("[ProgrammerService] checkLoginIdAvailability({})", loginId);
 
-        log.debug("[ProgrammerService] Attempting to find existing loginId: {}", loginId);
         if (readRepository.isExistLoginId(loginId)) {
-            log.warn("[ProgrammerService] Login ID {} is already taken.", loginId);
             throw new DuplicateProgrammerLoginIdException(
                     ErrorMessage.DUPLICATE_PROGRAMMER,
-                    "요청한 ID는 중복된 ID입니다. " + loginId
+                    String.format("요청한 로그인 아이디(%s)는 중복된 아이디입니다.", loginId)
             );
         }
-        log.info("[ProgrammerService] Login ID {} is available.", loginId);
+
+        log.info("[ProgrammerService] 로그인 아이디 {}는 사용 가능합니다.", loginId);
     }
 
     /**
-     * 특정 프로그래머의 마이페이지 정보를 조회합니다.
+     * 사용자의 마이페이지 정보를 조회합니다.
      *
-     * @param username 조회할 프로그래머의 ID
+     * @param username 조회할 프로그래머의 username
      * @return 프로그래머의 마이페이지 정보를 담은 응답 DTO
      * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional(readOnly = true)
     public MyPageResponse getProgrammerMyPageInfo(String username) {
-        log.info("[ProgrammerService] getProgrammerMyPageInfo({})", username);
+        log.debug("[ProgrammerService] getProgrammerMyPageInfo({})", username);
         return defaultProgrammerRepository.findByLoginId(username)
                 .map(programmer -> {
                     long answersCount = answerReadRepository.countProgrammerWroteAnswer(username);
@@ -110,62 +103,43 @@ public class ProgrammerService {
                 })
                 .orElseThrow(() -> new NotFoundProgrammerException(
                         ErrorMessage.NOT_FOUND_PROGRAMMER,
-                        String.format("사용자 '%s'를 찾을 수 없습니다.", username)
+                        String.format("사용자(%s)를 찾을 수 없습니다.", username)
                 ));
     }
 
     @Transactional(readOnly = true)
     public ProgrammerResponse findByLoginId(String loginId) {
-        log.info("[ProgrammerService] findByLoginId({})", loginId);
-        return ProgrammerResponse.of(readRepository.readByLoginId(loginId).orElseThrow(() -> {
-            log.warn("[ProgrammerService] loginId read failed: Programmer not found with loginId: {}", loginId);
-            return new NotFoundProgrammerException(
-                    ErrorMessage.INVALID_ID,
-                    String.format("%d는 존재하지 않는 loginId입니다.", loginId));
-        }));
-    }
-
-    @Transactional(readOnly = true)
-    public Set<Authority> getProgrammerRole(String username) {
-        log.info("[ProgrammerService] getProgrammerRole({})", username);
-
-        log.debug("[ProgrammerService] Searching for programmer with ID: {}", username);
-        return readRepository.readProgrammerRole(username)
-                .orElseThrow(() -> {
-                    log.warn("[ProgrammerService] Programmer not found by ID: {}", username);
-                    return new NotFoundProgrammerException(
-                            ErrorMessage.NOT_FOUND_PROGRAMMER,
-                            String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", username)
-                    );
-                });
+        log.debug("[ProgrammerService] findByLoginId({})", loginId);
+        return ProgrammerResponse.of(readRepository.readByLoginId(loginId).orElseThrow(() ->
+                new NotFoundProgrammerException(
+                        ErrorMessage.INVALID_ID,
+                        String.format("요청한 로그인 아이디(%s)는 존재하지 않습니다.", loginId)))
+        );
     }
 
     /**
-     * 특정 프로그래머의 정보를 업데이트합니다.
+     * 사용자의 정보를 수정합니다.
      *
-     * @param username 업데이트할 프로그래머의 ID
-     * @param request      업데이트할 내용을 담은 DTO
+     * @param username 수정할 프로그래머의 username
+     * @param request  수정할 내용을 담은 DTO
      * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional
     public void update(String username, ProgrammerUpdateRequest request) {
-        log.info("[ProgrammerService] update({}, {})", username, request);
-
-        log.debug("[ProgrammerService] Update request details for programmerId {}: {}", username, request);
+        log.debug("[ProgrammerService] update({}, {})", username, request);
 
         long changedRows = writeRepository.update(username, request);
         if (changedRows == 0) { // 변경된 행이 0개인 경우 (찾지 못한 경우)
-            log.warn("[ProgrammerService] Update failed: Programmer not found with ID: {}. No rows changed.", username);
-            throw new NotFoundProgrammerException(
+            throw new ProgrammerUpdateFailedException(
                     ErrorMessage.NOT_FOUND_PROGRAMMER,
-                    String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 업데이트를 진행할 수 없습니다.", username)
+                    "수정에 실패했습니다."
             );
         }
-        log.info("[ProgrammerService] Programmer with ID {} updated successfully. Changed rows: {}", username, changedRows);
+        log.info("[ProgrammerService] 수정이 정상적으로 수행되었습니다: username={}, 바뀐 행={}", username, changedRows);
     }
 
     /**
-     * 특정 프로그래머 계정을 삭제합니다.
+     * 사용자 계정을 삭제합니다.
      * 계정 삭제 시, 해당 프로그래머가 작성한 모든 답변도 함께 삭제됩니다.
      *
      * @param username 삭제할 프로그래머의 ID
@@ -173,23 +147,17 @@ public class ProgrammerService {
      */
     @Transactional
     public void delete(String username) {
-        log.info("[ProgrammerService] delete({})", username);
+        log.debug("[ProgrammerService] delete({})", username);
 
-        log.debug("[ProgrammerService] Checking existence for programmer ID: {}", username);
         boolean isExist = defaultProgrammerRepository.existsByLoginId(username);
         if (isExist) {
-            log.debug("[ProgrammerService] Programmer with ID {} exists. Proceeding with deletion.", username);
-
             long deletedAnswersCount = answerWriteRepository.deleteByLoginId(username);
-            log.info("[ProgrammerService] Programmer ID {} related answers {} were deleted.", username, deletedAnswersCount);
-
             defaultProgrammerRepository.deleteByLoginId(username);
-            log.info("[ProgrammerService] Programmer with ID {} deleted successfully.", username);
+            log.info("[ProgrammerService] 사용자 정보가 정상적으로 삭제되었습니다: username={}, 삭제된 풀이 수={}", username, deletedAnswersCount);
         } else {
-            log.warn("[ProgrammerService] Delete failed: Programmer not found with ID: {}. No action taken.", username);
             throw new NotFoundProgrammerException(
                     ErrorMessage.NOT_FOUND_PROGRAMMER,
-                    String.format("ID '%d'를 가진 Programmer를 찾을 수 없어 삭제를 진행할 수 없습니다.", username)
+                    String.format("사용자(%s)를 찾을 수 없어 삭제에 실패했습니다.", username)
             );
         }
     }

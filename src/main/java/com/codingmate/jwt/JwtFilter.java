@@ -26,6 +26,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter { // 모든 요청에 대해 동일한 로직을 수행하는 일반 필터
 
     private final TokenProvider tokenProvider;
+    private final TokenValidator tokenValidator;
 
     /**
      * 요청이 들어오면 헤더의 토큰을 검사하고 검사 후 SecurityContextHolder에 정보를 저장해준다.
@@ -40,7 +41,7 @@ public class JwtFilter extends OncePerRequestFilter { // 모든 요청에 대해
     ) throws ServletException, IOException {
 
         String token = resolveToken(request);
-        if (token != null && tokenProvider.validateToken(token)) {
+        if (token != null && tokenValidator.validateToken(token)) {
             Authentication authentication = tokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

@@ -153,7 +153,7 @@ public class AuthController {
             HttpServletResponse response
     ) {
         log.info("REFRESH TOKEN ID {}", JwtUtil.getUsername(refreshToken));
-        var tokenDto = refreshService.refreshTokens(refreshToken);
+        var tokenDto = refreshService.renewTokens(refreshToken);
         var cookie = CookieUtil.getCookie(REFRESH_TOKEN_COOKIE_NAME, tokenDto.refreshToken());
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         response.addHeader(ACCESS_TOKEN_HEADER_NAME, tokenDto.accessToken());

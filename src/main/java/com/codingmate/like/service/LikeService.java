@@ -38,17 +38,13 @@ public class LikeService {
     @Transactional
     public LikeResponse toggleLike(String username, Long answerId) {
         log.debug("[LikeService] toggleLike({}, {})", username, answerId);
-        log.debug("[LikeService] Starting toggleLike transaction.");
-
-        var programmer = programmerFinder.read(username);
-        log.debug("[LikeService] Found Programmer: {}", programmer.getId());
 
         var answer = answerFinder.read(answerId);
-        log.debug("[LikeService] Found Answer: {}", answer.getId());
-
+        var programmer = programmerFinder.read(username);
 
         handleLikeStatus(programmer, answer);
-        log.info("[LikeService] Like status toggled successfully. Current like count for Answer {}: {}", answer.getId(), answer.getLikeCount());
+
+        log.info("[LikeService] 좋아요 상태 토글 완료: username={}, answerId={}", username, answerId);
 
         return LikeResponse.of(answer.getLikeCount());
     }
@@ -64,17 +60,15 @@ public class LikeService {
     private void handleLikeStatus(Programmer programmer, Answer answer) {
         log.debug("[LikeService] handleLikeStatus({}, {})", programmer.getId(), answer.getId());
         likeRepository.findByProgrammerAndAnswer(programmer, answer).ifPresentOrElse(
-                // 이미 좋아요를 눌렀다면, 좋아요 취소 (삭제)
                 like -> {
-                    log.debug("[LikeService] Existing like found. Deleting like (ID: {}) for Programmer {} on Answer {}.", like.getId(), programmer.getId(), answer.getId());
+                    log.debug("좋아요 존재하여 삭제 처리: likeId={}, programmerId={}, answerId={}", like.getId(), programmer.getId(), answer.getId());
                     deleteLike(answer, like);
-                    log.info("[LikeService] Programmer {} canceled like on Answer {}. Current like count: {}", programmer.getId(), answer.getId(), answer.getLikeCount());
+                    log.info("좋아요 취소됨: programmerId={}, answerId={}, 현재 좋아요 수={}", programmer.getId(), answer.getId(), answer.getLikeCount());
                 },
-                // 좋아요를 누르지 않았다면, 좋아요 추가 (생성)
                 () -> {
-                    log.debug("[LikeService] No existing like found. Creating new like for Programmer {} on Answer {}.", programmer.getId(), answer.getId());
+                    log.debug("좋아요 없음, 새 좋아요 생성: programmerId={}, answerId={}", programmer.getId(), answer.getId());
                     createLike(programmer, answer);
-                    log.info("[LikeService] Programmer {} liked Answer {}. Current like count: {}", programmer.getId(), answer.getId(), answer.getLikeCount());
+                    log.info("좋아요 등록됨: programmerId={}, answerId={}, 현재 좋아요 수={}", programmer.getId(), answer.getId(), answer.getLikeCount());
                 }
         );
     }
@@ -87,9 +81,9 @@ public class LikeService {
      * @param like 삭제할 좋아요 엔티티
      */
     private void deleteLike(Answer answer, Like like) {
-        log.debug("[LikeService] deleteLike({}, {}).", answer.getId(), like.getId());
+        log.debug("[LikeService] deleteLike({}, {})", answer.getId(), like.getId());
         answer.downVote(like);
-        log.debug("[LikeService] Downvoted Answer {} and deleted Like {}. Answer's new like count: {}", answer.getId(), like.getId(), answer.getLikeCount());
+        log.info("[LikeService] 좋아요 삭제 성공: answerId={}, likeId={}", answer.getId(), like.getId());
     }
 
     /**
@@ -101,8 +95,11 @@ public class LikeService {
      */
     private void createLike(Programmer programmer, Answer answer) {
         log.debug("[LikeService] createLike({}, {})", programmer.getId(), answer.getId());
-        var like = likeRepository.save(Like.toEntity(programmer, answer));
-        answer.upVote(likeRepository.save(Like.toEntity(programmer, answer)));
-        log.debug("[LikeService] Created new Like {} for Programmer {} on Answer {}. Answer's new like count: {}", like.getId(), programmer.getId(), answer.getId(), answer.getLikeCount());
+
+        Like like = Like.toEntity(programmer, answer);
+        likeRepository.save(like);
+        answer.upVote(like);
+
+        log.info("[LikeService] 좋아요 등록 성공: answerId={}, likeId={}", answer.getId(), like.getId());
     }
 }
