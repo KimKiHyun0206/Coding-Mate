@@ -28,6 +28,13 @@ public class RankingService {
     private final RankingRedisRepository redisRepository;
     private final RankKeyGenerator rankKeyGenerator;
 
+    /**
+     * 사용자 랭킹을 갱신합니다.
+     * <li>데이터베이스에서 새로운 사용자 랭킹을 읽어옵니다.</li>
+     * <li>Redis에 저장된 오늘의 랭킹을 수정합니다.</li>
+     *
+     * @return 새로 읽어온 10명의 랭킹 정보
+     * */
     @Transactional(readOnly = true)
     public List<SolveCountRankingDto> refreshRanking() {
         log.debug("[RankingService] refreshRanking()");
@@ -39,6 +46,11 @@ public class RankingService {
         return ranking;
     }
 
+    /**
+     * 데이터베이스에서 풀이 갯수 상위 10명의 정보를 읽어옵니다.
+     *
+     * <li>읽어온 값이 비어있는지 확인합니다.</li>
+     * */
     @Transactional(readOnly = true)
     public List<SolveCountRankingDto> getRanking() {
         log.debug("[RankingService] getRanking()");
@@ -50,6 +62,11 @@ public class RankingService {
         return ranking;
     }
 
+    /**
+     * Redis에 매개변수를 저장합니다.
+     *
+     * @param ranking 풀이 갯수 상위 10명의 정보
+     * */
     public void saveInRedis(List<SolveCountRankingDto> ranking) {
         log.debug("[RankingService] saveInRedis({})", ranking.size());
         try {
@@ -68,6 +85,11 @@ public class RankingService {
         }
     }
 
+    /**
+     * Redis에 저장된 풀이 갯수 상위 10명의 정보를 가져옵니다.
+     *
+     * <li>가져온 List가 빈 값인지 검증합니다.</li>
+     * */
     public List<SolveCountRankingDto> getRankingFromRedis() {
         log.debug("[RankingService] getRankingFromRedis()");
         List<SolveCountRankingDto> ranking = redisRepository.getRanking(rankKeyGenerator.getTodayRankingKey());
@@ -78,6 +100,14 @@ public class RankingService {
         return ranking;
     }
 
+    /**
+     * List가 유효한 값인지 검증하기 위한 메소드.
+     *
+     * <li>빈 값이라면 예외를 던집니다.</li>
+     * <li>어디서 읽어온 리소스인지 로깅합니다.</li>
+     *
+     * @exception NoRankingException 랭킹이 존재하지 않음을 의미하는 예외
+     * */
     private void checkRankingListNotEmpty(List<SolveCountRankingDto> ranking, String source) {
         if (ranking == null || ranking.isEmpty()) {
             throw new NoRankingException(

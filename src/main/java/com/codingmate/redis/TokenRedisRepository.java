@@ -21,6 +21,7 @@ public class TokenRedisRepository {
     private final ValueOperations<String, String> valueOperations;
     private final RedisTemplate<String, String> redisTemplate;
 
+    // RedisConfig에 두 개의 ValueOperation과 RedisTemplate가 있기에 @Qualifier를 사용해야 함.
     public TokenRedisRepository(
             @Qualifier("stringValueOperations") ValueOperations<String, String> valueOperations,
             @Qualifier("myStringRedisTemplate") RedisTemplate<String, String> redisTemplate) {

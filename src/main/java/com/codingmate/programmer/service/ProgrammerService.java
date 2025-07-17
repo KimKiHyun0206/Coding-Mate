@@ -68,7 +68,7 @@ public class ProgrammerService {
     /**
      * 주어진 로그인 ID의 사용 가능 여부를 확인합니다.
      *
-     * @param loginId 확인할 로그인 ID
+     * @param loginId 중복 여부를 확인할 로그인 ID
      * @throws DuplicateProgrammerLoginIdException 요청한 {@code loginId}가 이미 존재하여 사용할 수 없을 경우 발생합니다.
      */
     @Transactional(readOnly = true)
@@ -86,9 +86,9 @@ public class ProgrammerService {
     }
 
     /**
-     * 특정 프로그래머의 마이페이지 정보를 조회합니다.
+     * 사용자의 마이페이지 정보를 조회합니다.
      *
-     * @param username 조회할 프로그래머의 ID
+     * @param username 조회할 프로그래머의 username
      * @return 프로그래머의 마이페이지 정보를 담은 응답 DTO
      * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
@@ -118,10 +118,10 @@ public class ProgrammerService {
     }
 
     /**
-     * 특정 프로그래머의 정보를 업데이트합니다.
+     * 사용자의 정보를 수정합니다.
      *
-     * @param username 업데이트할 프로그래머의 ID
-     * @param request  업데이트할 내용을 담은 DTO
+     * @param username 수정할 프로그래머의 username
+     * @param request  수정할 내용을 담은 DTO
      * @throws NotFoundProgrammerException 지정된 {@code programmerId}를 가진 프로그래머를 찾을 수 없을 경우 발생합니다.
      */
     @Transactional
@@ -139,7 +139,7 @@ public class ProgrammerService {
     }
 
     /**
-     * 특정 프로그래머 계정을 삭제합니다.
+     * 사용자 계정을 삭제합니다.
      * 계정 삭제 시, 해당 프로그래머가 작성한 모든 답변도 함께 삭제됩니다.
      *
      * @param username 삭제할 프로그래머의 ID

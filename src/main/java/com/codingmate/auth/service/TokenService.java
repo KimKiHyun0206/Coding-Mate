@@ -28,7 +28,7 @@ public class TokenService {
      * <li>액세스 토큰: 권한과 username으로 토큰 발급</li>
      * <li>리프레쉬 토큰: jti, 유효기간, 발급 시간으로 토큰 발급</li>
      *
-     * @return 생성된 Access Token과 Refresh Token을 담은 TokenDto
+     * @return 생성된 액세스 토큰과 리프레쉬 토큰의 정보를 담은 DTO
      */
     public TokenResponse generateToken(Authentication authentication) {
         String username = authentication.getName();
@@ -51,10 +51,11 @@ public class TokenService {
      * 매개변수로 들어온 JWT 토큰의 유효성을 검증한다. 만약 유효하지 않은 토큰이라면 예외를 던진다.
      *
      * @param token 검증할 JWT 문자열
-     * @throws io.jsonwebtoken.security.SecurityException 잘못된 JWT 서명일 경우 발생합니다.
-     * @throws io.jsonwebtoken.ExpiredJwtException JWT 토큰의 유효 기간이 만료되었을 경우 발생합니다.
-     * @throws io.jsonwebtoken.UnsupportedJwtException 지원되지 않는 형식의 JWT 토큰일 경우 발생합니다.
-     * @throws java.lang.IllegalArgumentException JWT 토큰이 null이거나, 비어있거나, 기타 유효하지 않은 인자일 경우 발생합니다.
+     *
+     * @throws io.jsonwebtoken.security.SecurityException   잘못된 JWT 서명일 경우 발생합니다.
+     * @throws io.jsonwebtoken.ExpiredJwtException          JWT 토큰의 유효 기간이 만료되었을 경우 발생합니다.
+     * @throws io.jsonwebtoken.UnsupportedJwtException      지원되지 않는 형식의 JWT 토큰일 경우 발생합니다.
+     * @throws java.lang.IllegalArgumentException           JWT 토큰이 null이거나, 비어있거나, 기타 유효하지 않은 인자일 경우 발생합니다.
      *
      */
     public void validateToken(String token) {

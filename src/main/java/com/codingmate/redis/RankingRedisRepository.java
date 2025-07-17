@@ -26,6 +26,7 @@ public class RankingRedisRepository {
     private final ValueOperations<String, Object> valueOperations;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    // RedisConfig에 두 개의 ValueOperation과 RedisTemplate가 있기에 @Qualifier를 사용해야 함.
     public RankingRedisRepository(
             @Qualifier("objectValueOperations") ValueOperations<String, Object> valueOperations,
             @Qualifier("objectRedisTemplate") RedisTemplate<String, Object> redisTemplate
@@ -34,10 +35,29 @@ public class RankingRedisRepository {
         this.redisTemplate = redisTemplate;
     }
 
+    /**
+     * Redis에 랭킹을 저장하기 위해서 사용하는 메소드.
+     *
+     * @param key   저장에 사용할 키 값 (ranking:daily:2025-01-01)
+     * @param value 저장될 풀이 갯수 상위 10명에 대한 정보
+     * */
     public void save(String key, List<SolveCountRankingDto> value) {
         valueOperations.set(key, value, Duration.ofDays(1));
     }
 
+    /**
+     * Redis에 저장된 랭킹을 가져오기 위한 메소드.
+     *
+     * <li>List형태를 가져오기 때문에 방어적 프로그래밍으로 내부 검증을 철저히 해야 함.</li>
+     * <li>가져온 값이 null이거나 size가 0이면 예외를 발생시킴.</li>
+     *
+     * @exception ClassCastException            Redis에서 가져온 데이터 타입이 List가 아닐 때 발생하는 예외.
+     * @exception IllegalStateException         Redis에서 가져온 데이터와 원하는 데이터 타입이 일치하지 않을 때 발생하는 예외.
+     * @exception RankingIllegalTypeException   Redis에서 가져온 데이터가 빈 값이거나 List가 아닐 때 발생하는 예외.
+     *
+     * @param key 조회에 사용할 키 값 (ranking:daily:2025-01-01)
+     * @return 오늘의 랭킹, 풀이 갯수 상위 10명에 대한 정보
+     * */
     public List<SolveCountRankingDto> getRanking(String key) {
         Object value = valueOperations.get(key);
         if (value == null) {
@@ -59,6 +79,11 @@ public class RankingRedisRepository {
         }
     }
 
+    /**
+     * Redis에 저장된 랭킹을 삭제하기 위한 메소드.
+     *
+     * @param key 삭제에 사용할 키 값 (ranking:daily:2025-01-01)
+     * */
     public Boolean delete(String key) {
         return redisTemplate.delete(key);
     }
