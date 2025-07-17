@@ -1,5 +1,6 @@
 package com.codingmate.config;
 
+import com.codingmate.auth.service.TokenValidator;
 import com.codingmate.jwt.JwtFilter;
 import com.codingmate.jwt.TokenProvider;
 import lombok.AccessLevel;
@@ -19,11 +20,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class JwtSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
     private final TokenProvider tokenProvider;
+    private final TokenValidator tokenValidator;
 
     @Override
     public void configure(HttpSecurity http) {
         http.addFilterBefore(
-            new JwtFilter(tokenProvider),
+            new JwtFilter(tokenProvider, tokenValidator),
             UsernamePasswordAuthenticationFilter.class
         );
     }

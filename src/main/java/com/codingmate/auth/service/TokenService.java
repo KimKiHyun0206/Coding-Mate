@@ -19,9 +19,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class TokenService {
     private final TokenProvider tokenProvider;
+    private final TokenValidator tokenValidator;
 
     /**
-     * 사용자 ID와 권한을 기반으로 Access Token과 Refresh Token을 생성합니다.
+     * {@code Authentication}기반으로 토큰 생성
+     *
+     * <li>액세스 토큰: 권한과 username으로 토큰 발급</li>
+     * <li>리프레쉬 토큰: jti, 유효기간, 발급 시간으로 토큰 발급</li>
      *
      * @return 생성된 Access Token과 Refresh Token을 담은 TokenDto
      */
@@ -43,18 +47,19 @@ public class TokenService {
     }
 
     /**
-     * 주어진 JWT 토큰의 유효성을 검증합니다.
+     * 매개변수로 들어온 JWT 토큰의 유효성을 검증한다. 만약 유효하지 않은 토큰이라면 예외를 던진다.
      *
      * @param token 검증할 JWT 문자열
      * @throws io.jsonwebtoken.security.SecurityException 잘못된 JWT 서명일 경우 발생합니다.
      * @throws io.jsonwebtoken.ExpiredJwtException JWT 토큰의 유효 기간이 만료되었을 경우 발생합니다.
      * @throws io.jsonwebtoken.UnsupportedJwtException 지원되지 않는 형식의 JWT 토큰일 경우 발생합니다.
      * @throws java.lang.IllegalArgumentException JWT 토큰이 null이거나, 비어있거나, 기타 유효하지 않은 인자일 경우 발생합니다.
+     *
      */
     public void validateToken(String token) {
         log.debug("[TokenService] validateToken({})", token);
         try {
-            tokenProvider.validateToken(token);
+            tokenValidator.validateToken(token);
             log.info("[TokenService] 토큰 검증이 성공적으로 처리되었습니다.");
         } catch (Exception e) {
             log.warn("[TokenService] 토큰 검증에 실패했습니다.: {}", e.getMessage()); // 예외 메시지 포함

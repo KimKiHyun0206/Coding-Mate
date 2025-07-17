@@ -1,6 +1,7 @@
 package com.codingmate.refreshtoken.service;
 
 import com.codingmate.auth.dto.response.TokenResponse;
+import com.codingmate.auth.service.TokenValidator;
 import com.codingmate.auth.service.UserDetailLoginService;
 import com.codingmate.jwt.TokenProvider;
 import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshService {
     private final TokenProvider tokenProvider;
+    private final TokenValidator tokenValidator;
     private final RefreshTokenService refreshTokenService;
     private final JtiValidator jtiValidator;
     private final UserDetailLoginService userDetailLoginService;
@@ -46,7 +48,7 @@ public class RefreshService {
         log.debug("[RefreshService] refreshTokens({})", oldRefreshToken);
 
         // 1. 토큰 유효성 검사 및 사용자 정보 추출
-        tokenProvider.validateToken(oldRefreshToken);
+        tokenValidator.validateToken(oldRefreshToken);
 
         String tokenJti = JwtUtil.getJti(oldRefreshToken);
         String username = JwtUtil.getUsername(oldRefreshToken);
