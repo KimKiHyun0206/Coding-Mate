@@ -1,7 +1,7 @@
 package com.codingmate.refreshtoken.service;
 
 import com.codingmate.auth.dto.response.TokenResponse;
-import com.codingmate.auth.service.TokenValidator;
+import com.codingmate.jwt.TokenValidator;
 import com.codingmate.auth.service.UserDetailLoginService;
 import com.codingmate.jwt.TokenProvider;
 import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;

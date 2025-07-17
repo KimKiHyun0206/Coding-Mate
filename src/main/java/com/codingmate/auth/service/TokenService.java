@@ -2,6 +2,7 @@ package com.codingmate.auth.service;
 
 import com.codingmate.auth.dto.response.TokenResponse;
 import com.codingmate.jwt.TokenProvider;
+import com.codingmate.jwt.TokenValidator;
 import com.codingmate.refreshtoken.dto.response.RefreshTokenIssueResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

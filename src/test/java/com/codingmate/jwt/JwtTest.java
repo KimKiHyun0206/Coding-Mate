@@ -1,5 +1,4 @@
 package com.codingmate.jwt;
-import com.codingmate.auth.service.TokenValidator;
 import com.codingmate.exception.exception.jwt.ExpiredTokenException;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;

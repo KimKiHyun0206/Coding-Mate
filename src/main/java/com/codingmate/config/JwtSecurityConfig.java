@@ -1,6 +1,6 @@
 package com.codingmate.config;
 
-import com.codingmate.auth.service.TokenValidator;
+import com.codingmate.jwt.TokenValidator;
 import com.codingmate.jwt.JwtFilter;
 import com.codingmate.jwt.TokenProvider;
 import lombok.AccessLevel;

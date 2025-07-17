@@ -1,6 +1,5 @@
 package com.codingmate.jwt;
 
-import com.codingmate.auth.service.TokenValidator;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

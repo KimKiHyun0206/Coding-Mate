@@ -1,4 +1,4 @@
-package com.codingmate.auth.service;
+package com.codingmate.jwt;
 
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.exception.dto.ErrorMessage;
