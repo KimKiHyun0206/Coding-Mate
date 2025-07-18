@@ -60,6 +60,9 @@ public enum ErrorMessage {
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 서버 오류가 발생했습니다."),
     FAILED_DELETE_REFRESH_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "Redis에서 리프레시 토큰을 삭제하는 중 오류가 발생했습니다."),
     FAILED_FIND_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "Redis에서 리프레시 토큰을 찾지 못했습니다."),
+
+    //EMAIL
+    NOT_FOUND_EMAIL_VERIFICATION(HttpStatus.NOT_FOUND, "데이터베이스에서 이메일 인증 토큰을 조회하지 못했습니다"),
     ;
 
 
