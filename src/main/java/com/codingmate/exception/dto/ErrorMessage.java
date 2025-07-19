@@ -63,6 +63,7 @@ public enum ErrorMessage {
 
     //EMAIL
     NOT_FOUND_EMAIL_VERIFICATION(HttpStatus.NOT_FOUND, "데이터베이스에서 이메일 인증 토큰을 조회하지 못했습니다"),
+    EMAIL_MESSAGING(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 생성 중 오류가 발생했습니다."),
     ;
 
 
