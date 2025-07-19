@@ -1,5 +1,6 @@
 package com.codingmate;
 
+import com.codingmate.config.properties.EmailProperties;
 import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.config.properties.RankingProperties;
 import com.codingmate.config.properties.RedisProperties;
@@ -21,7 +22,8 @@ import java.util.TimeZone;
 @EnableConfigurationProperties({
         RedisProperties.class,
         JWTProperties.class,
-        RankingProperties.class
+        RankingProperties.class,
+        EmailProperties.class
 })
 public class CodingMateApplication implements ApplicationListener<ApplicationReadyEvent> {
     private final Environment environment;
