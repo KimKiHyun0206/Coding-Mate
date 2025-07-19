@@ -6,9 +6,9 @@ permissions:
 
 on:
   issues:
-    types: [ assigned ]
+    types: [assigned]
   pull_request:
-    types: [ closed ]
+    types: [closed]
 
 jobs:
   create_issue_branch_job:
@@ -20,6 +20,18 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          default-branch: 'develop'
+          branches: |
+            [
+              {
+                "label": "feature",
+                "prefix": "feature/",
+                "defaultBranch": "develop"
+              },
+              {
+                "label": "hotfix",
+                "prefix": "hotfix/",
+                "defaultBranch": "main"
+              }
+            ]
       - name: Echo branch name
         run: echo ${{ steps.create_branch_for_issue.outputs.branchName }}
