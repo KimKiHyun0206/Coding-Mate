@@ -1,0 +1,13 @@
+branchName: '${issue.number}'
+branches:
+  - label: 'hotfix'
+    prefix: 'hotfix/'
+
+  - label: 'feature'
+    prefix: 'feature/'
+commentMessage: '🌱 브랜치 `${branchName}`가 생성되었습니다. 이슈: ${issue.title}'
+openDraftPR: false
+autoCloseIssue: true
+copyIssueLabelsToPR: true
+copyIssueAssigneeToPR: true
+copyIssueMilestoneToPR: true
