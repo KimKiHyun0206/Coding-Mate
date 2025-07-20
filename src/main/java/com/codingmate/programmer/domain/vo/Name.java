@@ -1,6 +1,8 @@
 package com.codingmate.programmer.domain.vo;
 
 import com.codingmate.config.constant.RegexConstants;
+import com.codingmate.exception.dto.ErrorMessage;
+import com.codingmate.exception.exception.programmer.InvalidNameException;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,7 +17,7 @@ import java.util.regex.Pattern;
  *
  * @author duskafka
  * @see com.codingmate.programmer.domain.Programmer
- * */
+ */
 @Embeddable
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -28,8 +30,11 @@ public class Name {
     }
 
     private void validateEmail(String name) {
-        if(!Pattern.matches(NAME_REGEX, name)){
-            //TODO 예외 발생시키기
+        if (!Pattern.matches(NAME_REGEX, name)) {
+            throw new InvalidNameException(
+                    ErrorMessage.INVALID_NAME_REGEX,
+                    String.format("이름(%s)는 유효한 한국어 이름이 아닙니다.", name)
+            );
         }
         this.name = name;
     }

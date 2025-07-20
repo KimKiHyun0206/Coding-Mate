@@ -33,6 +33,7 @@ public enum ErrorMessage {
     WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "Password 가 일치하지 않습니다"),
     UPDATE_FAILED(HttpStatus.NOT_FOUND, "업데이트에 실패했습니다."),
 
+
     //ANSWER
     NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "풀이를 찾을 수 없습니다."),
     ANSWER_AND_PROGRAMMER_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, "해당 풀이는 사용자가 작성한 풀이가 아닙니다."),
