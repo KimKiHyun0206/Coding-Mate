@@ -19,7 +19,7 @@ public record EmailProperties (
         /** 이메일 인증 URL 앞부분 */
         String url,
 
-        /** 이메일 메시지 템플릿 */
-        String template
+        /** 이메일 인증 후 리다이렉트 할 URL*/
+        String redirectUrl
 ) {
 }

@@ -1,5 +1,6 @@
 package com.codingmate.controller.api;
 
+import com.codingmate.config.properties.EmailProperties;
 import com.codingmate.email.dto.EmailVerificationTokenResponse;
 import com.codingmate.email.service.*;
 import com.codingmate.util.EmailValidateUtil;
@@ -16,13 +17,29 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 @RequestMapping("/api/v1/email")
-@RequiredArgsConstructor
 public class EmailController {
     private final EmailService emailService;
     private final EmailVerificationValidator emailVerificationValidator;
     private final EmailSendService emailSendService;
     private final EmailVerificationTokenGenerator emailVerificationTokenGenerator;
     private final EmailVerificationService emailVerificationService;
+    private final String redirectUrl;
+
+    public EmailController(
+            EmailVerificationService emailVerificationService,
+            EmailVerificationTokenGenerator emailVerificationTokenGenerator,
+            EmailSendService emailSendService,
+            EmailVerificationValidator emailVerificationValidator,
+            EmailService emailService,
+            EmailProperties emailProperties
+    ) {
+        this.emailVerificationService = emailVerificationService;
+        this.emailVerificationTokenGenerator = emailVerificationTokenGenerator;
+        this.emailSendService = emailSendService;
+        this.emailVerificationValidator = emailVerificationValidator;
+        this.emailService = emailService;
+        this.redirectUrl = emailProperties.redirectUrl();
+    }
 
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
@@ -32,12 +49,12 @@ public class EmailController {
         if (isEmailVerificationValid) {
             emailVerificationService.verify(token);
             return ResponseEntity.status(HttpStatus.SEE_OTHER)
-                    .header(HttpHeaders.LOCATION, "http://localhost:8080/verification-result?success=true")
+                    .header(HttpHeaders.LOCATION, redirectUrl + "true")
                     .build();
         }
 
         return ResponseEntity.status(HttpStatus.SEE_OTHER)
-                .header(HttpHeaders.LOCATION, "http://localhost:8080/verification-result?success=false")
+                .header(HttpHeaders.LOCATION, redirectUrl + "false")
                 .build();
     }
 

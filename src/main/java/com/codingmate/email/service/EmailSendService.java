@@ -28,7 +28,6 @@ public class EmailSendService {
     private final String subject;
     private final String url;
     private final String from;
-    private final String template;
     private final SpringTemplateEngine templateEngine;
 
     public EmailSendService(
@@ -40,7 +39,6 @@ public class EmailSendService {
         this.subject = emailProperties.subject();
         this.url = emailProperties.url();
         this.from = emailProperties.username();
-        this.template = emailProperties.template();
         this.templateEngine = templateEngine;
     }
 
