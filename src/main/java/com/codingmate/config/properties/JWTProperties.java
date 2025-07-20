@@ -28,6 +28,9 @@ public record JWTProperties(
         //인증용 키
         String authorityKey,
 
+        //액세스 토큰 인증 헤더
+        String bearerHeader,
+
         Redis redis
 
 ) {

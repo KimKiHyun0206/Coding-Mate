@@ -33,6 +33,7 @@ public enum ErrorMessage {
     WRONG_PASSWORD(HttpStatus.BAD_REQUEST, "Password 가 일치하지 않습니다"),
     UPDATE_FAILED(HttpStatus.NOT_FOUND, "업데이트에 실패했습니다."),
 
+
     //ANSWER
     NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "풀이를 찾을 수 없습니다."),
     ANSWER_AND_PROGRAMMER_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, "해당 풀이는 사용자가 작성한 풀이가 아닙니다."),
@@ -60,6 +61,13 @@ public enum ErrorMessage {
     REDIS_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Redis 서버 오류가 발생했습니다."),
     FAILED_DELETE_REFRESH_TOKEN(HttpStatus.INTERNAL_SERVER_ERROR, "Redis에서 리프레시 토큰을 삭제하는 중 오류가 발생했습니다."),
     FAILED_FIND_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "Redis에서 리프레시 토큰을 찾지 못했습니다."),
+
+    //EMAIL
+    NOT_FOUND_EMAIL_VERIFICATION(HttpStatus.NOT_FOUND, "데이터베이스에서 이메일 인증 토큰을 조회하지 못했습니다"),
+    EMAIL_MESSAGING(HttpStatus.INTERNAL_SERVER_ERROR, "이메일 생성 중 오류가 발생했습니다."),
+    EMAIL_NOT_VERIFICATION(HttpStatus.BAD_REQUEST, "인증된 이메일이 아닙니다."),
+    DUPLICATE_EMAIL_VERIFICATION(HttpStatus.BAD_REQUEST, "이미 인증이 완료되었거나 인증이 요첟된 이메일입니디."),
+    ILLEGAL_EMAIL_REGEX(HttpStatus.BAD_REQUEST, "유효한 이메일 형식이 아니기에 이메일 인증 요청에 실패했습니다."),
     ;
 
 

@@ -1,5 +1,6 @@
 package com.codingmate.programmer.domain.vo;
 
+import com.codingmate.config.constant.RegexConstants;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.programmer.InvalidPasswordException;
 import lombok.Getter;
@@ -17,7 +18,7 @@ import java.util.regex.Pattern;
 @Getter
 public class Password {
     //(최소 8글자, 글자 1개, 숫자 1개, 특수문자 1개)
-    private static final String PASSWORD_REGEX = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,}$";
+    private static final String PASSWORD_REGEX = RegexConstants.PASSWORD_REGEX;
     private String password;
 
     public Password(String password) {

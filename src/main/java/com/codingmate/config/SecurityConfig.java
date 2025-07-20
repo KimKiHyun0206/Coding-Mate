@@ -1,9 +1,11 @@
 package com.codingmate.config;
 
 import com.codingmate.auth.service.UserDetailLoginService;
+import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.jwt.JwtAccessDeniedHandler;
 import com.codingmate.jwt.JwtAuthenticationEntryPoint;
 import com.codingmate.jwt.TokenProvider;
+import com.codingmate.jwt.TokenValidator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -43,9 +45,11 @@ import org.springframework.web.filter.CorsFilter;
 public class SecurityConfig {
     private final CorsFilter corsFilter;
     private final TokenProvider tokenProvider;
+    private final TokenValidator tokenValidator;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final UserDetailLoginService userDetailLoginService;
+    private final JWTProperties jwtProperties;
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
@@ -75,7 +79,7 @@ public class SecurityConfig {
                 .headers(headers -> {
                     headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
                 })
-                .with(new JwtSecurityConfig(tokenProvider), customizer -> {
+                .with(new JwtSecurityConfig(tokenProvider, tokenValidator, jwtProperties), customizer -> {
                 });
         return http.build();
     }

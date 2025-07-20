@@ -1,8 +1,6 @@
 package com.codingmate;
 
-import com.codingmate.config.properties.JWTProperties;
-import com.codingmate.config.properties.RankingProperties;
-import com.codingmate.config.properties.RedisProperties;
+import com.codingmate.config.properties.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
@@ -21,7 +19,8 @@ import java.util.TimeZone;
 @EnableConfigurationProperties({
         RedisProperties.class,
         JWTProperties.class,
-        RankingProperties.class
+        RankingProperties.class,
+        EmailProperties.class
 })
 public class CodingMateApplication implements ApplicationListener<ApplicationReadyEvent> {
     private final Environment environment;

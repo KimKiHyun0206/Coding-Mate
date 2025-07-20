@@ -1,5 +1,6 @@
 package com.codingmate.config;
 
+import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.jwt.TokenValidator;
 import com.codingmate.jwt.JwtFilter;
 import com.codingmate.jwt.TokenProvider;
@@ -21,11 +22,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class JwtSecurityConfig extends SecurityConfigurerAdapter<DefaultSecurityFilterChain, HttpSecurity> {
     private final TokenProvider tokenProvider;
     private final TokenValidator tokenValidator;
+    private final JWTProperties jwtProperties;
 
     @Override
     public void configure(HttpSecurity http) {
         http.addFilterBefore(
-            new JwtFilter(tokenProvider, tokenValidator),
+            new JwtFilter(tokenProvider, tokenValidator, jwtProperties),
             UsernamePasswordAuthenticationFilter.class
         );
     }

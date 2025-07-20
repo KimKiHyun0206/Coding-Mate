@@ -4,6 +4,9 @@ import com.codingmate.answer.repository.AnswerReadRepository;
 import com.codingmate.answer.repository.AnswerWriteRepository;
 import com.codingmate.auth.domain.Authority;
 import com.codingmate.auth.service.AuthorityFinder;
+import com.codingmate.email.repository.EmailVerificationTokenRepository;
+import com.codingmate.email.service.EmailVerificationService;
+import com.codingmate.exception.exception.email.EmailNotVerificationException;
 import com.codingmate.exception.exception.programmer.ProgrammerUpdateFailedException;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.dto.request.ProgrammerUpdateRequest;
@@ -39,6 +42,8 @@ public class ProgrammerService {
     private final AnswerReadRepository answerReadRepository;
     private final AnswerWriteRepository answerWriteRepository;
     private final AuthorityFinder authorityFinder;
+    private final EmailVerificationService emailVerificationService;
+
 
     /**
      * 새로운 프로그래머 계정을 생성합니다.
@@ -55,6 +60,13 @@ public class ProgrammerService {
             throw new DuplicateProgrammerLoginIdException(
                     ErrorMessage.DUPLICATE_PROGRAMMER,
                     "요청한 Id는 이미 존재하는 Id입니다"
+            );
+        }
+
+        if(!emailVerificationService.isVerified(request.email())){
+            throw new EmailNotVerificationException(
+                    ErrorMessage.EMAIL_NOT_VERIFICATION,
+                    String.format("요청된 이메일(%s)는 인증된 이메일이 아니기에 회원가입이 거부됩니다.", request.email())
             );
         }
 
