@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -27,13 +29,19 @@ public class EmailSendService {
     private final String url;
     private final String from;
     private final String template;
+    private final SpringTemplateEngine templateEngine;
 
-    public EmailSendService(JavaMailSender mailSender, EmailProperties emailProperties) {
+    public EmailSendService(
+            JavaMailSender mailSender,
+            EmailProperties emailProperties,
+            SpringTemplateEngine templateEngine
+    ) {
         this.mailSender = mailSender;
         this.subject = emailProperties.subject();
         this.url = emailProperties.url();
         this.from = emailProperties.username();
         this.template = emailProperties.template();
+        this.templateEngine = templateEngine;
     }
 
     /**
@@ -79,7 +87,10 @@ public class EmailSendService {
      * 인증 이메일 바디를 만들기 위한 메소드
      */
     private String generateHtmlContent(String verificationToken) {
-        return String.format(template, generateUrl(verificationToken));
+        Context context = new Context();
+        String verificationUrl = generateUrl(verificationToken);
+        context.setVariable("verificationUrl", verificationUrl);
+        return templateEngine.process("email_verification", context);
     }
 
     /**

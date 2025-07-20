@@ -10,6 +10,6 @@ public class EmailUIController {
     @GetMapping("/verification-result")
     public String showVerificationResult(@RequestParam("success") boolean success, Model model) {
         model.addAttribute("success", success);
-        return "email/email_verification";
+        return "email/email_verification_result";
     }
 }

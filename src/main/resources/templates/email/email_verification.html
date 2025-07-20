@@ -1,11 +1,15 @@
-<!-- templates/verification-result.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
-    <title>이메일 인증 결과</title>
+    <meta charset="UTF-8" />
+    <title>이메일 인증</title>
 </head>
 <body>
-<h1 th:if="${success}">✅ 이메일 인증에 성공했습니다!</h1>
-<h1 th:unless="${success}">❌ 인증에 실패했거나 링크가 만료되었습니다.</h1>
+<p>다음 링크를 클릭하여 이메일 인증을 완료하세요:</p>
+<a href="${url}"
+   style="display:inline-block; padding:10px 20px; font-size:16px; color:#ffffff;
+              background-color:#007bff; text-decoration:none; border-radius:5px;">
+    이메일 인증하기
+</a>
 </body>
 </html>
