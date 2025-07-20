@@ -1,6 +1,7 @@
 package com.codingmate.config;
 
 import com.codingmate.auth.service.UserDetailLoginService;
+import com.codingmate.config.properties.JWTProperties;
 import com.codingmate.jwt.JwtAccessDeniedHandler;
 import com.codingmate.jwt.JwtAuthenticationEntryPoint;
 import com.codingmate.jwt.TokenProvider;
@@ -48,6 +49,7 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final UserDetailLoginService userDetailLoginService;
+    private final JWTProperties jwtProperties;
 
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder) throws Exception {
@@ -77,7 +79,7 @@ public class SecurityConfig {
                 .headers(headers -> {
                     headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin);
                 })
-                .with(new JwtSecurityConfig(tokenProvider, tokenValidator), customizer -> {
+                .with(new JwtSecurityConfig(tokenProvider, tokenValidator, jwtProperties), customizer -> {
                 });
         return http.build();
     }

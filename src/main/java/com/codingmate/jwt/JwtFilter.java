@@ -1,5 +1,6 @@
 package com.codingmate.jwt;
 
+import com.codingmate.config.properties.JWTProperties;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,11 +23,19 @@ import java.io.IOException;
  * @author duskafka
  * */
 @Slf4j
-@RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public class JwtFilter extends OncePerRequestFilter { // 모든 요청에 대해 동일한 로직을 수행하는 일반 필터
 
     private final TokenProvider tokenProvider;
     private final TokenValidator tokenValidator;
+    private final String ACCESS_TOKEN_HEADER;
+    private final String BEARER_HEADER;
+
+    public JwtFilter(TokenProvider tokenProvider, TokenValidator tokenValidator, JWTProperties jwtProperties) {
+        this.tokenProvider = tokenProvider;
+        this.tokenValidator = tokenValidator;
+        this.ACCESS_TOKEN_HEADER = jwtProperties.accessTokenHeader();
+        this.BEARER_HEADER = jwtProperties.bearerHeader();
+    }
 
     /**
      * 요청이 들어오면 헤더의 토큰을 검사하고 검사 후 SecurityContextHolder에 정보를 저장해준다.
@@ -50,8 +59,8 @@ public class JwtFilter extends OncePerRequestFilter { // 모든 요청에 대해
     }
 
     private String resolveToken(HttpServletRequest request) {
-        String bearer = request.getHeader("Authorization");
-        if (bearer != null && bearer.startsWith("Bearer ")) {
+        String bearer = request.getHeader(ACCESS_TOKEN_HEADER);
+        if (bearer != null && bearer.startsWith(BEARER_HEADER)) {
             return bearer.substring(7);
         }
         return null;
