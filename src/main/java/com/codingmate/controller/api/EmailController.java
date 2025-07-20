@@ -1,11 +1,9 @@
 package com.codingmate.controller.api;
 
 import com.codingmate.email.dto.EmailVerificationTokenResponse;
-import com.codingmate.email.service.EmailSendService;
-import com.codingmate.email.service.EmailService;
-import com.codingmate.email.service.EmailVerificationTokenGenerator;
-import com.codingmate.email.service.EmailVerificationValidator;
+import com.codingmate.email.service.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,16 +21,23 @@ public class EmailController {
     private final EmailVerificationValidator emailVerificationValidator;
     private final EmailSendService emailSendService;
     private final EmailVerificationTokenGenerator emailVerificationTokenGenerator;
+    private final EmailVerificationService emailVerificationService;
 
     @GetMapping("/verify-email")
     public ResponseEntity<?> verifyEmail(@RequestParam("token") String token) {
         EmailVerificationTokenResponse verification = emailService.findByToken(token);
 
         boolean isEmailVerificationValid = emailVerificationValidator.isValidEmailToken(verification);
+        if (isEmailVerificationValid) {
+            emailVerificationService.verify(token);
+            return ResponseEntity.status(HttpStatus.SEE_OTHER)
+                    .header(HttpHeaders.LOCATION, "http://localhost:8080/verification-result?success=true")
+                    .build();
+        }
 
-        return isEmailVerificationValid ?
-                ResponseEntity.ok(HttpStatus.OK) :
-                ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        return ResponseEntity.status(HttpStatus.SEE_OTHER)
+                .header(HttpHeaders.LOCATION, "http://localhost:8080/verification-result?success=false")
+                .build();
     }
 
     @PostMapping("/verify-email")
