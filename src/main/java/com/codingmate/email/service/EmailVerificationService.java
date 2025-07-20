@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class EmailVerificationService {
     private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final EmailVerificationTransactionalHelper emailVerificationTransactionalHelper;
 
     @Transactional(readOnly = true)
     public boolean isVerified(String email) {
@@ -27,7 +28,7 @@ public class EmailVerificationService {
         return verificationToken.isVerified();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public void verify(String token) {
         log.debug("[EmailVerificationService] verify({})", token);
         EmailVerificationToken verificationToken = emailVerificationTokenRepository.findByToken(token).orElseThrow(
@@ -35,7 +36,7 @@ public class EmailVerificationService {
                         ErrorMessage.NOT_FOUND_EMAIL_VERIFICATION,
                         String.format("요청한 이메일(토큰:%s)을 데이터베이스에서 조회하지 못했습니다", token)
                 ));
-        verificationToken.markAsVerified();
+        emailVerificationTransactionalHelper.markAsVerified(verificationToken);
         log.info("[EmailVerificationService] 이메일 인증이 정상적으로 처리되었습니다: email={}", verificationToken.getEmail());
     }
 }
