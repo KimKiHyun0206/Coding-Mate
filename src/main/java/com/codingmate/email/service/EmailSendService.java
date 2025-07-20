@@ -5,6 +5,7 @@ import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.email.EmailMessagingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.nio.charset.StandardCharsets;
  *
  * @author duskafka
  */
+@Slf4j
 @Service
 public class EmailSendService {
     private final JavaMailSender mailSender;
@@ -43,6 +45,7 @@ public class EmailSendService {
      */
     public void sendHtmlEmail(String to, String verificationToken) {
         try {
+            log.debug("[EmailSendService] sendHtmlEmail({}, {})", to, verificationToken);
             // 새로운 이메일 메시지 객체 생성
             MimeMessage message = mailSender.createMimeMessage();
 
@@ -62,7 +65,7 @@ public class EmailSendService {
             helper.setText(htmlContent, true);  // true = HTML 모드
 
             mailSender.send(message);   // 실제 이메일 발송
-
+            log.info("[EmailSendService] 이메일이 제대로 발송되었습니다: email={}", to);
         } catch (MessagingException e) {
             // 예외 발생 시 커스텀 예외로 감싸 사용자에게 전달한다
             throw new EmailMessagingException(
