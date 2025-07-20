@@ -24,7 +24,7 @@ public class EmailValidateUtil {
      * @param email 검증할 이메일 문자열
      */
     public static void isValid(String email) {
-        if (email == null || email.isEmpty()) {
+        if (email == null || email.isEmpty() || !EMAIL_PATTERN.matcher(email).matches()) {
             throw new IllegalEmailRegexException(
                     ErrorMessage.ILLEGAL_EMAIL_REGEX,
                     String.format("요청한 이메일(%s)는 이메일 형식에 알맞지 않습니다.", email)
