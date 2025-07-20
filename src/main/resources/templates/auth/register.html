@@ -100,9 +100,13 @@
     </div>
     <div>
         <label for="email">이메일:</label>
-        <input type="email" id="email" name="email" required>
+        <div style="display: flex; gap: 8px;">
+            <input type="email" id="email" name="email" required style="flex: 1;">
+            <button type="button" id="verifyEmailButton">이메일 인증</button>
+        </div>
         <div id="emailError"></div>
     </div>
+
     <div>
         <label for="password">비밀번호:</label>
         <input type="password" id="password" name="password" required>
@@ -215,6 +219,40 @@
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return emailRegex.test(email);
         }
+
+        const verifyEmailButton = document.getElementById('verifyEmailButton');
+
+        verifyEmailButton.addEventListener('click', function () {
+            const email = emailInput.value.trim();
+
+            if (email === '') {
+                emailError.textContent = '이메일을 입력해주세요.';
+                return;
+            } else if (!isValidEmail(email)) {
+                emailError.textContent = '올바른 이메일 형식이 아닙니다.';
+                return;
+            } else {
+                emailError.textContent = '';
+            }
+
+            fetch(`/api/v1/email/verify-email?email=${encodeURIComponent(email)}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (response.ok) {
+                        alert('이메일 인증 링크가 전송되었습니다. 메일함을 확인해주세요.');
+                    } else {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.message || '이메일 전송 실패');
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('이메일 인증 실패:', error);
+                    alert(`이메일 인증에 실패했습니다: ${error.message}`);
+                });
+        });
+
     });
 </script>
 </body>
