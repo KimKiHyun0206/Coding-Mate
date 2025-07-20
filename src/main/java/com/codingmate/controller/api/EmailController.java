@@ -2,6 +2,7 @@ package com.codingmate.controller.api;
 
 import com.codingmate.email.dto.EmailVerificationTokenResponse;
 import com.codingmate.email.service.*;
+import com.codingmate.util.EmailValidateUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,7 @@ public class EmailController {
 
     @PostMapping("/verify-email")
     public ResponseEntity<?> sendEmail(@RequestParam("email") String email) {
+        EmailValidateUtil.isValid(email);
         String token = emailVerificationTokenGenerator.generateEmailVerificationToken(email);
         emailSendService.sendHtmlEmail(email, token);
         return ResponseEntity.ok().build();
