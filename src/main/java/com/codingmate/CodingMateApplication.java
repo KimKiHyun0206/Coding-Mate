@@ -20,8 +20,7 @@ import java.util.TimeZone;
         RedisProperties.class,
         JWTProperties.class,
         RankingProperties.class,
-        EmailProperties.class,
-        RegexProperties.class
+        EmailProperties.class
 })
 public class CodingMateApplication implements ApplicationListener<ApplicationReadyEvent> {
     private final Environment environment;
