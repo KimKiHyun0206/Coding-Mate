@@ -1,5 +1,6 @@
 package com.codingmate.programmer.domain.vo;
 
+import com.codingmate.config.constant.RegexConstants;
 import com.codingmate.exception.dto.ErrorMessage;
 import com.codingmate.exception.exception.programmer.InvalidEmailException;
 import jakarta.persistence.Embeddable;
@@ -21,7 +22,7 @@ import java.util.regex.Pattern;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Email {
-    private static final String EMAIL_REGEX = "^[a-zA-Z0-9_+&*-]+(?:\\\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\\\.)+[a-zA-Z]{2,7}$";
+    private static final String EMAIL_REGEX = RegexConstants.EMAIL_REGEX;
     private String email;
 
     public Email(String email) {

@@ -1,5 +1,6 @@
 package com.codingmate.programmer.domain.vo;
 
+import com.codingmate.config.constant.RegexConstants;
 import jakarta.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -19,7 +20,7 @@ import java.util.regex.Pattern;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Name {
-    private static final String NAME_REGEX = "^[ㄱ-ㅎ가-힣]{1,5}$";
+    private static final String NAME_REGEX = RegexConstants.KOREAN_NAME_REGEX;
     private String name;
 
     public Name(String name) {
