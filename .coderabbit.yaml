@@ -3,8 +3,8 @@ early_access: false
 
 reviews:
   profile: "chill"
-  request_changes_workflow: false
-  high_level_summary: true # PR에 대해 요약(요지문)
+  request_changes_workflow: true   # 리뷰에 코드에 Comment를 달도록 함
+  high_level_summary: true         # PR에 대해 요약(요지문)
   poem: false
   review_status: true
   collapse_walkthrough: false
