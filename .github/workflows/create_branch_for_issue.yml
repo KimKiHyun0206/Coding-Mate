@@ -1,5 +1,3 @@
-name: Create Branch For Issue
-
 permissions:
   issues: write
   contents: write
@@ -31,6 +29,26 @@ jobs:
                 "label": "hotfix",
                 "prefix": "hotfix/",
                 "defaultBranch": "main"
+              },
+              {
+                "label": "docs",
+                "prefix": "docs/",
+                "defaultBranch": "develop"
+              },
+              {
+                "label": "test",
+                "prefix": "test/",
+                "defaultBranch": "develop"
+              },
+              {
+                "label": "fix",
+                "prefix": "fix/",
+                "defaultBranch": "develop"
+              },
+              {
+                "label": "enhancement",
+                "prefix": "enhancement/",
+                "defaultBranch": "develop"
               }
             ]
       - name: Echo branch name
