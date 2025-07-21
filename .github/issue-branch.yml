@@ -1,29 +1,28 @@
 branchName: '${issue.number}'
-defaultBranch: 'develop'
+defaultBranch: 'develop' 
 branches:
   - label: 'hotfix'
     prefix: 'hotfix/'
+    name: 'master'
 
   - label: 'feature'
     prefix: 'feature/'
+    name: 'develop'
     
   - label: 'docs'
     prefix: 'docs/'
+    name: 'develop'
 
   - label: 'test'
     prefix: 'test/'
+    name: 'develop'
 
   - label: 'fix'
     prefix: 'fix/'
+    name: 'develop'
 
   - label: 'enhancement'
     prefix: 'enhancement/'
-sourceBranch:
-  - label: 'hotfix'
-    name: 'main'
-  - label: 'bug'
-    name: 'develop'
-  - labal: '*'
     name: 'develop'
     
 commentMessage: '🌱 브랜치 `${branchName}`가 생성되었습니다. 이슈: ${issue.title}'
