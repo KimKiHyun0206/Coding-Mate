@@ -1,4 +1,5 @@
 branchName: '${issue.number}'
+defaultBranch: 'develop'
 branches:
   - label: 'hotfix'
     prefix: 'hotfix/'
@@ -17,6 +18,14 @@ branches:
 
   - label: 'enhancement'
     prefix: 'enhancement/'
+sourceBranch:
+  - label: 'hotfix'
+    name: 'main'
+  - label: 'bug'
+    name: 'develop'
+  - labal: '*'
+    name: 'develop'
+    
 commentMessage: '🌱 브랜치 `${branchName}`가 생성되었습니다. 이슈: ${issue.title}'
 openDraftPR: false
 autoCloseIssue: true
