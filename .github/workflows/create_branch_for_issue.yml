@@ -1,12 +1,14 @@
+name: Create Branch For Issue
+
 permissions:
   issues: write
   contents: write
 
 on:
   issues:
-    types: [assigned]
+    types: [ assigned ]
   pull_request:
-    types: [closed]
+    types: [ closed ]
 
 jobs:
   create_issue_branch_job:
@@ -17,39 +19,5 @@ jobs:
         uses: robvanderleek/create-issue-branch@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          branches: |
-            [
-              {
-                "label": "feature",
-                "prefix": "feature/",
-                "defaultBranch": "develop"
-              },
-              {
-                "label": "hotfix",
-                "prefix": "hotfix/",
-                "defaultBranch": "main"
-              },
-              {
-                "label": "docs",
-                "prefix": "docs/",
-                "defaultBranch": "develop"
-              },
-              {
-                "label": "test",
-                "prefix": "test/",
-                "defaultBranch": "develop"
-              },
-              {
-                "label": "fix",
-                "prefix": "fix/",
-                "defaultBranch": "develop"
-              },
-              {
-                "label": "enhancement",
-                "prefix": "enhancement/",
-                "defaultBranch": "develop"
-              }
-            ]
       - name: Echo branch name
         run: echo ${{ steps.create_branch_for_issue.outputs.branchName }}
