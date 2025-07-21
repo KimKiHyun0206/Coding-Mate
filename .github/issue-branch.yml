@@ -5,6 +5,18 @@ branches:
 
   - label: 'feature'
     prefix: 'feature/'
+    
+  - label: 'docs'
+    prefix: 'docs/'
+
+  - label: 'test'
+    prefix: 'test/'
+
+  - label: 'fix'
+    prefix: 'fix/'
+
+  - label: 'enhancement'
+    prefix: 'enhancement/'
 commentMessage: '🌱 브랜치 `${branchName}`가 생성되었습니다. 이슈: ${issue.title}'
 openDraftPR: false
 autoCloseIssue: true
