@@ -1,4 +1,4 @@
-package com.codingmate.api.programmer;
+package com.codingmate.programmer;
 
 import com.codingmate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingmate.programmer.domain.Programmer;
@@ -6,7 +6,6 @@ import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.repository.DefaultProgrammerRepository;
 import com.codingmate.programmer.service.ProgrammerService;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +22,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
  * */
 @SpringBootTest
 @ActiveProfiles("test") // 테스트 프로파일 활성화 (application-test.yml 로드)
-public class LoginIdExistTest {
+public class ProgrammerServiceTest {
 
     // 실제 ProgrammerService 주입
     @Autowired
@@ -48,7 +47,7 @@ public class LoginIdExistTest {
      * <li>처음 등록하는 것이기 때문에 에러가 발생하지 않는다.</li>
      * */
     @Test
-    void successCase() {
+    void checkLoginIdAvailability_Success_WhenOtherIdNotExists() {
         String uniqueLoginId = "new_user_id";
 
         // 서비스 메서드 호출 시 예외가 발생하지 않음을 검증
@@ -60,7 +59,7 @@ public class LoginIdExistTest {
      * 이미 존재하는 아이디를 체크하기 때문에 예외가 발생한다.
      * */
     @Test
-    void failCase() {
+    void checkLoginIdAvailability_Fail_WhenOtherIdExists() {
         String existingLoginId = "existing_user_id";
 
         // 테스트를 위해 미리 데이터베이스에 ID를 등록 (실제 DB 연동)
@@ -87,7 +86,7 @@ public class LoginIdExistTest {
      * 데이터베이스에 다른 login_id가 등록되어 있지만 중복되지 않기 때문에 예외가 발생하지 않는 테스트.
      * */
     @Test
-    void successCase2() {
+    void checkLoginIdAvailability_Success_WhenOtherIdExists() {
         String loginId1 = "user_id_1";
         String loginId2 = "user_id_2";
 
