@@ -21,12 +21,9 @@ import static com.codingmate.answer.domain.QAnswer.answer;
 public class AnswerWriteRepository {
     private final JPAQueryFactory queryFactory;
 
-    public long update(String loginId, Long answerId, AnswerUpdateRequest dto) {
+    public long update(Long answerId, AnswerUpdateRequest dto) {
         return queryFactory.update(answer)
-                .where(
-                        answer.id.eq(answerId),
-                        answer.programmer.loginId.eq(loginId)
-                )
+                .where(answer.id.eq(answerId))
                 .set(answer.code, dto.code() == null ? null : dto.code())
                 .set(answer.languageType, dto.languageType() == null ? null : dto.languageType())
                 .set(answer.explanation, dto.explanation() == null ? null : dto.explanation())
