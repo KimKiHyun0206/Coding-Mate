@@ -19,7 +19,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
 /**
- * {@code /api/v1/programmer/login-id/exists GET}을 테스트하기 위한 테스트 클래스
+ * {@code ProgrammerService}을 테스트하기 위한 테스트 클래스
+ *
+ * @see ProgrammerService
+ * @author duskafka
  */
 @SpringBootTest
 @ActiveProfiles("test") // 테스트 프로파일 활성화 (application-test.yml 로드)
