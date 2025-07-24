@@ -1,4 +1,4 @@
-package com.codingmate.programmer;
+package com.codingmate.service;
 
 import com.codingmate.answer.domain.Answer;
 import com.codingmate.answer.domain.vo.LanguageType;

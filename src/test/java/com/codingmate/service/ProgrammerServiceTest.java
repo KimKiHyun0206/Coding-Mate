@@ -1,4 +1,4 @@
-package com.codingmate.programmer;
+package com.codingmate.service;
 
 import com.codingmate.exception.exception.programmer.*;
 import com.codingmate.programmer.domain.Programmer;

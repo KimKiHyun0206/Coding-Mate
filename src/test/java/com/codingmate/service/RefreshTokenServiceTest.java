@@ -1,4 +1,4 @@
-package com.codingmate.programmer;
+package com.codingmate.service;
 
 import com.codingmate.exception.exception.jwt.NotFoundRefreshTokenException;
 import com.codingmate.exception.exception.jwt.RefreshTokenIsRevokedException;
