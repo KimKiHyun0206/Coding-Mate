@@ -6,7 +6,7 @@ reviews:
   request_changes_workflow: true   # 리뷰에 코드에 Comment를 달도록 함
   high_level_summary: true         # PR에 대해 요약(요지문)
   poem: false
-  review_status: true
+  review_status: false             # 상태 메시지 비활성화
   collapse_walkthrough: false
   auto_review:
     enabled: true
