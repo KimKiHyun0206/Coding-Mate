@@ -30,26 +30,32 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @ActiveProfiles("test")
 public class LoginServiceTest {
 
-    @Autowired
-    private ProgrammerService programmerService;
+    private final ProgrammerService programmerService;
+    private final DefaultProgrammerRepository programmerRepository;
+    private final TokenProvider tokenProvider;
+    private final EmailVerificationTokenGenerator emailVerificationTokenGenerator;
+    private final AuthorityFinder authorityFinder;
+    private final EmailVerificationService emailVerificationService;
+    private final AuthenticationManager authenticationManager;
 
     @Autowired
-    private DefaultProgrammerRepository programmerRepository;
-
-    @Autowired
-    private TokenProvider tokenProvider;
-
-    @Autowired
-    private EmailVerificationTokenGenerator emailVerificationTokenGenerator;
-
-    @Autowired
-    private AuthorityFinder authorityFinder;
-
-    @Autowired
-    private EmailVerificationService emailVerificationService;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
+    public LoginServiceTest(
+            ProgrammerService programmerService,
+            DefaultProgrammerRepository programmerRepository,
+            TokenProvider tokenProvider,
+            EmailVerificationTokenGenerator emailVerificationTokenGenerator,
+            AuthorityFinder authorityFinder,
+            EmailVerificationService emailVerificationService,
+            AuthenticationManager authenticationManager
+    ) {
+        this.programmerService = programmerService;
+        this.programmerRepository = programmerRepository;
+        this.tokenProvider = tokenProvider;
+        this.emailVerificationTokenGenerator = emailVerificationTokenGenerator;
+        this.authorityFinder = authorityFinder;
+        this.emailVerificationService = emailVerificationService;
+        this.authenticationManager = authenticationManager;
+    }
 
     private final ProgrammerCreateRequest createRequest = new ProgrammerCreateRequest(
             "new_login_id",
