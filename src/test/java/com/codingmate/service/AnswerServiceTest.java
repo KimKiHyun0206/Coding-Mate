@@ -25,18 +25,19 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 @SpringBootTest
 @ActiveProfiles("test") // 테스트 프로파일 활성화 (application-test.yml 로드)
 public class AnswerServiceTest {
+    private final AnswerService answerService;
+    private final DefaultProgrammerRepository programmerRepository;
+    private final DefaultAnswerRepository answerRepository;
+
+    private final String TEST_USERNAME = "new_login_id";
+    private Long TEST_ANSWER_ID;
 
     @Autowired
-    private AnswerService answerService;
-
-    @Autowired
-    private DefaultProgrammerRepository programmerRepository;
-
-    @Autowired
-    private DefaultAnswerRepository answerRepository;
-
-    private final String username = "new_login_id";
-    private Long testAnswerId;
+    public AnswerServiceTest(AnswerService answerService, DefaultProgrammerRepository programmerRepository, DefaultAnswerRepository answerRepository) {
+        this.answerService = answerService;
+        this.programmerRepository = programmerRepository;
+        this.answerRepository = answerRepository;
+    }
 
     /**
      * 각 테스트 실행 전에 이전에 사용했던 Programmer와 Answer 엔티티를 삭제하고 Programmer와 Answer를 새로 등록한다.
@@ -49,7 +50,7 @@ public class AnswerServiceTest {
 
         // 새로운 Programmer 등록 (실제 저장된 객체 받기)
         var programmerCreateRequest = new ProgrammerCreateRequest(
-                username,
+                TEST_USERNAME,
                 "sample_github_id",
                 "qweoi12311e23!",
                 "홍길동",
@@ -72,7 +73,7 @@ public class AnswerServiceTest {
         Answer savedAnswer = answerRepository.save(entity);
 
         // 테스트 메소드에서 사용할 ID를 인스턴스 변수에 저장
-        this.testAnswerId = savedAnswer.getId(); // setUp 메소드 상단에 private Long testAnswerId; 선언
+        this.TEST_ANSWER_ID = savedAnswer.getId(); // setUp 메소드 상단에 private Long testAnswerId; 선언
     }
 
     /**
@@ -88,7 +89,7 @@ public class AnswerServiceTest {
                 1L
         );
 
-        assertThatCode(() -> answerService.create(username, answerCreateRequest))
+        assertThatCode(() -> answerService.create(TEST_USERNAME, answerCreateRequest))
                 .doesNotThrowAnyException();
     }
 
@@ -114,7 +115,7 @@ public class AnswerServiceTest {
      */
     @Test
     void read_Success() {
-        assertThatCode(() -> answerService.read(testAnswerId, username))
+        assertThatCode(() -> answerService.read(TEST_ANSWER_ID, TEST_USERNAME))
                 .doesNotThrowAnyException();
     }
 
@@ -123,7 +124,7 @@ public class AnswerServiceTest {
      */
     @Test
     void read_Fail_WhenAnswerIdNotExist() {
-        assertThatCode(() -> answerService.read(testAnswerId + 1, username))
+        assertThatCode(() -> answerService.read(TEST_ANSWER_ID + 1, TEST_USERNAME))
                 .isInstanceOf(NotFoundAnswerException.class);
     }
 
@@ -140,7 +141,7 @@ public class AnswerServiceTest {
                 2L
         );
 
-        assertThatCode(() -> answerService.update(username, testAnswerId, answerUpdateRequest))
+        assertThatCode(() -> answerService.update(TEST_USERNAME, TEST_ANSWER_ID, answerUpdateRequest))
                 .doesNotThrowAnyException();
     }
 
@@ -157,7 +158,7 @@ public class AnswerServiceTest {
                 2L
         );
 
-        assertThatCode(() -> answerService.update(username, testAnswerId + 1, answerUpdateRequest))
+        assertThatCode(() -> answerService.update(TEST_USERNAME, TEST_ANSWER_ID + 1, answerUpdateRequest))
                 .isInstanceOf(NotFoundAnswerException.class);
     }
 
@@ -174,7 +175,7 @@ public class AnswerServiceTest {
                 2L
         );
 
-        assertThatCode(() -> answerService.update("not_match_login_id", testAnswerId, answerUpdateRequest))
+        assertThatCode(() -> answerService.update("not_match_login_id", TEST_ANSWER_ID, answerUpdateRequest))
                 .isInstanceOf(AnswerAndProgrammerDoNotMatchException.class);
     }
 
@@ -183,7 +184,7 @@ public class AnswerServiceTest {
      */
     @Test
     void delete_Success() {
-        assertThatCode(() -> answerService.delete(username, testAnswerId))
+        assertThatCode(() -> answerService.delete(TEST_USERNAME, TEST_ANSWER_ID))
                 .doesNotThrowAnyException();
     }
 
@@ -192,7 +193,7 @@ public class AnswerServiceTest {
      */
     @Test
     void delete_Fail_WhenAnswerIdNotExist() {
-        assertThatCode(() -> answerService.delete(username, 2L))
+        assertThatCode(() -> answerService.delete(TEST_USERNAME, 2L))
                 .isInstanceOf(NotFoundAnswerException.class);
     }
 
@@ -201,7 +202,7 @@ public class AnswerServiceTest {
      */
     @Test
     void delete_Fail_WhenUsernameNotMatch() {
-        assertThatCode(() -> answerService.delete("not_match_login_id", testAnswerId))
+        assertThatCode(() -> answerService.delete("not_match_login_id", TEST_ANSWER_ID))
                 .isInstanceOf(AnswerAndProgrammerDoNotMatchException.class);
     }
 }
