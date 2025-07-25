@@ -28,13 +28,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 @ActiveProfiles("test") // 테스트 프로파일 활성화 (application-test.yml 로드)
 public class ProgrammerServiceTest {
 
-    // 실제 ProgrammerService 주입
-    @Autowired
-    private ProgrammerService programmerService;
+    private final ProgrammerService programmerService;
+    private final DefaultProgrammerRepository programmerRepository;
 
-    // 실제 DefaultProgrammerRepository 주입
     @Autowired
-    private DefaultProgrammerRepository programmerRepository;
+    public ProgrammerServiceTest(ProgrammerService programmerService, DefaultProgrammerRepository programmerRepository) {
+        this.programmerService = programmerService;
+        this.programmerRepository = programmerRepository;
+    }
 
     /**
      * <p>각 테스트 실행 전 데이터 클린업</p>
