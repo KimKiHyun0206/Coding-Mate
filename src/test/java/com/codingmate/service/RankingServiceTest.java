@@ -24,14 +24,20 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 @ActiveProfiles("test") // 테스트 프로파일 활성화 (application-test.yml 로드)
 public class RankingServiceTest {
 
-    @Autowired
-    private RankingService rankingService;
+    private final RankingService rankingService;
+    private final DefaultProgrammerRepository programmerRepository;
+    private final AnswerService answerService;
 
     @Autowired
-    private DefaultProgrammerRepository programmerRepository;
-
-    @Autowired
-    private AnswerService answerService;
+    public RankingServiceTest(
+            RankingService rankingService,
+            DefaultProgrammerRepository programmerRepository,
+            AnswerService answerService
+    ) {
+        this.rankingService = rankingService;
+        this.programmerRepository = programmerRepository;
+        this.answerService = answerService;
+    }
 
     /**
      * 테스트 전 10명의 유저에게 각각 다른 풀이 수를 넣어주는 셋업
