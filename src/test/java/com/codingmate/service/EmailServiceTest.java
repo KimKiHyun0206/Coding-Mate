@@ -1,9 +1,11 @@
 package com.codingmate.service;
 
 import com.codingmate.email.dto.EmailVerificationTokenResponse;
+import com.codingmate.email.repository.EmailVerificationTokenRepository;
 import com.codingmate.email.service.*;
 import com.codingmate.exception.exception.email.IllegalEmailRegexException;
 import com.codingmate.util.EmailValidateUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,23 +17,37 @@ import static org.assertj.core.api.Assertions.*;
 @ActiveProfiles("test")
 public class EmailServiceTest {
 
-    @Autowired
-    private EmailService emailService;
+    private final EmailService emailService;
+    private final EmailSendService emailSendService;
+    private final EmailVerificationService emailVerificationService;
+    private final EmailVerificationValidator emailVerificationValidator;
+    private final EmailVerificationTokenGenerator emailVerificationTokenGenerator;
+    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
 
     @Autowired
-    private EmailSendService emailSendService;
+    public EmailServiceTest(
+            EmailService emailService,
+            EmailSendService emailSendService,
+            EmailVerificationService emailVerificationService,
+            EmailVerificationValidator emailVerificationValidator,
+            EmailVerificationTokenGenerator emailVerificationTokenGenerator,
+            EmailVerificationTokenRepository emailVerificationTokenRepository
+    ) {
+        this.emailService = emailService;
+        this.emailSendService = emailSendService;
+        this.emailVerificationService = emailVerificationService;
+        this.emailVerificationValidator = emailVerificationValidator;
+        this.emailVerificationTokenGenerator = emailVerificationTokenGenerator;
+        this.emailVerificationTokenRepository = emailVerificationTokenRepository;
+    }
 
-    @Autowired
-    private EmailVerificationService emailVerificationService;
+    private final String TEST_EMAIL = "kimkh8775@gmail.com"; // 테스트할 이메일로 입력해주세요.
 
-    @Autowired
-    private EmailVerificationValidator emailVerificationValidator;
 
-    @Autowired
-    private EmailVerificationTokenGenerator emailVerificationTokenGenerator;
-
-    private final String testEmail = "sample@sample.com"; // 테스트할 이메일로 입력해주세요.
-
+    @BeforeEach
+    void setUp(){
+        emailVerificationTokenRepository.deleteAll();
+    }
 
     /**
      * 컨트롤러의 흐름대로 실행되는 테스트. 이메일을 보내고 인증 확인까지 하는 비즈니스 로직 흐름을 테스트한다.
@@ -42,9 +58,9 @@ public class EmailServiceTest {
     void emailVerification_Success() {
         assertThatCode(() -> {
             // 인증 요청이 들어와서 이메일로 요청을 보냄
-            EmailValidateUtil.isValid(testEmail);
-            String token = emailVerificationTokenGenerator.generateEmailVerificationToken(testEmail);
-            emailSendService.sendHtmlEmail(testEmail, token);
+            EmailValidateUtil.isValid(TEST_EMAIL);
+            String token = emailVerificationTokenGenerator.generateEmailVerificationToken(TEST_EMAIL);
+            emailSendService.sendHtmlEmail(TEST_EMAIL, token);
 
             // 이메일에서 인증 요청을 수락했다고 가정하고 토큰으로 인증 요청을 처리함.
             EmailVerificationTokenResponse byToken = emailService.findByToken(token);
@@ -59,7 +75,7 @@ public class EmailServiceTest {
      * */
     @Test
     void emailValidateUtil_isValid_Success() {
-        assertThatCode(() -> EmailValidateUtil.isValid(testEmail)).doesNotThrowAnyException();
+        assertThatCode(() -> EmailValidateUtil.isValid(TEST_EMAIL)).doesNotThrowAnyException();
         assertThatCode(() -> EmailValidateUtil.isValid("hong@hong.com")).doesNotThrowAnyException();
         assertThatCode(() -> EmailValidateUtil.isValid("korea@korea.com")).doesNotThrowAnyException();
         assertThatCode(() -> EmailValidateUtil.isValid("google@google.com")).doesNotThrowAnyException();
@@ -84,9 +100,9 @@ public class EmailServiceTest {
     @Test
     void emailSendService_Success() {
         assertThatCode(() -> {
-            EmailValidateUtil.isValid(testEmail);
-            String token = emailVerificationTokenGenerator.generateEmailVerificationToken(testEmail);
-            emailSendService.sendHtmlEmail(testEmail, token);
+            EmailValidateUtil.isValid(TEST_EMAIL);
+            String token = emailVerificationTokenGenerator.generateEmailVerificationToken(TEST_EMAIL);
+            emailSendService.sendHtmlEmail(TEST_EMAIL, token);
         }).doesNotThrowAnyException();
     }
 
@@ -96,8 +112,8 @@ public class EmailServiceTest {
     @Test
     void emailService_findByToken_Success() {
         assertThatCode(() -> {
-            EmailValidateUtil.isValid(testEmail);
-            String token = emailVerificationTokenGenerator.generateEmailVerificationToken(testEmail);
+            EmailValidateUtil.isValid(TEST_EMAIL);
+            String token = emailVerificationTokenGenerator.generateEmailVerificationToken(TEST_EMAIL);
 
             emailService.findByToken(token);
         }).doesNotThrowAnyException();
