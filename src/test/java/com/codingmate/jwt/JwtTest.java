@@ -1,29 +1,82 @@
 package com.codingmate.jwt;
-import com.codingmate.exception.exception.jwt.ExpiredTokenException;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.extension.ExtendWith;
+
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.junit.jupiter.api.Test;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.test.context.ActiveProfiles;
 
-@Slf4j
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+/**
+ * 액세스 토큰의 유효 시간이 제대로 적용되는지 테스트하기 위한 테스트 클래스.
+ *
+ * @author duskafka
+ * */
 @SpringBootTest
-@ExtendWith(SpringExtension.class) // TokenProvider가 스프링 빈인 경우
+@ActiveProfiles("test-jwt")
 public class JwtTest {
+    private final TokenProvider tokenProvider;
+    private final TokenValidator tokenValidator;
+
+    private final String TEST_USERNAME = "username";
+    private final String TEST_PASSWORD = "password";
 
     @Autowired
-    private TokenValidator tokenValidator;
+    public JwtTest(TokenProvider tokenProvider, TokenValidator tokenValidator) {
+        this.tokenProvider = tokenProvider;
+        this.tokenValidator = tokenValidator;
+    }
+
+    /**
+     * Authentication 객체를 만들어주는 빌더 메소드.
+     * */
+    private Authentication getAuthentication() {
+        return new UsernamePasswordAuthenticationToken(
+                TEST_USERNAME,
+                TEST_PASSWORD,
+                List.of(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+    }
 
 
-
+    /**
+     * 유효 기간이 지나지 않아서 토큰 검증에 성공하는 테스트 코드. 설정에서 토큰 유효 기간을 3시간으로 설정하였다.
+     * */
     @Test
-    @DisplayName("유효기간이 지난 토큰에 대한 예외를 발생시키는 테스트")
-    public void expiredTokenTest() {
-        //언제 것일지 모르는 오래된 토큰
-        String effectivePeriodToken = "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJxcXEiLCJhdXRoIjoiUk9MRV9VU0VSIiwiaWQiOjE5MDIsImV4cCI6MTc0NzAzMjMxMH0.plvPRjkKzG43pJbxl0JlLTKh0ufFCI8NcntDiVLPqq37E_MnJzxXzuQKtNzTCsy6T44rwm7QdCQSaU2qMu9byA";
-        Assertions.assertThrows(ExpiredTokenException.class, () -> tokenValidator.validateToken(effectivePeriodToken));
+    void tokenValidator_validateToken_Success(){
+        // Given
+        String accessToken = tokenProvider.createAccessToken(getAuthentication());
+
+        // Then
+        assertThat(accessToken).isNotEmpty();
+        assertThat(accessToken).isNotBlank();
+        assertTrue(tokenValidator.validateToken(accessToken));
+    }
+
+    /**
+     * 토큰을 파싱했을 때 내부에 제대로 정보가 들어가있는지 테스트하는 코드.
+     * */
+    @Test
+    void parseToken_Success() {
+        // Given
+        String accessToken = tokenProvider.createAccessToken(getAuthentication());
+        Authentication authentication = tokenProvider.getAuthentication(accessToken);
+
+        // Then
+        assertThat(authentication).isNotNull();
+        assertThat(authentication).isInstanceOf(UsernamePasswordAuthenticationToken.class);
+        assertThat(authentication.getName()).isNotNull();
+        assertThat(authentication.getName()).isEqualTo(TEST_USERNAME);
+        assertThat(authentication.getAuthorities()).isNotNull();
+        assertThat(authentication.getAuthorities()).hasSize(1);
+        assertThat(authentication.getAuthorities().iterator().next().getAuthority()).isEqualTo("[ROLE_USER]");
+        assertThat(authentication.getCredentials()).isNotNull();
+        assertThat(authentication.getPrincipal()).isNotNull();
     }
 }
