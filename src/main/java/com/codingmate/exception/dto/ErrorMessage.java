@@ -36,7 +36,8 @@ public enum ErrorMessage {
 
     //ANSWER
     NOT_FOUND_ANSWER(HttpStatus.NOT_FOUND, "풀이를 찾을 수 없습니다."),
-    ANSWER_AND_PROGRAMMER_DO_NOT_MATCH(HttpStatus.BAD_REQUEST, "해당 풀이는 사용자가 작성한 풀이가 아닙니다."),
+    ANSWER_AND_PROGRAMMER_DO_NOT_MATCH(HttpStatus.FORBIDDEN, "해당 풀이는 사용자가 작성한 풀이가 아닙니다."),
+    ANSWER_UPDATE_FAIL(HttpStatus.CONFLICT, "풀이를 수정하는 데 실패했습니다."),
 
     //JWT
     INVALID_JWT(HttpStatus.UNAUTHORIZED, "유효하지 않은 JWT 토큰입니다."),

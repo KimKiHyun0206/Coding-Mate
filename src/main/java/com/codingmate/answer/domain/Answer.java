@@ -82,6 +82,7 @@ public class Answer extends BaseEntity {
                 .programmer(programmer)
                 .backJoonId(request.backjoonId())
                 .likeCount(0)
+                .likes(new HashSet<>())
                 .build();
     }
 

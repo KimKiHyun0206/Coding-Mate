@@ -87,8 +87,8 @@ public class EmailSendService {
     private String generateHtmlContent(String verificationToken) {
         Context context = new Context();
         String verificationUrl = generateUrl(verificationToken);
-        context.setVariable("verificationUrl", verificationUrl);
-        return templateEngine.process("email_verification", context);
+        context.setVariable("url", verificationUrl);
+        return templateEngine.process("email/email_verification", context);
     }
 
     /**

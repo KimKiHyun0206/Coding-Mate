@@ -8,6 +8,8 @@ import com.codingmate.email.repository.EmailVerificationTokenRepository;
 import com.codingmate.email.service.EmailVerificationService;
 import com.codingmate.exception.exception.email.EmailNotVerificationException;
 import com.codingmate.exception.exception.programmer.ProgrammerUpdateFailedException;
+import com.codingmate.programmer.domain.vo.Email;
+import com.codingmate.programmer.domain.vo.Name;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.dto.request.ProgrammerUpdateRequest;
 import com.codingmate.programmer.dto.response.MyPageResponse;
@@ -63,7 +65,7 @@ public class ProgrammerService {
             );
         }
 
-        if(!emailVerificationService.isVerified(request.email())){
+        if (!emailVerificationService.isVerified(request.email())) {
             throw new EmailNotVerificationException(
                     ErrorMessage.EMAIL_NOT_VERIFICATION,
                     String.format("요청된 이메일(%s)는 인증된 이메일이 아니기에 회원가입이 거부됩니다.", request.email())
@@ -140,6 +142,8 @@ public class ProgrammerService {
     public void update(String username, ProgrammerUpdateRequest request) {
         log.debug("[ProgrammerService] update({}, {})", username, request);
 
+        isValidUpdateRequest(request);
+
         long changedRows = writeRepository.update(username, request);
         if (changedRows == 0) { // 변경된 행이 0개인 경우 (찾지 못한 경우)
             throw new ProgrammerUpdateFailedException(
@@ -148,6 +152,11 @@ public class ProgrammerService {
             );
         }
         log.info("[ProgrammerService] 수정이 정상적으로 수행되었습니다: username={}, 바뀐 행={}", username, changedRows);
+    }
+
+    private void isValidUpdateRequest(ProgrammerUpdateRequest request) {
+        new Email(request.email());
+        new Name(request.name());
     }
 
     /**
