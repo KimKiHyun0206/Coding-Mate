@@ -2,13 +2,13 @@ package com.codingmate.service;
 
 import com.codingmate.auth.domain.Authority;
 import com.codingmate.auth.service.AuthorityFinder;
+import com.codingmate.testutil.TestDataBuilder;
 import com.codingmate.email.service.EmailVerificationService;
 import com.codingmate.email.service.EmailVerificationTokenGenerator;
 import com.codingmate.exception.exception.email.EmailNotVerificationException;
 import com.codingmate.exception.exception.programmer.DuplicateProgrammerLoginIdException;
 import com.codingmate.jwt.TokenProvider;
 import com.codingmate.programmer.domain.Programmer;
-import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.repository.DefaultProgrammerRepository;
 import com.codingmate.programmer.service.ProgrammerService;
 import com.codingmate.refreshtoken.dto.response.RefreshTokenIssueResponse;
@@ -57,14 +57,6 @@ public class LoginServiceTest {
         this.authenticationManager = authenticationManager;
     }
 
-    private final ProgrammerCreateRequest createRequest = new ProgrammerCreateRequest(
-            "new_login_id",
-            "github_id",
-            "qwlkekd123!!!@#",
-            "홍길동",
-            "hong@gmail.com"
-    );
-
     /**
      * 회원가입에 성공하는 테스트 코드.
      */
@@ -72,10 +64,11 @@ public class LoginServiceTest {
     void register_Success() {
         assertThatCode(() -> {
             // 이메일 인증을 임의로 처리함.
-            String token = emailVerificationTokenGenerator.generateEmailVerificationToken(createRequest.email());
+            var request = TestDataBuilder.createValidProgrammerCreateRequest();
+            String token = emailVerificationTokenGenerator.generateEmailVerificationToken(request.email());
             emailVerificationService.verify(token);
 
-            programmerService.create(createRequest);
+            programmerService.create(request);
         }).doesNotThrowAnyException();
     }
 
@@ -85,7 +78,7 @@ public class LoginServiceTest {
     @Test
     void register_Fail_WhenEmailNotVerified() {
         assertThatCode(() -> {
-            programmerService.create(createRequest);
+            programmerService.create(TestDataBuilder.createValidProgrammerCreateRequest());
         }).isInstanceOf(EmailNotVerificationException.class);
     }
 
@@ -95,8 +88,9 @@ public class LoginServiceTest {
     @Test
     void register_Fail_WhenDuplicateLoginId() {
         assertThatCode(() -> {
-            programmerRepository.save(Programmer.toEntity(createRequest, new HashSet<>()));
-            programmerService.create(createRequest);
+            var request = TestDataBuilder.createValidProgrammerCreateRequest();
+            programmerRepository.save(Programmer.toEntity(request, new HashSet<>()));
+            programmerService.create(request);
         }).isInstanceOf(DuplicateProgrammerLoginIdException.class);
     }
 
@@ -106,18 +100,19 @@ public class LoginServiceTest {
     @Test
     void login_Success() {
         assertThatCode(() -> {
+            var request = TestDataBuilder.createValidProgrammerCreateRequest();
             // 회원가입 했다고 가정할 코드
             Set<Authority> authorities = new HashSet<>();
             authorities.add(authorityFinder.getUserAuthority("ROLE_USER"));
-            Programmer save = programmerRepository.save(Programmer.toEntity(createRequest, authorities));
+            programmerRepository.save(Programmer.toEntity(request, authorities));
 
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(createRequest.loginId(), createRequest.password())
+                    new UsernamePasswordAuthenticationToken(request.loginId(), request.password())
             );
 
             assertThat(authentication).isNotNull(); // 인증이 성공했는지 확인
             assertThat(authentication.isAuthenticated()).isTrue(); // 사용자가 인증되었는지 확인
-            assertThat(authentication.getName()).isEqualTo(createRequest.loginId()); // 올바른 주체(principal)가 설정되었는지 확인
+            assertThat(authentication.getName()).isEqualTo(request.loginId()); // 올바른 주체(principal)가 설정되었는지 확인
 
             String accessToken = tokenProvider.createAccessToken(authentication);
             assertThat(accessToken).isNotNull(); // 액세스 토큰은 null이 아니어야 함
@@ -136,13 +131,14 @@ public class LoginServiceTest {
     @Test
     void login_Fail_WhenLoginIdWrong() {
         assertThatCode(() -> {
+            var request = TestDataBuilder.createValidProgrammerCreateRequest();
             // 회원가입 했다고 가정할 코드
             Set<Authority> authorities = new HashSet<>();
             authorities.add(authorityFinder.getUserAuthority("ROLE_USER"));
-            programmerRepository.save(Programmer.toEntity(createRequest, authorities));
+            programmerRepository.save(Programmer.toEntity(request, authorities));
 
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken("wrong_login_id", createRequest.password())
+                    new UsernamePasswordAuthenticationToken("wrong_login_id", request.password())
             );
         }).isInstanceOf(BadCredentialsException.class);
     }
@@ -153,13 +149,14 @@ public class LoginServiceTest {
     @Test
     void login_Fail_WhenPasswordWrong() {
         assertThatCode(() -> {
+            var request = TestDataBuilder.createValidProgrammerCreateRequest();
             // 회원가입 했다고 가정할 코드
             Set<Authority> authorities = new HashSet<>();
             authorities.add(authorityFinder.getUserAuthority("ROLE_USER"));
-            programmerRepository.save(Programmer.toEntity(createRequest, authorities));
+            programmerRepository.save(Programmer.toEntity(request, authorities));
 
             authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(createRequest.loginId(), "wrong_password")
+                    new UsernamePasswordAuthenticationToken(request.loginId(), "wrong_password")
             );
         }).isInstanceOf(BadCredentialsException.class);
     }

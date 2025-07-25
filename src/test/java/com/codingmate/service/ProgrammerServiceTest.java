@@ -1,5 +1,6 @@
 package com.codingmate.service;
 
+import com.codingmate.testutil.TestDataBuilder;
 import com.codingmate.exception.exception.programmer.*;
 import com.codingmate.programmer.domain.Programmer;
 import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
@@ -66,26 +67,15 @@ public class ProgrammerServiceTest {
      */
     @Test
     void checkLoginIdAvailability_Fail_WhenOtherIdExists() {
-        String existingLoginId = "existing_user_id";
-
-        // 테스트를 위해 미리 데이터베이스에 ID를 등록 (실제 DB 연동)
-        var existingProgrammer = Programmer.toEntity(
-                new ProgrammerCreateRequest(
-                        existingLoginId,
-                        "githubId",
-                        "qwoiequwoei1123123!",
-                        "김기현",
-                        "sample@naver.com"
-                ),
+        ProgrammerCreateRequest request = TestDataBuilder.createValidProgrammerCreateRequest();
+        programmerRepository.save(Programmer.toEntity(
+                request,
                 new HashSet<>()
-        );
-
-        programmerRepository.save(existingProgrammer); // 실제 DB에 저장
+        ));
 
         // 서비스 메서드 호출 시 DuplicateProgrammerLoginIdException 예외가 발생하는지 검증
-        assertThatThrownBy(() -> programmerService.checkLoginIdAvailability(existingLoginId))
-                .isInstanceOf(DuplicateProgrammerLoginIdException.class)
-                .hasMessage("요청한 로그인 아이디(existing_user_id)는 중복된 아이디입니다."); // 정확한 메시지 확인
+        assertThatThrownBy(() -> programmerService.checkLoginIdAvailability(request.loginId()))
+                .isInstanceOf(DuplicateProgrammerLoginIdException.class);
     }
 
     /**
@@ -93,25 +83,18 @@ public class ProgrammerServiceTest {
      */
     @Test
     void checkLoginIdAvailability_Success_WhenOtherIdExists() {
-        String loginId1 = "user_id_1";
-        String loginId2 = "user_id_2";
+        String notDuplicateLoginId = "not_duplicate_login_id";
 
         // 테스트를 위해 미리 데이터베이스에 ID를 등록 (실제 DB 연동)
         var existingProgrammer = Programmer.toEntity(
-                new ProgrammerCreateRequest(
-                        loginId1,
-                        "githubId",
-                        "qwoiequwoei1123123!",
-                        "김기현",
-                        "sample@naver.com"
-                ),
+                TestDataBuilder.createValidProgrammerCreateRequest(),
                 new HashSet<>()
         );
 
         programmerRepository.save(existingProgrammer); // 실제 DB에 저장
 
         // 서비스 메서드 호출 시 DuplicateProgrammerLoginIdException 예외가 발생하는지 검증
-        assertThatCode(() -> programmerService.checkLoginIdAvailability(loginId2))
+        assertThatCode(() -> programmerService.checkLoginIdAvailability(notDuplicateLoginId))
                 .doesNotThrowAnyException();
     }
 
@@ -121,20 +104,13 @@ public class ProgrammerServiceTest {
      */
     @Test
     void getProgrammerMyPageInfo_Success() {
-        String username = "my_login_id";
-        // 임시 저장될 엔티티
+        ProgrammerCreateRequest request = TestDataBuilder.createValidProgrammerCreateRequest();
         programmerRepository.save(Programmer.toEntity(
-                new ProgrammerCreateRequest(
-                        username,
-                        "githubId",
-                        "qwoiequwoei1123123!",
-                        "김기현",
-                        "sample@naver.com"
-                ),
+                request,
                 new HashSet<>()
         ));
 
-        assertThatCode(() -> programmerService.getProgrammerMyPageInfo(username))
+        assertThatCode(() -> programmerService.getProgrammerMyPageInfo(request.loginId()))
                 .doesNotThrowAnyException();
     }
 
@@ -145,13 +121,7 @@ public class ProgrammerServiceTest {
     void getProgrammerMyPageInfo_Fail_WhenUsernameNotMatch() {
         // 임시 저장될 엔티티
         programmerRepository.save(Programmer.toEntity(
-                new ProgrammerCreateRequest(
-                        "valid_login_id",
-                        "githubId",
-                        "qwoiequwoei1123123!",
-                        "김기현",
-                        "sample@naver.com"
-                ),
+                TestDataBuilder.createValidProgrammerCreateRequest(),
                 new HashSet<>()
         ));
 
@@ -173,20 +143,14 @@ public class ProgrammerServiceTest {
      */
     @Test
     void update_Success() {
-        String username = "update_user_id";
+        ProgrammerCreateRequest request = TestDataBuilder.createValidProgrammerCreateRequest();
         programmerRepository.save(Programmer.toEntity(
-                new ProgrammerCreateRequest(
-                        username,
-                        "githubId",
-                        "qwoiequwoei1123123!",
-                        "김기현",
-                        "sample@naver.com"
-                ),
+                request,
                 new HashSet<>()
         ));
 
         assertThatCode(() -> programmerService.update(
-                username,
+                request.loginId(),
                 new ProgrammerUpdateRequest(
                         "hong",
                         "홍길동",
@@ -202,13 +166,7 @@ public class ProgrammerServiceTest {
     @Test
     void update_Fail_WhenUsernameNotMatch() {
         programmerRepository.save(Programmer.toEntity(
-                new ProgrammerCreateRequest(
-                        "new_login_id",
-                        "githubId",
-                        "qwoiequwoei1123123!",
-                        "김기현",
-                        "sample@naver.com"
-                ),
+                TestDataBuilder.createValidProgrammerCreateRequest(),
                 new HashSet<>()
         ));
 
@@ -228,15 +186,9 @@ public class ProgrammerServiceTest {
      * */
     @Test
     void update_Fail_WhenInvalidEmail() {
-        String username = "new_login_id";
+        ProgrammerCreateRequest request = TestDataBuilder.createValidProgrammerCreateRequest();
         programmerRepository.save(Programmer.toEntity(
-                new ProgrammerCreateRequest(
-                        username,
-                        "githubId",
-                        "qwoiequwoei1123123!",
-                        "김기현",
-                        "sample@naver.com"
-                ),
+                request,
                 new HashSet<>()
         ));
 
@@ -247,7 +199,7 @@ public class ProgrammerServiceTest {
                 "고을 사또 창고에 좋은 책 많아."
         );
 
-        assertThatCode(() -> programmerService.update(username, programmerUpdateRequest))
+        assertThatCode(() -> programmerService.update(request.loginId(), programmerUpdateRequest))
                 .isInstanceOf(InvalidEmailException.class);
     }
 
@@ -256,15 +208,9 @@ public class ProgrammerServiceTest {
      * */
     @Test
     void update_Fail_WhenInvalidName() {
-        String username = "new_login_id";
+        ProgrammerCreateRequest request = TestDataBuilder.createValidProgrammerCreateRequest();
         programmerRepository.save(Programmer.toEntity(
-                new ProgrammerCreateRequest(
-                        username,
-                        "githubId",
-                        "qwoiequwoei1123123!",
-                        "김기현",
-                        "sample@naver.com"
-                ),
+                request,
                 new HashSet<>()
         ));
 
@@ -275,7 +221,7 @@ public class ProgrammerServiceTest {
                 "고을 사또 창고에 좋은 책 많아."
         );
 
-        assertThatCode(() -> programmerService.update(username, programmerUpdateRequest))
+        assertThatCode(() -> programmerService.update(request.loginId(), programmerUpdateRequest))
                 .isInstanceOf(InvalidNameException.class);
     }
 

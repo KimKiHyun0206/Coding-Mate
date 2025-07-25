@@ -1,16 +1,13 @@
 package com.codingmate.service;
 
 import com.codingmate.answer.domain.Answer;
-import com.codingmate.answer.domain.vo.LanguageType;
-import com.codingmate.answer.dto.request.AnswerCreateRequest;
-import com.codingmate.answer.dto.request.AnswerUpdateRequest;
 import com.codingmate.answer.repository.DefaultAnswerRepository;
 import com.codingmate.answer.service.AnswerService;
+import com.codingmate.testutil.TestDataBuilder;
 import com.codingmate.exception.exception.answer.AnswerAndProgrammerDoNotMatchException;
 import com.codingmate.exception.exception.answer.NotFoundAnswerException;
 import com.codingmate.exception.exception.programmer.NotFoundProgrammerException;
 import com.codingmate.programmer.domain.Programmer;
-import com.codingmate.programmer.dto.request.ProgrammerCreateRequest;
 import com.codingmate.programmer.repository.DefaultProgrammerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,32 +45,16 @@ public class AnswerServiceTest {
         answerRepository.deleteAll();
         programmerRepository.deleteAll();
 
-        // 새로운 Programmer 등록 (실제 저장된 객체 받기)
-        var programmerCreateRequest = new ProgrammerCreateRequest(
-                TEST_USERNAME,
-                "sample_github_id",
-                "qweoi12311e23!",
-                "홍길동",
-                "hong@naver.com"
+        Programmer savedProgrammer = programmerRepository.save(
+                Programmer.toEntity(TestDataBuilder.createValidProgrammerCreateRequest(), new HashSet<>())
         );
-        // save 후 반환되는 programmer 객체를 사용
-        Programmer savedProgrammer = programmerRepository.save(Programmer.toEntity(programmerCreateRequest, new HashSet<>()));
 
-
-        // Answer 저장 (실제 저장된 객체 받기)
-        Answer entity = Answer.toEntity(new AnswerCreateRequest(
-                "System.out.println(\"Hello\");",
-                "Hello World 예제",
-                "간단한 자바 코드입니다",
-                LanguageType.JAVA,
-                savedProgrammer.getId() // 이 부분이 중요: 저장된 programmer의 실제 ID 사용
-        ), savedProgrammer);
-
-        // save 후 반환되는 answer 객체를 사용
-        Answer savedAnswer = answerRepository.save(entity);
+        Answer savedAnswer = answerRepository.save(
+                Answer.toEntity(TestDataBuilder.createValidAnswerCreateRequest(), savedProgrammer)
+        );
 
         // 테스트 메소드에서 사용할 ID를 인스턴스 변수에 저장
-        this.TEST_ANSWER_ID = savedAnswer.getId(); // setUp 메소드 상단에 private Long testAnswerId; 선언
+        this.TEST_ANSWER_ID = savedAnswer.getId();
     }
 
     /**
@@ -81,13 +62,7 @@ public class AnswerServiceTest {
      */
     @Test
     void create_Success() {
-        var answerCreateRequest = new AnswerCreateRequest(
-                "System.out.println(\"Hello\");",
-                "Hello World 예제",
-                "간단한 자바 코드입니다",
-                LanguageType.JAVA,
-                1L
-        );
+        var answerCreateRequest = TestDataBuilder.createValidAnswerCreateRequest();
 
         assertThatCode(() -> answerService.create(TEST_USERNAME, answerCreateRequest))
                 .doesNotThrowAnyException();
@@ -98,14 +73,7 @@ public class AnswerServiceTest {
      */
     @Test
     void create_Fail_WhenUsernameNotMatch() {
-        var answerCreateRequest = new AnswerCreateRequest(
-                "System.out.println(\"Hello\");",
-                "Hello World 예제",
-                "간단한 자바 코드입니다",
-                LanguageType.JAVA,
-                1L
-        );
-
+        var answerCreateRequest = TestDataBuilder.createValidAnswerCreateRequest();
         assertThatCode(() -> answerService.create("not_match_username", answerCreateRequest))
                 .isInstanceOf(NotFoundProgrammerException.class);
     }
@@ -133,13 +101,7 @@ public class AnswerServiceTest {
      */
     @Test
     void update_Success() {
-        var answerUpdateRequest = new AnswerUpdateRequest(
-                "Code",
-                "Title",
-                "Explanation",
-                LanguageType.JAVA,
-                2L
-        );
+        var answerUpdateRequest = TestDataBuilder.createValidAnswerUpdateRequest();
 
         assertThatCode(() -> answerService.update(TEST_USERNAME, TEST_ANSWER_ID, answerUpdateRequest))
                 .doesNotThrowAnyException();
@@ -150,13 +112,7 @@ public class AnswerServiceTest {
      */
     @Test
     void update_Fail_WhenAnswerIdNotExist() {
-        var answerUpdateRequest = new AnswerUpdateRequest(
-                "Code",
-                "Title",
-                "Explanation",
-                LanguageType.JAVA,
-                2L
-        );
+        var answerUpdateRequest = TestDataBuilder.createValidAnswerUpdateRequest();
 
         assertThatCode(() -> answerService.update(TEST_USERNAME, TEST_ANSWER_ID + 1, answerUpdateRequest))
                 .isInstanceOf(NotFoundAnswerException.class);
@@ -167,13 +123,7 @@ public class AnswerServiceTest {
      */
     @Test
     void update_Fail_WhenUsernameNotMatch() {
-        var answerUpdateRequest = new AnswerUpdateRequest(
-                "Code",
-                "Title",
-                "Explanation",
-                LanguageType.JAVA,
-                2L
-        );
+        var answerUpdateRequest = TestDataBuilder.createValidAnswerUpdateRequest();
 
         assertThatCode(() -> answerService.update("not_match_login_id", TEST_ANSWER_ID, answerUpdateRequest))
                 .isInstanceOf(AnswerAndProgrammerDoNotMatchException.class);
