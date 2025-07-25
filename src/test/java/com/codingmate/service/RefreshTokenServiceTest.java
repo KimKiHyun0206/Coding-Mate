@@ -5,7 +5,6 @@ import com.codingmate.exception.exception.jwt.RefreshTokenIsRevokedException;
 import com.codingmate.exception.exception.jwt.UnMatchJTIException;
 import com.codingmate.exception.exception.redis.FailedFindRefreshTokenException;
 import com.codingmate.jwt.TokenProvider;
-import com.codingmate.programmer.repository.DefaultProgrammerRepository;
 import com.codingmate.refreshtoken.dto.request.RefreshTokenCreateRequest;
 import com.codingmate.refreshtoken.repository.RefreshTokenRepository;
 import com.codingmate.refreshtoken.service.RefreshTokenService;
@@ -28,23 +27,27 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 @ActiveProfiles("test") // 테스트 프로파일 활성화 (application-test.yml 로드)
 public class RefreshTokenServiceTest {
 
-    @Autowired
-    private RefreshTokenService refreshTokenService;
+    private final RefreshTokenService refreshTokenService;
+    private final TokenProvider tokenProvider;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final RedisTemplate<String, String> redisTemplate;
+    private final JtiValidator jtiValidator;
 
     @Autowired
-    private TokenProvider tokenProvider;
+    public RefreshTokenServiceTest(
+            RefreshTokenService refreshTokenService,
+            TokenProvider tokenProvider,
+            RefreshTokenRepository refreshTokenRepository,
+            @Qualifier("stringRedisTemplate") RedisTemplate<String, String> redisTemplate,
+            JtiValidator jtiValidator) {
+        this.refreshTokenService = refreshTokenService;
+        this.tokenProvider = tokenProvider;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.redisTemplate = redisTemplate;
+        this.jtiValidator = jtiValidator;
+    }
 
-    @Autowired
-    private RefreshTokenRepository refreshTokenRepository;
-
-    @Autowired
-    @Qualifier("stringRedisTemplate")
-    private RedisTemplate<String, String> redisTemplate;
-
-    @Autowired
-    private JtiValidator jtiValidator;
-
-    private final String username = "test_username";
+    private final String TEST_USERNAME = "test_username";
 
     /**
      * 데이터베이스의 리프레쉬 토큰 정보를 모두 삭제하고 Redis에서도 삭제한다.
@@ -62,12 +65,12 @@ public class RefreshTokenServiceTest {
 
     // 토큰을 발급해주는 메소드
     private RefreshTokenCreateRequest createRequest() {
-        var refreshToken = tokenProvider.createRefreshToken(username);
+        var refreshToken = tokenProvider.createRefreshToken(TEST_USERNAME);
         return new RefreshTokenCreateRequest(
                 refreshToken.refreshToken(),
                 refreshToken.jti(),
                 refreshToken.issuedAt(),
-                username
+                TEST_USERNAME
         );
     }
 
@@ -132,7 +135,7 @@ public class RefreshTokenServiceTest {
     void getJtiFromRedis_Success() {
         refreshTokenService.create(createRequest());
 
-        assertThatCode(() -> refreshTokenService.getJtiFromRedis(username))
+        assertThatCode(() -> refreshTokenService.getJtiFromRedis(TEST_USERNAME))
                 .doesNotThrowAnyException();
     }
 
@@ -157,7 +160,7 @@ public class RefreshTokenServiceTest {
         var token2 = refreshTokenService.create(createRequest());
         var token3 = refreshTokenService.create(createRequest());
 
-        assertThatCode(() -> refreshTokenService.revokeAllToken(username))
+        assertThatCode(() -> refreshTokenService.revokeAllToken(TEST_USERNAME))
                 .doesNotThrowAnyException();
 
         assertThat(refreshTokenService.isUsedJti(token1.jti())).isTrue();
@@ -172,7 +175,7 @@ public class RefreshTokenServiceTest {
     void validateJti_Success() {
         var refreshTokenResponse = refreshTokenService.create(createRequest());
 
-        assertThatCode(() -> jtiValidator.validateJti(refreshTokenResponse.jti(), refreshTokenResponse.jti(), username))
+        assertThatCode(() -> jtiValidator.validateJti(refreshTokenResponse.jti(), refreshTokenResponse.jti(), TEST_USERNAME))
                 .doesNotThrowAnyException();
     }
 
@@ -185,7 +188,7 @@ public class RefreshTokenServiceTest {
 
         refreshTokenService.revokeToken(refreshTokenResponse.token());
 
-        assertThatCode(() -> jtiValidator.validateJti(refreshTokenResponse.jti(), refreshTokenResponse.jti(), username))
+        assertThatCode(() -> jtiValidator.validateJti(refreshTokenResponse.jti(), refreshTokenResponse.jti(), TEST_USERNAME))
                 .isInstanceOf(RefreshTokenIsRevokedException.class);
     }
 
@@ -196,7 +199,7 @@ public class RefreshTokenServiceTest {
     void validateJti_Fail_WhenJitNotMatch() {
         var refreshTokenResponse = refreshTokenService.create(createRequest());
 
-        assertThatCode(() -> jtiValidator.validateJti(refreshTokenResponse.jti(), "not_match_jti", username))
+        assertThatCode(() -> jtiValidator.validateJti(refreshTokenResponse.jti(), "not_match_jti", TEST_USERNAME))
                 .isInstanceOf(UnMatchJTIException.class);
     }
 }
