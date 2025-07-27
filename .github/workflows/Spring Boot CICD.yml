@@ -41,7 +41,7 @@ jobs:
         with:
           context: .  # Dockerfile이 있는 현재 디렉토리를 빌드 컨텍스트로 사용
           push: true  # 이미지를 Docker Hub로 푸시
-          tags: ${{ secrets.DOCKER_USERNAME }}/Coding-Mate:latest # 이미지 태그 설정
+          tags: ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest # 이미지 태그 설정
           cache-from: type=gha # GitHub Actions 캐시 사용 (빌드 속도 향상)
           cache-to: type=gha,mode=max # GitHub Actions 캐시 저장 (다음 빌드에 사용)
 
@@ -53,7 +53,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}       # EC2 SSH Private Key (GitHub Secret)
           script: |
             echo "Pulling Docker image..."
-            docker pull ${{ secrets.DOCKER_USERNAME }}/Coding-Mate:latest # 최신 이미지 풀 
+            docker pull ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest # 최신 이미지 풀 
 
             echo "Stopping existing container (if any)..."
             docker stop my-spring-app || true # 'my-spring-app'이라는 이름의 기존 컨테이너 중지 (에러 무시)
@@ -74,6 +74,6 @@ jobs:
               -e DB_USERNAME=${{ secrets.DB_USERNAME }} \         # RDS 사용자 이름 주입
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \         # RDS 비밀번호 주입
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \            # JWT 시크릿 키 주입
-              ${{ secrets.DOCKER_USERNAME }}/Coding-Mate:latest # 이미지 실행
+              ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest # 이미지 실행
 
             echo "Deployment successful!"
