@@ -48,32 +48,31 @@ jobs:
       - name: Deploy to EC2  # EC2 인스턴스로 배포 (SSH 접속 후 Docker 명령 실행)
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}        # EC2 퍼블릭 IP (GitHub Secret)
-          username: ${{ secrets.EC2_USERNAME }} # EC2 접속 사용자 (GitHub Secret, 예: ubuntu)
-          key: ${{ secrets.EC2_SSH_KEY }}       # EC2 SSH Private Key (GitHub Secret)
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            echo "Pulling Docker image..."
-            docker pull ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest # 최신 이미지 풀 
-
-            echo "Stopping existing container (if any)..."
-            docker stop my-spring-app || true # 'my-spring-app'이라는 이름의 기존 컨테이너 중지 (에러 무시)
-
-            echo "Removing existing container (if any)..."
-            docker rm my-spring-app || true   # 기존 컨테이너 삭제 (에러 무시)
-
-            echo "Running new Docker container..."
-            # GitHub Secrets에 저장된 Redis, DB, JWT 정보를 환경 변수로 컨테이너에 주입
-            docker run -d \
-              --name my-spring-app \
-              -p 80:8080 \
-              -e SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_HOST }} \         # Redis 호스트 IP 주입
-              -e SPRING_DATA_REDIS_PORT=${{ secrets.REDIS_PORT }} \         # Redis 포트 주입
-              -e DB_HOST=${{ secrets.DB_HOST }} \           # RDS 엔드포인트 주입
-              -e DB_PORT=${{ secrets.DB_PORT }} \             # RDS 포트 주입
-              -e DB_NAME=${{ secrets.DB_NAME }} \           # RDS 데이터베이스 이름 주입
-              -e DB_USERNAME=${{ secrets.DB_USERNAME }} \         # RDS 사용자 이름 주입
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \         # RDS 비밀번호 주입
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \            # JWT 시크릿 키 주입
-              ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest # 이미지 실행
-
-            echo "Deployment successful!"
+              echo "Pulling Docker image..."
+              docker pull ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest
+              
+              echo "Stopping existing container (if any)..."
+              docker stop my-spring-app || true
+              
+              echo "Removing existing container (if any)..."
+              docker rm my-spring-app || true
+              
+              echo "Running new Docker container..."
+              docker run -d \
+                --name my-spring-app \
+                -p 80:8080 \
+                -e SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_HOST }} \
+                -e SPRING_DATA_REDIS_PORT=${{ secrets.REDIS_PORT }} \
+                -e DB_HOST=${{ secrets.DB_HOST }} \
+                -e DB_PORT=${{ secrets.DB_PORT }} \
+                -e DB_NAME=${{ secrets.DB_NAME }} \
+                -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+                -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+                -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+                ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest
+              
+              echo "Deployment successful!"
