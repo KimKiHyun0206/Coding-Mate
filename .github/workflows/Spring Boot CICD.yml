@@ -19,6 +19,12 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'gradle' # Gradle 캐시 활성화로 빌드 속도 개선
+           
+      - name: Grant execute permission for gradlew # 이 스텝을 추가
+        run: chmod +x gradlew
+
+      - name: Build with Gradle  # Gradle을 사용하여 Spring Boot 애플리케이션 빌드
+        run: ./gradlew bootJar
 
       - name: Build with Gradle  # Gradle을 사용하여 Spring Boot 애플리케이션 빌드
         run: ./gradlew bootJar
