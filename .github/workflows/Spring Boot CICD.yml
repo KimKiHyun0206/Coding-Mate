@@ -19,21 +19,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'gradle' # Gradle 캐시 활성화로 빌드 속도 개선
-           
-      - name: Grant execute permission for gradlew # 이 스텝을 추가
+
+      - name: Grant execute permission for gradlew # gradlew 실행 권한 부여
         run: chmod +x gradlew
 
       - name: Build with Gradle  # Gradle을 사용하여 Spring Boot 애플리케이션 빌드
-        run: ./gradlew bootJar
-
-      - name: Build with Gradle  # Gradle을 사용하여 Spring Boot 애플리케이션 빌드
-        run: ./gradlew bootJar
+        run: ./gradlew bootJar # 이 스텝만 남겨둡니다.
 
       - name: Log in to Docker Hub  # Docker Hub에 로그인
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}  # GitHub Secrets에 등록된 Docker Hub 유저네임 사용
           password: ${{ secrets.DOCKER_PASSWORD }}  # GitHub Secrets에 등록된 Docker Hub 비밀번호(또는 Access Token) 사용
+
+      - name: Set up Docker Buildx  # Docker Buildx 설정 (캐시 오류 해결을 위해 추가)
+        uses: docker/setup-buildx-action@v3
 
       - name: Build and push Docker image  # Docker 이미지를 빌드하고 Docker Hub로 푸시
         id: docker_build
@@ -62,23 +62,18 @@ jobs:
             docker rm my-spring-app || true   # 기존 컨테이너 삭제 (에러 무시)
 
             echo "Running new Docker container..."
-            # GitHub Secrets에 저장된 Redis 및 이메일 정보를 환경 변수로 컨테이너에 주입
+            # GitHub Secrets에 저장된 Redis, DB, JWT 정보를 환경 변수로 컨테이너에 주입
             docker run -d \
               --name my-spring-app \
               -p 80:8080 \
               -e SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_HOST }} \         # Redis 호스트 IP 주입
               -e SPRING_DATA_REDIS_PORT=${{ secrets.REDIS_PORT }} \         # Redis 포트 주입
-              -e EMAIL_HOST=${{ secrets.EMAIL_HOST }} \                    # 이메일 호스트 주입
-              -e EMAIL_SEND_ACCOUNT=${{ secrets.EMAIL_SEND_ACCOUNT }} \    # 이메일 발신 계정 주입
-              -e EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }} \            # 이메일 비밀번호 주입
               -e DB_HOST=${{ secrets.DB_HOST }} \           # RDS 엔드포인트 주입
               -e DB_PORT=${{ secrets.DB_PORT }} \             # RDS 포트 주입
               -e DB_NAME=${{ secrets.DB_NAME }} \           # RDS 데이터베이스 이름 주입
               -e DB_USERNAME=${{ secrets.DB_USERNAME }} \         # RDS 사용자 이름 주입
               -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \         # RDS 비밀번호 주입
-              -e JWT_SECRET=${{ secrets.JWT_SECRET }} # JWT 시크릿 키 등록
-              ${{ secrets.DOCKER_USERNAME }}/Coding-Mate:latest
-
-            echo "Deployment successful!"
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \            # JWT 시크릿 키 주입
+              ${{ secrets.DOCKER_USERNAME }}/Coding-Mate:latest # 이미지 실행
 
             echo "Deployment successful!"
