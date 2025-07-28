@@ -1,0 +1,38 @@
+name: Spring CI Pipeline
+
+on:
+  push:
+    branches:
+      - master # master 브랜치에 push 될 때 실행
+  pull_request:
+    branches:
+      - master # master 브랜치로 pull request가 생성될 때 실행
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # 빌드를 실행할 환경 (Ubuntu 최신 버전)
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4 # 저장소 코드 체크아웃
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17' # 사용하려는 Java 버전 (예: 11, 17, 21 등)
+          distribution: 'temurin' # Java 배포판 (다른 배포판도 가능: 'adopt', 'microsoft' 등)
+          cache: 'gradle' # 'gradle' (사용하는 빌드 도구에 따라 캐시 설정)
+
+      # Gradle 권한 추가
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle # Gradle을 사용하는 경우
+        run: ./gradlew build # Gradle Wrapper를 사용하여 프로젝트 빌드 및 테스트 실행
+
+      - name: Upload JaCoCo test report # (선택 사항) JaCoCo 코드 커버리지 리포트 업로드
+        if: always() # 빌드 실패 여부와 관계없이 실행
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: build/reports/jacoco/test/jacocoTestReport.xml # Gradle 기준 JaCoCo 리포트 경로

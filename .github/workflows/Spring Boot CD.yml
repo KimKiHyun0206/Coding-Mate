@@ -1,0 +1,78 @@
+name: Spring Boot CD  # 워크플로우의 이름
+
+on:
+  push:
+    branches:
+      - master  # master 브랜치에 푸시될 때 워크플로우 실행
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest  # 워크플로우를 실행할 가상 머신 환경 (Ubuntu 최신 버전)
+
+    steps:
+      - name: Checkout code  # GitHub 저장소 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17  # Java Development Kit 17 설정
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle' # Gradle 캐시 활성화로 빌드 속도 개선
+
+      - name: Grant execute permission for gradlew # gradlew 실행 권한 부여
+        run: chmod +x gradlew
+
+      - name: Build with Gradle  # Gradle을 사용하여 Spring Boot 애플리케이션 빌드
+        run: ./gradlew bootJar # 이 스텝만 남겨둡니다.
+
+      - name: Log in to Docker Hub  # Docker Hub에 로그인
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # GitHub Secrets에 등록된 Docker Hub 유저네임 사용
+          password: ${{ secrets.DOCKER_PASSWORD }}  # GitHub Secrets에 등록된 Docker Hub 비밀번호(또는 Access Token) 사용
+
+      - name: Set up Docker Buildx  # Docker Buildx 설정 (캐시 오류 해결을 위해 추가)
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image  # Docker 이미지를 빌드하고 Docker Hub로 푸시
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          context: .  # Dockerfile이 있는 현재 디렉토리를 빌드 컨텍스트로 사용
+          push: true  # 이미지를 Docker Hub로 푸시
+          tags: ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest # 이미지 태그 설정
+          cache-from: type=gha # GitHub Actions 캐시 사용 (빌드 속도 향상)
+          cache-to: type=gha,mode=max # GitHub Actions 캐시 저장 (다음 빌드에 사용)
+
+      - name: Deploy to EC2  # EC2 인스턴스로 배포 (SSH 접속 후 Docker 명령 실행)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+              echo "Pulling Docker image..."
+              docker pull ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest
+              
+              echo "Stopping existing container (if any)..."
+              docker stop my-spring-app || true
+              
+              echo "Removing existing container (if any)..."
+              docker rm my-spring-app || true
+              
+              echo "Running new Docker container..."
+              docker run -d \
+                --name my-spring-app \
+                -p 80:8080 \
+                -e SPRING_DATA_REDIS_HOST=${{ secrets.REDIS_HOST }} \
+                -e SPRING_DATA_REDIS_PORT=${{ secrets.REDIS_PORT }} \
+                -e DB_HOST=${{ secrets.DB_HOST }} \
+                -e DB_PORT=${{ secrets.DB_PORT }} \
+                -e DB_NAME=${{ secrets.DB_NAME }} \
+                -e DB_USERNAME=${{ secrets.DB_USERNAME }} \
+                -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+                -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+                ${{ secrets.DOCKER_USERNAME }}/coding-mate:latest
+              
+              echo "Deployment successful!"
